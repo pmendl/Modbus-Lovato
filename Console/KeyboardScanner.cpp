@@ -1,5 +1,4 @@
-#if false
-#include "Test.h"
+#include "KeyboardScanner.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -31,26 +30,21 @@ char getch(void)
   return getchar();
 }
 
-ConsoleReader::ConsoleReader()
+KeyboardScanner::KeyboardScanner()
 {
   initTermios(0);
 }
 
-ConsoleReader::~ConsoleReader()
+KeyboardScanner::~KeyboardScanner()
 {
   resetTermios();
 }
 
-void ConsoleReader::run()
+void KeyboardScanner::run()
 {
 	forever
 	{
-		std::cout << "Scanning...\n";
-		std::cout.flush();
 		char key = getch();
-		std::cout << "Emitting...\n";
-		std::cout.flush();
 		emit KeyPressed(key);
 	}
 }
-#endif

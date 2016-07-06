@@ -17,9 +17,11 @@ INSTALLS += target
 SOURCES += main.cpp \
     Network/NetworkResource.cpp \
     Test.cpp \
-    Network/NetworkAccessBase.cpp
+    Network/NetworkAccessBase.cpp \
+    Console/KeyboardScanner.cpp
 
 HEADERS += \
     Network/NetworkResource.h \
     Test.h \
-    Network/NetworkAccessBase.h
+    Network/NetworkAccessBase.h \
+    Console/KeyboardScanner.h

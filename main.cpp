@@ -3,21 +3,25 @@
 #include <iostream>
 
 #include "Network/NetworkResource.h"
-#include "Test.h"
+#include "Console/KeyboardScanner.h"
 
 int main(int argc, char *argv[])
 {
-//	QCoreApplication a(argc, argv);
-	tcPlayApp a(argc, argv);
+	QCoreApplication a(argc, argv);
+	KeyboardScanner ks;
+	QObject::connect(&ks, &KeyboardScanner::KeyPressed, [&ks](char c){
+		std::cout << c << "\n";
+		if(c == 'q' || c == 'Q') {
+			std::cout << "Quitting...\n";
+			ks.terminate();
+			ks.wait();
+		}
+	});
 
-	std::cout << "Initialized...\n";
-	std::cout.flush();
-
-
-	ConsoleInput cn (&a);
-
-	std::cout << "Started...\n";
-	std::cout.flush();
-
-	return a.exec();
+	ks.start();
+	std::cout << "Modbus started...\n";
+	int result = a.exec();
+//	ks.quit();
+	std::cout << "Modbus quited...\n";
+	return result;
 }
