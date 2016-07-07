@@ -14,14 +14,13 @@ int main(int argc, char *argv[])
 		if(c == 'q' || c == 'Q') {
 			std::cout << "Quitting...\n";
 			ks.finish();
-			a.quit();
 		}
 	});
+	QObject::connect(&ks, &KeyboardScanner::finished, &a, &QCoreApplication::quit);
 
 	ks.start();
 	std::cout << "Modbus started...\n";
 	int result = a.exec();
-//	ks.quit();
 	std::cout << "Modbus quited...\n";
 	return result;
 }
