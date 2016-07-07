@@ -14,3 +14,11 @@ ApplicationDataUnitSerial::ApplicationDataUnitSerial(quint8 address, ProtocolDat
 {
 	prepend(address);
 }
+
+ApplicationDataUnitSerial::ApplicationDataUnitSerial(int size, char ch) :
+	QByteArray(size, ch)
+{}
+
+ApplicationDataUnitSerial::ApplicationDataUnitSerial(QByteArray &qba) :
+	QByteArray(qba)
+{}

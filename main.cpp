@@ -9,6 +9,7 @@
 #include "Console/KeyboardScanner.h"
 
 #include "Modbus/DataUnits.h"
+#include "Modbus/ModbusSerialMaster.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,7 +17,8 @@ int main(int argc, char *argv[])
 
 	QCoreApplication a(argc, argv);
 	KeyboardScanner ks;
-	QObject::connect(&ks, &KeyboardScanner::KeyPressed, [&ks, &a](char c){
+	ModbusSerialMaster master("/dev/ttyRPC0");
+	QObject::connect(&ks, &KeyboardScanner::KeyPressed, &a, [&](char c){
 		std::cout << c << "\n";
 		switch (toupper(c)) {
 		case 'Q':
@@ -27,13 +29,16 @@ int main(int argc, char *argv[])
 		case 'M':
 		{
 			ProtocolDataUnit pdu({2,3});
-			ApplicationDataUnitSerial adu(1, pdu), adu2({'a','b','c'});
+			ApplicationDataUnitSerial adu(static_cast<quint8>(1), pdu), adu2({'a','b','c'}),
+					request({0x02, 0x03, 0x00, 0x01, 0x00, 0x2A, 0x95, 0xE6});
 
 			qDebug() << adu << adu2;
+			qDebug() << request;
+			master.process(request);
 		}
 
 		}
-	});
+	}, Qt::QueuedConnection);
 	QObject::connect(&ks, &KeyboardScanner::finished, &a, &QCoreApplication::quit);
 
 	ks.start();
