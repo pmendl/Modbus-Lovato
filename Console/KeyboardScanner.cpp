@@ -14,6 +14,7 @@ void initTermios(int echo)
   tcgetattr(0, &oldSettings); /* grab old terminal i/o settings */
   newSettings = oldSettings; /* make new settings same as old settings */
   newSettings.c_lflag &= ~ICANON; /* disable buffered i/o */
+  newSettings.c_cc[VMIN] = newSettings.c_cc[VTIME] = 0; /* set no waiting for more keypresses */
   newSettings.c_lflag &= echo ? ECHO : ~ECHO; /* set echo mode */
   tcsetattr(0, TCSANOW, &newSettings); /* use these new terminal i/o settings now */
 }
@@ -24,13 +25,8 @@ void resetTermios(void)
   tcsetattr(0, TCSANOW, &oldSettings);
 }
 
-/* Read 1 character without echo */
-char getch(void)
-{
-  return getchar();
-}
-
-KeyboardScanner::KeyboardScanner()
+KeyboardScanner::KeyboardScanner() :
+	doRun(1)
 {
   initTermios(0);
 }
@@ -42,9 +38,19 @@ KeyboardScanner::~KeyboardScanner()
 
 void KeyboardScanner::run()
 {
-	forever
+	while(doRun)
 	{
-		char key = getch();
-		emit KeyPressed(key);
+		int c = getchar();
+		if(c > 0) {
+			emit KeyPressed(c);
+		}
+		else {
+			msleep(50);
+		}
 	}
+}
+
+void KeyboardScanner::finish()
+{
+	doRun=0;
 }

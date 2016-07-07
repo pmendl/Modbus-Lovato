@@ -9,12 +9,12 @@ int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 	KeyboardScanner ks;
-	QObject::connect(&ks, &KeyboardScanner::KeyPressed, [&ks](char c){
+	QObject::connect(&ks, &KeyboardScanner::KeyPressed, [&ks, &a](char c){
 		std::cout << c << "\n";
 		if(c == 'q' || c == 'Q') {
 			std::cout << "Quitting...\n";
-			ks.terminate();
-			ks.wait();
+			ks.finish();
+			a.quit();
 		}
 	});
 
