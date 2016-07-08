@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
 
 	QCoreApplication a(argc, argv);
 	KeyboardScanner ks;
+//	ModbusSerialMaster master("/dev/ttyRPC0", 0, 9600);
 	ModbusSerialMaster master("/dev/ttyRPC0");
 	QObject::connect(&ks, &KeyboardScanner::KeyPressed, &a, [&](char c){
 		std::cout << c << "\n";

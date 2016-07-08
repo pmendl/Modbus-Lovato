@@ -10,9 +10,12 @@ ModbusSerialMaster::ModbusSerialMaster(QString device, QObject *parent, qint32 b
 	setBaudRate(baudRate);
 //	setBaudRate(baudRate, QSerialPort::Input);
 //	setBaudRate(baudRate, QSerialPort::Output);
-	QSerialPort::open(QIODevice::ReadWrite);
-
-	qDebug() << "Opened at speed=" << baudRate;
+	if(QSerialPort::open(QIODevice::ReadWrite)) {
+		qDebug() << "Opened at speed=" << baudRate;
+	}
+	else {
+		qDebug() << "Open " << device << " failed ! (error=" << errorString() << ")";
+	}
 	connect(this, &QSerialPort::readyRead, this, &ModbusSerialMaster::onReadyRead);
 }
 
@@ -34,6 +37,12 @@ ApplicationDataUnitSerial *ModbusSerialMaster::process(ApplicationDataUnitSerial
 	clearError();
 	qDebug() << "Written: " << write(request);
 	qDebug() <<	"error() = " << error();
+	if(waitForReadyRead(1000)) {
+		qDebug() << "DATA READY";
+	}
+	else {
+		qDebug() << "Timeouted while waiting for response !";
+	}
 	return 0;
 }
 
