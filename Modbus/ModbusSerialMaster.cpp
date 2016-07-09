@@ -2,55 +2,77 @@
 
 #include <QDebug>
 
+#include <time.h>
+
 #include "DataUnits.h"
 
 ModbusSerialMaster::ModbusSerialMaster(QString device, QObject *parent, qint32 baudRate) :
 	QSerialPort(device, parent)
 {
 	setBaudRate(baudRate);
-//	setBaudRate(baudRate, QSerialPort::Input);
-//	setBaudRate(baudRate, QSerialPort::Output);
 	if(QSerialPort::open(QIODevice::ReadWrite)) {
 		qDebug() << "Opened at speed=" << baudRate;
 	}
 	else {
 		qDebug() << "Open " << device << " failed ! (error=" << errorString() << ")";
 	}
-	connect(this, &QSerialPort::readyRead, this, &ModbusSerialMaster::onReadyRead);
+//	connect(this, &QSerialPort::readyRead, this, &ModbusSerialMaster::onReadyRead);
 }
 
 ApplicationDataUnitSerial *ModbusSerialMaster::process(ApplicationDataUnitSerial &request)
 {
-	/*
-	 * THE FOLLOWING IS PREPARATION FOR INTER-CHARACTER DELAY MEASUREMENTS
-	 * Abandoned for now to get fast-paced response from Contes HW first
-	 *
-
-	if(request.at(1) != 03) return false;
-
-	// Address+Function code+2*N+CRC
-	int answerSize = 1+1+2*(request.at(04)*256+request.at(05))+2;
-
-	ApplicationDataUnitSerial *response = new ApplicationDataUnitSerial(answerSize);
-*/
-	response = new ApplicationDataUnitSerial;
 	clearError();
-	qDebug() << "Written: " << write(request);
-	qDebug() <<	"error() = " << error();
-	if(waitForReadyRead(1000)) {
-		qDebug() << "DATA READY";
+	qDebug() << "Request sent: " << request.toHex()
+			 << "(" << write(request) << "bytes)";
+	if(error()) {
+		qDebug() <<	"Error: " << errorString();
+		return 0;
 	}
-	else {
+
+	if(!waitForReadyRead(1000)) {
 		qDebug() << "Timeouted while waiting for response !";
+		return 0;
 	}
+
+
+	// Should be replaced by function code->length testing !!!
+	while(waitForReadyRead(5)) {
+	}
+
+	QByteArray qba(read(256));
+	ApplicationDataUnitSerial response(qba);
+
+//	ApplicationDataUnitSerial response(static_cast<QByteArray>(read(256)));
+	qDebug() << "Read" << response.size() << "bytes:" << response.toHex();
+
+/*
+		const struct timespec delay({0, 999*1000*1000});
+		//const struct timespec delay({1, 0});
+		nanosleep(&delay,0);
+*/
+
+
+/*
+	QByteArray a(256,0);
+	int cnt(0);
+	char *ptr = a.data();
+	while(waitForReadyRead(100)) {
+		 ptr += read(ptr, 256);
+	}
+	qDebug() << "Read" << ptr -a.data() << "bytes: ";
+	qDebug() << "Collected" << a.size() << "bytes: " << a.toHex();
+*/
+
+
 	return 0;
 }
 
-
+/*
 void ModbusSerialMaster::onReadyRead()
 {
 	qDebug() << "READY READ DETECTED";
 }
+*/
 
 /*
 

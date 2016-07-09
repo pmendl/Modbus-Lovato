@@ -29,12 +29,10 @@ int main(int argc, char *argv[])
 
 		case 'M':
 		{
-			ProtocolDataUnit pdu({2,3});
-			ApplicationDataUnitSerial adu(static_cast<quint8>(1), pdu), adu2({'a','b','c'}),
-					request({0x02, 0x03, 0x00, 0x01, 0x00, 0x2A, 0x95, 0xE6});
+			ProtocolDataUnit pdu({0x03, 0x00, 0x01, 0x00, 0x2A, 0x95, 0xE6});
+			ApplicationDataUnitSerial request(static_cast<quint8>(2), pdu);
 
-			qDebug() << adu << adu2;
-			qDebug() << request;
+//			qDebug() << request;
 			master.process(request);
 		}
 
@@ -43,8 +41,8 @@ int main(int argc, char *argv[])
 	QObject::connect(&ks, &KeyboardScanner::finished, &a, &QCoreApplication::quit);
 
 	ks.start();
-	std::cout << "Modbus started...\n";
+	std::cout << "Modbus application started...\n";
 	int result = a.exec();
-	std::cout << "Modbus quited...\n";
+	std::cout << "Modbus application quited...\n";
 	return result;
 }
