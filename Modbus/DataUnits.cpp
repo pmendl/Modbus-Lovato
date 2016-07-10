@@ -1,5 +1,7 @@
 #include "DataUnits.h"
 
+#include <QDebug>
+
 // ----------------------- Modbus PDU --------------------------------------
 
 ProtocolDataUnit::ProtocolDataUnit(std::initializer_list<char> l) :
@@ -32,7 +34,8 @@ qint16 ProtocolDataUnit::commandResolutionSize() {
 qint16 ProtocolDataUnit::commandResponseSize() {
 	switch(at(aduPrefixSize())) {
 	case 0x03:
-		return 1+1+2*at(aduPrefixSize()+1);
+		qDebug() << aduPrefixSize() << "; 1+1+" << static_cast<int>(at(aduPrefixSize()+1)) << "/" << size();
+		return 1+1+at(aduPrefixSize()+1);
 
 	case 0x83:
 		return 1;

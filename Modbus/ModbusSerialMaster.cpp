@@ -24,64 +24,41 @@ ModbusSerialMaster::ModbusSerialMaster(QString device, QObject *parent, qint32 b
 
 ApplicationDataUnitSerial *ModbusSerialMaster::process(ApplicationDataUnitSerial &request)
 {
+	QMetaObject::Connection con=connect(this, &QIODevice::readyRead, this, &ModbusSerialMaster::onReadyRead);
+	response = new ApplicationDataUnitSerial();
+
 	clearError();
 	qDebug() << "Request sent: " << request.toHex()
 			 << "(" << write(request) << "bytes)";
 	if(error()) {
 		qDebug() <<	"Error: " << errorString();
+		disconnect(con);
 		return 0;
 	}
 
-	if(!waitForReadyRead(1000)) {
-		qDebug() << "Timeouted while waiting for response !";
-		return 0;
+	forever {
+		if(!waitForReadyRead(1000)) {
+			qint16 r;
+			qDebug() << "No data to read while " << (r=response->bytesToRead()) << "remaining";
+			qDebug() << response->toHex();
+			if(r <=0 ) break;
+		}
 	}
 
-	ApplicationDataUnitSerial response;
-	response.reserve(300);
-	char *ptr = response.data();
-	int r, s(0);
-	while (response.bytesToRead() > 0) {
-		waitForReadyRead(5);
-		qDebug() << "Reading " << response.bytesToRead() << "->" << (r=read(ptr, response.bytesToRead())) << response.size();
-		ptr+=r;
-		s+=r;
-		response.resize(s);
-		qDebug() << s;
-	}
-
-
-//	ApplicationDataUnitSerial response(static_cast<QByteArray>(read(256)));
-	qDebug() << "Read" << response.size() << "bytes:" << response.toHex();
-
-/*
-		const struct timespec delay({0, 999*1000*1000});
-		//const struct timespec delay({1, 0});
-		nanosleep(&delay,0);
-*/
-
-
-/*
-	QByteArray a(256,0);
-	int cnt(0);
-	char *ptr = a.data();
-	while(waitForReadyRead(100)) {
-		 ptr += read(ptr, 256);
-	}
-	qDebug() << "Read" << ptr -a.data() << "bytes: ";
-	qDebug() << "Collected" << a.size() << "bytes: " << a.toHex();
-*/
-
-
+	qDebug() << "Collected" << response->size() << "bytes: " << response->toHex();
+	disconnect(con);
+	delete response;
+	response = 0;
 	return 0;
 }
 
-/*
 void ModbusSerialMaster::onReadyRead()
 {
-	qDebug() << "READY READ DETECTED";
+	if(!response) return;
+	qDebug() << "@";
+	response->append(read(256));
 }
-*/
+
 
 /*
 
