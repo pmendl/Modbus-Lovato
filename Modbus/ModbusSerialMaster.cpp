@@ -1,6 +1,9 @@
 #include "ModbusSerialMaster.h"
 
+
 #include <QDebug>
+#include <QtGlobal>
+#include <QtSerialPort/QSerialPort>
 
 #include <time.h>
 
@@ -34,13 +37,19 @@ ApplicationDataUnitSerial *ModbusSerialMaster::process(ApplicationDataUnitSerial
 		return 0;
 	}
 
-
-	// Should be replaced by function code->length testing !!!
-	while(waitForReadyRead(5)) {
+	ApplicationDataUnitSerial response;
+	response.reserve(300);
+	char *ptr = response.data();
+	int r, s(0);
+	while (response.bytesToRead() > 0) {
+		waitForReadyRead(5);
+		qDebug() << "Reading " << response.bytesToRead() << "->" << (r=read(ptr, response.bytesToRead())) << response.size();
+		ptr+=r;
+		s+=r;
+		response.resize(s);
+		qDebug() << s;
 	}
 
-	QByteArray qba(read(256));
-	ApplicationDataUnitSerial response(qba);
 
 //	ApplicationDataUnitSerial response(static_cast<QByteArray>(read(256)));
 	qDebug() << "Read" << response.size() << "bytes:" << response.toHex();
