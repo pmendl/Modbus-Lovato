@@ -24,7 +24,7 @@ ModbusSerialMaster::ModbusSerialMaster(QString device, QObject *parent, qint32 b
 
 ApplicationDataUnitSerial *ModbusSerialMaster::process(ApplicationDataUnitSerial &request)
 {
-	QMetaObject::Connection con=connect(this, &QIODevice::readyRead, this, &ModbusSerialMaster::onReadyRead);
+//	QMetaObject::Connection con=connect(this, &QIODevice::readyRead, this, &ModbusSerialMaster::onReadyRead);
 	response = new ApplicationDataUnitSerial();
 
 	clearError();
@@ -32,33 +32,45 @@ ApplicationDataUnitSerial *ModbusSerialMaster::process(ApplicationDataUnitSerial
 			 << "(" << write(request) << "bytes)";
 	if(error()) {
 		qDebug() <<	"Error: " << errorString();
-		disconnect(con);
+//		disconnect(con);
 		return 0;
 	}
 
+	int s(0), l(-1);
 	forever {
-		if(!waitForReadyRead(1000)) {
+		if(!waitForReadyRead(10)) {
 			qint16 r;
 			qDebug() << "No data to read while " << (r=response->bytesToRead()) << "remaining";
+			if((r <= 0) || (r == l) ) break;
+			l = r;
 			qDebug() << response->toHex();
-			if(r <=0 ) break;
+			waitForReadyRead(10000);
+
+		}
+		else {
+//		QByteArray a=read(256);
+//		s+=a.size();
+
+			response->append(read(256));
 		}
 	}
+//	qDebug() << "Collected" << s << "bytes...";
 
-	qDebug() << "Collected" << response->size() << "bytes: " << response->toHex();
-	disconnect(con);
+	qDebug() << "Collected" << response->size() << "bytes: " << response->toHex() << "\n-----";
+//	disconnect(con);
 	delete response;
 	response = 0;
 	return 0;
 }
 
+/*
 void ModbusSerialMaster::onReadyRead()
 {
 	if(!response) return;
 	qDebug() << "@";
 	response->append(read(256));
 }
-
+*/
 
 /*
 
