@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 
 #include <QDebug>
+#include <QSettings>
 
 #include <iostream>
 #include <cctype>
@@ -16,11 +17,15 @@ int main(int argc, char *argv[])
 	ProtocolDataUnit u({1,2,3});
 
 	QCoreApplication a(argc, argv);
+	QCoreApplication::setOrganizationName("PMCS");
+	QCoreApplication::setOrganizationDomain("mendl.info");
+	QCoreApplication::setApplicationName("LovatoModbus");
+
 	KeyboardScanner ks;
 //	ModbusSerialMaster master("/dev/ttyRPC0", 0, 9600);
 	ModbusSerialMaster master("/dev/ttyRPC0");
 	QObject::connect(&ks, &KeyboardScanner::KeyPressed, &a, [&](char c){
-		std::cout << c << "\n";
+		qDebug() << c;
 		switch (toupper(c)) {
 		case 'Q':
 			std::cout << "Quitting...\n";
@@ -35,13 +40,27 @@ int main(int argc, char *argv[])
 //			qDebug() << request;
 			master.process(request);
 		}
+			break;
 
+		case 'W':
+			QSettings settings(QSettings::SystemScope,"PMCS", "LovatoModbus");
+			QTextStream in(stdin);
+			QString key, value;
+
+			ks.setDetection(false);
+			in.flush();
+			qDebug() << "Enter KEY=VALUE:";
+			key=in.readLine();
+			qDebug() << "\t--> " << key;
+			ks.setDetection(true);
+			break;
 		}
+		qDebug() << "";
 	}, Qt::QueuedConnection);
 	QObject::connect(&ks, &KeyboardScanner::finished, &a, &QCoreApplication::quit);
 
 	ks.start();
-	std::cout << "Modbus application started...\n";
+	std::cout << "Modbus application started...\n\n";
 	int result = a.exec();
 	std::cout << "Modbus application quited...\n";
 	return result;

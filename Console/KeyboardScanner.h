@@ -9,14 +9,16 @@ class KeyboardScanner : public QThread
 signals:
 	void KeyPressed(char ch);
 public slots:
+	void setDetection(bool detect);
 	void finish();
+
 public:
    KeyboardScanner();
    ~KeyboardScanner();
 protected:
    void run();
 private:
-   bool doRun;
+   bool _doRun, _doDetect;
 };
 
 #endif // KEYBOARDSCANNER_H

@@ -57,7 +57,7 @@ ApplicationDataUnitSerial *ModbusSerialMaster::process(ApplicationDataUnitSerial
 	}
 //	qDebug() << "Collected" << s << "bytes...";
 
-	qDebug() << "Collected" << response->size() << "bytes: " << response->toHex() << "\n-----";
+	qDebug() << "Collected" << response->size() << "bytes: " << response->toHex();
 //	disconnect(con);
 	delete response;
 	response = 0;

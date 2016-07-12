@@ -26,7 +26,8 @@ void resetTermios(void)
 }
 
 KeyboardScanner::KeyboardScanner() :
-	doRun(1)
+	_doRun(1),
+	_doDetect(1)
 {
   initTermios(0);
 }
@@ -38,19 +39,24 @@ KeyboardScanner::~KeyboardScanner()
 
 void KeyboardScanner::run()
 {
-	while(doRun)
+	while(_doRun)
 	{
-		int c = getchar();
-		if(c > 0) {
-			emit KeyPressed(c);
-		}
-		else {
-			msleep(50);
-		}
+		int c;
+		if(_doDetect && ((c=getchar()) > 0))
+				emit KeyPressed(c);
+			else
+				msleep(50);
 	}
+}
+
+void KeyboardScanner::setDetection(bool detect) {
+	if((_doDetect=detect))
+		initTermios(0);
+	else
+		resetTermios();
 }
 
 void KeyboardScanner::finish()
 {
-	doRun=0;
+	_doRun=0;
 }
