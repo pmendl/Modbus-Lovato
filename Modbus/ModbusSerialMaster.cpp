@@ -36,15 +36,16 @@ ApplicationDataUnitSerial *ModbusSerialMaster::process(ApplicationDataUnitSerial
 		return 0;
 	}
 
+	waitForReadyRead(100);
 	int s(0), l(-1);
 	forever {
-		if(!waitForReadyRead(10)) {
+		if(!waitForReadyRead(2)) {
 			qint16 r;
 			qDebug() << "No data to read while " << (r=response->bytesToRead()) << "remaining";
 			if((r <= 0) || (r == l) ) break;
 			l = r;
 			qDebug() << response->toHex();
-			waitForReadyRead(10000);
+			if(waitForReadyRead(100)) l=r;
 
 		}
 		else {
