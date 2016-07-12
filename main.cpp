@@ -2,6 +2,8 @@
 
 #include <QDebug>
 #include <QSettings>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 #include <iostream>
 #include <cctype>
@@ -42,20 +44,56 @@ int main(int argc, char *argv[])
 		}
 			break;
 
+		/* IMPORTANT !!!
+		 *
+		 * As following command empirically confirmed, root of system settings of Qt
+		 * on Raspberry Pi lies NOT on / but rather on /usr/local/Qt-5.5.1-raspberry
+		 * i.e. master Modbus cfg file is the
+		 * /usr/local/Qt-5.5.1-raspberry/etc/xdg/PMCS/LovatoModbus.conf
+		 */
+
 		case 'W':
+		{
 			QSettings settings(QSettings::SystemScope,"PMCS", "LovatoModbus");
 			QTextStream in(stdin);
-			QString key, value;
+			QString str, value;
 
 			ks.setDetection(false);
-			in.flush();
-			qDebug() << "Enter KEY=VALUE:";
-			key=in.readLine();
-			qDebug() << "\t--> " << key;
+			const QRegularExpression pattern("(.*)=(.*)");
+			QRegularExpressionMatch match;
+			forever {
+				qDebug() << "Enter KEY=VALUE:";
+				str=in.readLine();
+				if(str.isEmpty())
+				break;
+
+				if((match=pattern.match(str)).hasMatch()) {
+
+					settings.setValue(match.captured(1), match.captured(2));
+					qDebug().noquote() << "\twritten: " << match.captured(1) << "=" << settings.value(match.captured(1));
+				}
+			}
 			ks.setDetection(true);
 			break;
 		}
-		qDebug() << "";
+
+		case 'R':
+		{
+			QSettings settings;
+			QTextStream in(stdin);
+			QString str;
+
+			ks.setDetection(false);
+				qDebug() << "Enter KEY:";
+				str=in.readLine();
+				qDebug().noquote() << "\tread: " << str << "=" << settings.value(str);
+			ks.setDetection(true);
+			break;
+		}
+
+		qDebug() << "\nCOMMAND:";
+		}
+
 	}, Qt::QueuedConnection);
 	QObject::connect(&ks, &KeyboardScanner::finished, &a, &QCoreApplication::quit);
 
