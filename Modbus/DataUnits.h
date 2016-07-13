@@ -14,13 +14,14 @@ public:
 	explicit ProtocolDataUnit(std::initializer_list<char> l);
 	explicit ProtocolDataUnit(QByteArray byteArray);
 	virtual ~ProtocolDataUnit() {}
-	virtual bool isValid();
-	virtual qint16 bytesToRead();
-	virtual qint16 aduPrefixSize();
-	virtual qint16 aduPostfixSize();
+	virtual bool isValid() const;
+	virtual qint16 bytesToRead() const;
+	virtual char pduAt(int i) const;
+	virtual qint16 aduPrefixSize() const;
+	virtual qint16 aduPostfixSize() const;
 protected:
-	qint16 commandResolutionSize();
-	qint16 commandResponseSize();
+	qint16 commandResolutionSize() const;
+	qint16 commandResponseSize() const;
 
 };
 
@@ -34,8 +35,8 @@ public:
 	virtual bool isValid();
 	quint16 crc(qint16 adjustSize);
 	bool isCrcValid();
-	virtual qint16 aduPrefixSize();
-	virtual qint16 aduPostfixSize();
+	virtual qint16 aduPrefixSize() const;
+	virtual qint16 aduPostfixSize() const;
 };
 
 #endif // DATAUNITS_H

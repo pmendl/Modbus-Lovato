@@ -14,8 +14,9 @@ ProtocolDataUnit::ProtocolDataUnit(QByteArray byteArray) :
 	QByteArray(byteArray)
 {}
 
-qint16 ProtocolDataUnit::commandResolutionSize() {
-	switch(at(aduPrefixSize())) {
+qint16 ProtocolDataUnit::commandResolutionSize() const
+{
+	switch(pduAt(0)) {
 	case 0x03:
 		return 1+1;
 
@@ -28,10 +29,11 @@ qint16 ProtocolDataUnit::commandResolutionSize() {
 
 }
 
-qint16 ProtocolDataUnit::commandResponseSize() {
-	switch(at(aduPrefixSize())) {
+qint16 ProtocolDataUnit::commandResponseSize()  const
+{
+	switch(pduAt(0)) {
 	case 0x03:
-		return 1+1+at(aduPrefixSize()+1);
+		return 1+1+pduAt(1);
 
 	case 0x83:
 		return 1;
@@ -41,11 +43,12 @@ qint16 ProtocolDataUnit::commandResponseSize() {
 	}
 }
 
-bool ProtocolDataUnit::isValid() {
+bool ProtocolDataUnit::isValid() const
+{
 	return bytesToRead() == 0;
 }
 
-qint16 ProtocolDataUnit::bytesToRead(void)
+qint16 ProtocolDataUnit::bytesToRead(void) const
 {
 	if(size() <= aduPrefixSize())
 		return aduPrefixSize()+1-size();
@@ -61,12 +64,17 @@ qint16 ProtocolDataUnit::bytesToRead(void)
 
 }
 
-qint16 ProtocolDataUnit::aduPrefixSize()
+char ProtocolDataUnit::pduAt(int i) const
+{
+	return at(aduPrefixSize()+i);
+}
+
+qint16 ProtocolDataUnit::aduPrefixSize() const
 {
 	return 0;
 }
 
-qint16 ProtocolDataUnit::aduPostfixSize()
+qint16 ProtocolDataUnit::aduPostfixSize() const
 {
 	return 0;
 }
@@ -104,12 +112,12 @@ bool ApplicationDataUnitSerial::isCrcValid() {
 }
 
 
-qint16 ApplicationDataUnitSerial::aduPrefixSize()
+qint16 ApplicationDataUnitSerial::aduPrefixSize() const
 {
 	return 1;
 }
 
-qint16 ApplicationDataUnitSerial::aduPostfixSize()
+qint16 ApplicationDataUnitSerial::aduPostfixSize() const
 {
 	return 2;
 }

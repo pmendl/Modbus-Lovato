@@ -127,6 +127,10 @@ int main(int argc, char *argv[])
 	QObject::connect(&ks, &KeyboardScanner::finished, &a, &QCoreApplication::quit);
 
 	ks.start();
+	if(Q_BYTE_ORDER == Q_BIG_ENDIAN)
+		qDebug() << "Host uses big endianness.";
+	else
+		qDebug() << "Host uses little endianness.";
 	std::cout << "Modbus application started...\n\n";
 	int result = a.exec();
 	std::cout << "Modbus application quited...\n";
