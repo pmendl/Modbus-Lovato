@@ -11,7 +11,6 @@ class ProtocolDataUnit : public QByteArray
 public:
 	explicit ProtocolDataUnit(std::initializer_list<char> l);
 	explicit ProtocolDataUnit(QByteArray byteArray);
-	explicit ProtocolDataUnit(int reserve = 300);
 	virtual ~ProtocolDataUnit() {}
 	virtual bool isValid();
 	virtual qint16 bytesToRead();
@@ -28,7 +27,6 @@ class  ApplicationDataUnitSerial : public ProtocolDataUnit
 public:
 	explicit ApplicationDataUnitSerial(std::initializer_list<char> l);
 	explicit ApplicationDataUnitSerial(quint8 address, ProtocolDataUnit pdu);
-	explicit ApplicationDataUnitSerial(int reserve = 300);
 	explicit ApplicationDataUnitSerial(QByteArray qba);
 	virtual ~ApplicationDataUnitSerial() {}
 	virtual bool isValid();

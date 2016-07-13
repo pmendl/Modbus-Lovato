@@ -19,7 +19,6 @@
 NetworkResource::NetworkResource(QObject *parent, QString url, quint64 basicPeriod, quint64 retryPeriod) :
 	QObject(parent),
 	_url(url),
-//	_retry(true),
 	_basicPeriod(basicPeriod),
 	_retryPeriod(retryPeriod),
 	_reply(0),
@@ -54,11 +53,9 @@ void NetworkResource::onReplyFinished(void)
 	else {
 		_buffer = new QBuffer(_reply);
 		_buffer->setData(_reply->readAll());
-//		qDebug() << "\t*** FROM REPLY:" << _reply << _buffer << _buffer->size();
 
 		if(_oldReply) _oldReply->deleteLater();
 		emit resourceChanged();
-//		qDebug() << _reply->rawHeaderPairs();
 		_timer.start(_basicPeriod, this);
 	}
 }

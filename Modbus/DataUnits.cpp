@@ -14,11 +14,6 @@ ProtocolDataUnit::ProtocolDataUnit(QByteArray byteArray) :
 	QByteArray(byteArray)
 {}
 
-ProtocolDataUnit::ProtocolDataUnit(int reserve_)
-{
-	reserve(reserve_);
-}
-
 qint16 ProtocolDataUnit::commandResolutionSize() {
 	switch(at(aduPrefixSize())) {
 	case 0x03:
@@ -36,7 +31,6 @@ qint16 ProtocolDataUnit::commandResolutionSize() {
 qint16 ProtocolDataUnit::commandResponseSize() {
 	switch(at(aduPrefixSize())) {
 	case 0x03:
-//		qDebug() << aduPrefixSize() << "; 1+1+" << static_cast<int>(at(aduPrefixSize()+1)) << "/" << size();
 		return 1+1+at(aduPrefixSize()+1);
 
 	case 0x83:
@@ -90,23 +84,11 @@ ApplicationDataUnitSerial::ApplicationDataUnitSerial(quint8 address, ProtocolDat
 	prepend(address);
 }
 
-ApplicationDataUnitSerial::ApplicationDataUnitSerial(int reserve_) :
-	ProtocolDataUnit(reserve_)
-{}
-
-
 ApplicationDataUnitSerial::ApplicationDataUnitSerial(QByteArray qba) :
 	ProtocolDataUnit(qba)
 {}
 
 bool ApplicationDataUnitSerial::isValid() {
-/*
-	qDebug() << "\tbytesToRead = " << bytesToRead();
-	if(bytesToRead() == 0) {
-		qDebug() << "\t" << toHex() ;
-		qDebug() << QString(QStringLiteral("\tcrc = %1")).arg(crc(-2), 4, 16, static_cast<QChar>('0'));
-	}
-*/
 	return (bytesToRead() == 0) && isCrcValid() ;
 }
 
