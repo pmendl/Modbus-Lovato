@@ -10,7 +10,7 @@ class ModbusSerialMaster : public QSerialPort
 {
 public:
 	explicit ModbusSerialMaster(QString device, QObject *parent=0, qint32 baudRate=QSerialPort::Baud115200);
-	ADUSharedPtr_t process(ApplicationDataUnitSerial &request);
+	ADUSharedPtr_t process(ADUSharedPtr_t request);
 };
 
 #endif // MODBUSSERIALMASTER_H

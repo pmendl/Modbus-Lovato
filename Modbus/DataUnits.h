@@ -5,6 +5,8 @@
 
 #include <initializer_list>
 
+#include "Globals.h"
+
 
 class ProtocolDataUnit : public QByteArray
 {
@@ -26,8 +28,8 @@ class  ApplicationDataUnitSerial : public ProtocolDataUnit
 {
 public:
 	explicit ApplicationDataUnitSerial(std::initializer_list<char> l);
-	explicit ApplicationDataUnitSerial(quint8 address, ProtocolDataUnit pdu);
-	explicit ApplicationDataUnitSerial(QByteArray qba);
+	explicit ApplicationDataUnitSerial(quint8 address, PDUSharedPtr_t pdu);
+	explicit ApplicationDataUnitSerial(QByteArray qba = QByteArray());
 	virtual ~ApplicationDataUnitSerial() {}
 	virtual bool isValid();
 	quint16 crc(qint16 adjustSize);

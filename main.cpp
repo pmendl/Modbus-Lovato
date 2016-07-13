@@ -11,6 +11,7 @@
 #include "Network/NetworkResource.h"
 #include "Console/KeyboardScanner.h"
 
+#include "Globals.h"
 #include "Modbus/DataUnits.h"
 #include "Modbus/ModbusSerialMaster.h"
 
@@ -36,8 +37,8 @@ int main(int argc, char *argv[])
 
 		case 'M':
 		{
-			ProtocolDataUnit pdu({0x03, 0x00, 0x01, 0x00, 0x2A, 0x95, 0xE6});
-			ApplicationDataUnitSerial request(static_cast<quint8>(2), pdu);
+			PDUSharedPtr_t pdu(new ProtocolDataUnit({0x03, 0x00, 0x01, 0x00, 0x2A, 0x95, 0xE6}));
+			ADUSharedPtr_t request(new ApplicationDataUnitSerial(static_cast<quint8>(2), pdu));
 
 //			qDebug() << request;
 			master.process(request);

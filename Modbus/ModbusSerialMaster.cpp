@@ -21,7 +21,7 @@ ModbusSerialMaster::ModbusSerialMaster(QString device, QObject *parent, qint32 b
 	}
 }
 
-ADUSharedPtr_t ModbusSerialMaster::process(ApplicationDataUnitSerial &request)
+ADUSharedPtr_t ModbusSerialMaster::process(ADUSharedPtr_t request)
 {
 	QSettings settings;
 	ADUSharedPtr_t response(new ApplicationDataUnitSerial());
@@ -32,7 +32,7 @@ ADUSharedPtr_t ModbusSerialMaster::process(ApplicationDataUnitSerial &request)
 		clearError();
 		response->clear();
 		timeout = settings.value("Modbus/InitialReadTimeout", MODBUS_INITIALREADTIMEOUT_DEFAULT).toInt();
-		write(request);
+		write(*request);
 		if(error()) {
 			qDebug() <<	"Error: " << errorString();
 			return response;

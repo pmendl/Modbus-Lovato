@@ -7,6 +7,7 @@
 #define MODBUS_INITIALREADTIMEOUT_DEFAULT	100
 #define MODBUS_CONSEQUENTREADTIMEOUT_DEFAULT	5
 
+typedef QSharedPointer<class ProtocolDataUnit> PDUSharedPtr_t;
 typedef QSharedPointer<class ApplicationDataUnitSerial> ADUSharedPtr_t;
 
 #endif // GLOBALS_H

@@ -78,8 +78,8 @@ ApplicationDataUnitSerial::ApplicationDataUnitSerial(std::initializer_list<char>
 	ProtocolDataUnit(l)
 {}
 
-ApplicationDataUnitSerial::ApplicationDataUnitSerial(quint8 address, ProtocolDataUnit pdu) :
-	ProtocolDataUnit(pdu)
+ApplicationDataUnitSerial::ApplicationDataUnitSerial(quint8 address, PDUSharedPtr_t pdu) :
+	ProtocolDataUnit(*pdu)
 {
 	prepend(address);
 }
