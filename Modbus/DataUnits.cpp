@@ -2,6 +2,8 @@
 
 #include <QDebug>
 
+#include "CrcPolynomial.h"
+
 // ----------------------- Modbus PDU --------------------------------------
 
 ProtocolDataUnit::ProtocolDataUnit(std::initializer_list<char> l) :
@@ -43,6 +45,10 @@ qint16 ProtocolDataUnit::commandResponseSize() {
 	default:
 		return -1;
 	}
+}
+
+bool ProtocolDataUnit::isValid() {
+	return bytesToRead() == 0;
 }
 
 qint16 ProtocolDataUnit::bytesToRead(void)
@@ -92,6 +98,29 @@ ApplicationDataUnitSerial::ApplicationDataUnitSerial(int reserve_) :
 ApplicationDataUnitSerial::ApplicationDataUnitSerial(QByteArray qba) :
 	ProtocolDataUnit(qba)
 {}
+
+bool ApplicationDataUnitSerial::isValid() {
+/*
+	qDebug() << "\tbytesToRead = " << bytesToRead();
+	if(bytesToRead() == 0) {
+		qDebug() << "\t" << toHex() ;
+		qDebug() << QString(QStringLiteral("\tcrc = %1")).arg(crc(-2), 4, 16, static_cast<QChar>('0'));
+	}
+*/
+	return (bytesToRead() == 0) && isCrcValid() ;
+}
+
+quint16 ApplicationDataUnitSerial::crc(qint16 adjustSize) {
+	CrcPolynomial crc;
+	crc << left(size()+adjustSize);
+	return crc;
+}
+
+
+bool ApplicationDataUnitSerial::isCrcValid() {
+	return ((crc(-2) >> 8) == at(size()-1)) && ((crc(-2) & 0xFF) == at(size()-2));
+}
+
 
 qint16 ApplicationDataUnitSerial::aduPrefixSize()
 {

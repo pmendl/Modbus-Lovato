@@ -43,12 +43,10 @@ ADUSharedPtr_t ModbusSerialMaster::process(ApplicationDataUnitSerial &request)
 		while(waitForReadyRead(timeout)) {
 			timeout=settings.value("Modbus/ConsequentReadTimeout", MODBUS_CONSEQUENTREADTIMEOUT_DEFAULT).toInt();
 			response->append(read(256));
-			int r;
-			if((r=response->bytesToRead()) == 0) {
+//			int r;
+//			if((r=response->bytesToRead()) == 0) {
+			if(response->isValid()) {
 				qDebug() << "Collected" << response->size() << "bytes: " << response->toHex();
-				CrcPolynomial crc;
-				crc << response->left(response->size()-2);
-				qDebug() << QString("Calculated CRC: %1").arg(crc,4,16,static_cast<QChar>('0'));
 				return response;
 			}
 /*

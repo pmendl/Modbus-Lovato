@@ -13,6 +13,7 @@ public:
 	explicit ProtocolDataUnit(QByteArray byteArray);
 	explicit ProtocolDataUnit(int reserve = 300);
 	virtual ~ProtocolDataUnit() {}
+	virtual bool isValid();
 	virtual qint16 bytesToRead();
 	virtual qint16 aduPrefixSize();
 	virtual qint16 aduPostfixSize();
@@ -30,6 +31,9 @@ public:
 	explicit ApplicationDataUnitSerial(int reserve = 300);
 	explicit ApplicationDataUnitSerial(QByteArray qba);
 	virtual ~ApplicationDataUnitSerial() {}
+	virtual bool isValid();
+	quint16 crc(qint16 adjustSize);
+	bool isCrcValid();
 	virtual qint16 aduPrefixSize();
 	virtual qint16 aduPostfixSize();
 };
