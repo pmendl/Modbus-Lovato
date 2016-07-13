@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     Network/NetworkAccessBase.cpp \
     Console/KeyboardScanner.cpp \
     Modbus/ModbusSerialMaster.cpp \
-    Modbus/DataUnits.cpp
+    Modbus/DataUnits.cpp \
+    Modbus/CrcPolynomial.cpp
 
 HEADERS += \
     Network/NetworkResource.h \
@@ -29,4 +30,5 @@ HEADERS += \
     Console/KeyboardScanner.h \
     Modbus/ModbusSerialMaster.h \
     Modbus/DataUnits.h \
-    Globals.h
+    Globals.h \
+    Modbus/CrcPolynomial.h

@@ -8,6 +8,7 @@
 #include <time.h>
 
 #include "DataUnits.h"
+#include "Modbus/CrcPolynomial.h"
 
 ModbusSerialMaster::ModbusSerialMaster(QString device, QObject *parent, qint32 baudRate) :
 	QSerialPort(device, parent)
@@ -45,6 +46,9 @@ ADUSharedPtr_t ModbusSerialMaster::process(ApplicationDataUnitSerial &request)
 			int r;
 			if((r=response->bytesToRead()) == 0) {
 				qDebug() << "Collected" << response->size() << "bytes: " << response->toHex();
+				CrcPolynomial crc;
+				crc << response->left(response->size()-2);
+				qDebug() << QString("Calculated CRC: %1").arg(crc,4,16,static_cast<QChar>('0'));
 				return response;
 			}
 /*
