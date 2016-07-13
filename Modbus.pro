@@ -28,4 +28,5 @@ HEADERS += \
     Network/NetworkAccessBase.h \
     Console/KeyboardScanner.h \
     Modbus/ModbusSerialMaster.h \
-    Modbus/DataUnits.h
+    Modbus/DataUnits.h \
+    Globals.h

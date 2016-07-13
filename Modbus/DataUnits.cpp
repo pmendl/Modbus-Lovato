@@ -34,7 +34,7 @@ qint16 ProtocolDataUnit::commandResolutionSize() {
 qint16 ProtocolDataUnit::commandResponseSize() {
 	switch(at(aduPrefixSize())) {
 	case 0x03:
-		qDebug() << aduPrefixSize() << "; 1+1+" << static_cast<int>(at(aduPrefixSize()+1)) << "/" << size();
+//		qDebug() << aduPrefixSize() << "; 1+1+" << static_cast<int>(at(aduPrefixSize()+1)) << "/" << size();
 		return 1+1+at(aduPrefixSize()+1);
 
 	case 0x83:
