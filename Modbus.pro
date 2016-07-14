@@ -22,7 +22,8 @@ SOURCES += main.cpp \
     Console/KeyboardScanner.cpp \
     Modbus/ModbusSerialMaster.cpp \
     Modbus/DataUnits.cpp \
-    Modbus/CrcPolynomial.cpp
+    Modbus/CrcPolynomial.cpp \
+    Processing/RequestManager.cpp
 
 HEADERS += \
     Network/NetworkResource.h \
@@ -31,4 +32,6 @@ HEADERS += \
     Modbus/ModbusSerialMaster.h \
     Modbus/DataUnits.h \
     Globals.h \
-    Modbus/CrcPolynomial.h
+    Modbus/CrcPolynomial.h \
+    Processing/RequestManager.h \
+    Processing/RequestDefinition.h

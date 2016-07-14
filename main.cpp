@@ -14,6 +14,7 @@
 #include "Globals.h"
 #include "Modbus/DataUnits.h"
 #include "Modbus/ModbusSerialMaster.h"
+#include "Processing/RequestManager.h"
 
 int main(int argc, char *argv[])
 {
@@ -103,20 +104,26 @@ int main(int argc, char *argv[])
 			settings.beginWriteArray("array");
 			for(int i=2; i>=0; --i) {
 				settings.setArrayIndex(i);
-				settings.setValue("test",i);
+				settings.setValue("forward",i);
+				settings.setValue("backward",2-i);
 			}
 			settings.endArray();
 			qDebug() << settings.value("test");
 			settings.beginReadArray("array");
 			settings.setArrayIndex(1);
-			qDebug() << settings.value("test");
+			qDebug() << settings.value("forward");
 			settings.endArray();
 			settings.endGroup();
 			settings.endGroup();
 			settings.endGroup();
 			settings.setValue("jedna/pani/povidala/test",42);
 		}
+			break;
 
+		case 'P':
+			RequestManager *m(new RequestManager("Request"));
+			delete m;
+			break;
 
 //----------------------------------
 
