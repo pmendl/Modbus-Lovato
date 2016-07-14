@@ -3,9 +3,10 @@
 
 typedef struct {
 	QString name;
-	quint8 position;
+	quint8 offset;
 	quint8 size;
 	double multiplier;
+	quint64 divider;
 } dataItemDefinition_t;
 
 #endif // REQUESTDEFINITION_H
