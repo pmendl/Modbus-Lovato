@@ -1,15 +1,27 @@
 #include "RequestManager.h"
 
 #include <QSettings>
+#include <QRegularExpression>
 #include <QDebug>
 
-RequestManager::RequestManager(QString name, QObject *parent) : QObject(parent)
+#include "Globals.h"
+
+/**
+ * @brief Constructs RequestManager instance based on currently opened settings
+ * group. Instance gets named (QObject::objectName()) after the group name,
+ * the name being <GroupName>RequestManager
+ *
+ * @param settings QSettings instance with current request group just opened
+ * via (QSettings::beginGroup()).
+ * @param parent
+ */
+RequestManager::RequestManager(QSettings &settings, QObject *parent) : QObject(parent)
 {
-	QSettings settings;
 	dataItemDefinition_t item;
+	setObjectName(REQUEST_MANAGER_NAME_PREFIX + QString(settings.group()).remove(QRegularExpression(".*/")));
+	if((_active = settings.value(REQUEST_ACTIVITY, false).toBool())) {
 
-	settings.beginGroup(name);
-
+/*
 	// Other configuration (like timing, URL...) will go here later
 
 //	device = settings.value("device").toInt();
@@ -25,8 +37,13 @@ RequestManager::RequestManager(QString name, QObject *parent) : QObject(parent)
 		itemDefinition.append(item);
 	}
 	settings.endArray();
+*/
 
-	settings.endGroup();
+		qDebug() << "Object" << objectName() << "is active.";
+	}
+	else {
+		qDebug() << "Object" << objectName() << "is INACTIVE.";
+	}
 /*
 	foreach(item, itemDefinition) {
 		qDebug()

@@ -10,14 +10,17 @@ class RequestManager : public QObject
 {
 	Q_OBJECT
 public:
-	explicit RequestManager(QString name, QObject *parent = 0);
+	explicit RequestManager(class QSettings &settings, QObject *parent = 0);
 
 signals:
 
 public slots:
 
 private:
-	QList<dataItemDefinition_t> itemDefinition;
+	bool _active;
+	quint8 _device;
+	QString _command;
+	QList<dataItemDefinition_t> _itemDefinition;
 };
 
 #endif // REQUESTMANAGER_H

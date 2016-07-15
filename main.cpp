@@ -97,38 +97,10 @@ int main(int argc, char *argv[])
 		case 'S': // Settings
 		{
 			QSettings settings;
-			settings.beginGroup("jedna");
-			settings.beginGroup("pani");
-			settings.beginGroup("povidala");
-			settings.setValue("test",0);
-			settings.beginWriteArray("array");
-			for(int i=2; i>=0; --i) {
-				settings.setArrayIndex(i);
-				settings.setValue("forward",i);
-				settings.setValue("backward",2-i);
-			}
-			settings.endArray();
-			qDebug() << settings.value("test");
-			settings.beginReadArray("array");
-			settings.setArrayIndex(1);
-			qDebug() << settings.value("forward");
-			settings.endArray();
+			settings.beginGroup("Test");
+			settings.setValue("true",true);
+			settings.setValue("false",false);
 			settings.endGroup();
-			settings.endGroup();
-			settings.endGroup();
-			settings.setValue("jedna/pani/povidala/test",42);
-
-			QSettings system(QSettings::SystemScope, qApp->organizationName(), qApp->applicationName());
-			qDebug() << "SYSTEM settings = " << system.value("system");
-			system.setValue("system", "OK");
-			qDebug() << "SYSTEM settings = " << system.value("system");
-
-			// Notice QString::toUInt(...) zero base, which allows for C-like constants
-			// http://doc.qt.io/qt-5/qstring.html#toUInt
-			quint16 address = settings.value("Group_B/address").toString().toUInt(0,0);
-			qDebug() << "Hexa test:" << settings.value("Group_B/address")
-					 << "=?" << address;
-
 		}
 			break;
 
@@ -140,6 +112,7 @@ int main(int argc, char *argv[])
 				qDebug() << "Group:" << s;
 				group.beginGroup(s);
 				qDebug() <<  group.childKeys();
+				qDebug() <<  group.childGroups();
 				group.endGroup();
 			}
 			active.endGroup();
@@ -148,8 +121,19 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'P': // Processing
-			RequestManager *m(new RequestManager("Request"));
-			delete m;
+		{
+			QSettings settings;
+			QList<QSharedPointer<RequestManager>> requestManagers;
+			settings.beginGroup(REQUEST_GROUPS);
+			foreach(QString group, settings.childGroups()) {
+				qDebug() << "Processing group" << group;
+				settings.beginGroup(group);
+				requestManagers.append(QSharedPointer<RequestManager>(new RequestManager(settings)));
+				settings.endGroup();
+			}
+			settings.endGroup();
+		}
+
 			break;
 
 //----------------------------------
