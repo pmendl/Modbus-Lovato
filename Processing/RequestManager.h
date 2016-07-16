@@ -19,7 +19,7 @@ public slots:
 private:
 	bool _active;
 	quint8 _device;
-	QString _command;
+	const quint8 _command; // Reserved for further extensions. Const 0x03 so far.
 	QList<dataItemDefinition_t> _itemDefinition;
 };
 

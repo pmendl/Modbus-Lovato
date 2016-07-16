@@ -1,0 +1,148 @@
+/**
+\page IniFile Configuration
+Configuration is maintained through files in the INI format, what is the text file
+containing pairs \<key\>=\<value\> (like active=true).
+They can be moreover structured into groups and subgroups.
+In this particular implementation the config is processed via Qt library's QSettings object,
+so more details regarding the syntax features can be found in the Qt library
+documentation.
+
+---
+
+\section IniConcept IMPORTANT: User vs. system configuration files
+There are in fact **two** configuration files stored on the Raspberry Pi. Both share
+the \e same name, but each one is placed in different location <em>(see below)</em>.
+
+We call them \e user and \e system configuration in this documentation. The
+reason is to allow for hidden parameters that only Contes certified personal
+can modify and default values placing while other parameters are user
+(system designer) modifiable.
+
+User config file is stored in the <em> ~/.config/PMCS/LovatoModbus.conf </em>
+while system one is stored in the <em> /usr/local/Qt-5.5.1-raspberry/etc/xdg/PMCS/LovatoModbus.conf</em>.
+The user one is normally written (modified) by \ref HttpResponseCommands, while
+the system one is written only by commands with special prefix. If same parameter
+exists in both, user one value takes precedence. This implies two important principles.
+- System config mantainer **may** emplace default values, and user *can* later modify
+their content.
+- User **should never** emplace (and thus override) values, whose keys are contained
+in the list of reserved system keys.
+.
+
+
+---
+
+\section IniFormat INI file structure
+
+INI file is structured into top-level groups, starting by the line with their name
+in angle brackets (like [ThisGroup]). There can be subgroups as well, but these
+are logical elements only and must be marked in **each** key by backquote character(s)
+separating them from the key name (like three\\level\\subgroup\\key=value).
+
+We shall discuss semantics of various top level groups in the following subsections:
+
+\subsection RequestGroups RequestGroups group
+This group contains subgroups, each of them describing one continual field
+of Modbus address space and details of it's requesting (including timing),
+parsing of it's values (conversions from binary values to physical units related
+floating point values), their namings and reporting and logging.
+
+In the following descriptions we will assume we are describing the RG subgroup
+of the RequestGroups top level group. Replace the RG text with any real subgroup
+name you intend to use. The keys contained in the INI file has the following
+meanings:
+
+<b>RG\\active=</b> This key can contain values "true" or "false". True means,
+that it will be processed normally, while "false" means, it will simply get ignored.
+This key is present for convenience to easily switch group processing on or off
+by modifying of single line.
+
+<b>RG\\device=</b> This key contains Modbus address of the corresponding device
+to be requested over RS-485/232 serial line. Allowed values are 1..255 as 0 is
+reserved for Modbus broadcasts.
+\ref VariableRadix "Variable constant radix applies." (see below)
+
+<b>RG\\address=</b> This key contains address of the first Modbus register contained
+in this group. Allowed values are 0..65535.
+\ref VariableRadix "Variable constant radix applies." (see below)
+
+<b>RG\\bytesPerItem=</b> Bytes count per one item. While register is allways
+2 bytes long according to the Modbus standard, item parsed in the group may span
+over multiple registers. This value defines this parse item size (in bytes).
+Value is **optional** and **defaults to 2** if key not present.<br>
+The value is used **as default** value for all distinct parse items in the given
+request group, but **can be overriden** in each distinct parse item definitions
+(see below).
+
+<b>RG\\registerCount=</b> Number of registers (Modbus, 2 byte long) being requested.
+This value is **optional**  and (due to Modbus limitations) may contain values 1..125.
+If not present **defaults to \<group array size (see below)\> *\<bytesPerItem\>/2**.
+\note Notice that the default value still has to fall into 1..125 range, effectively
+limiting maximal group size to 250/\<bytesPerItem\>.
+
+
+Besides the above defined "global" keys, there is an "array" of items to be defined.
+It's concept corresponds to the QSettings array and as such details can be found
+in Qt library's documentation.<br>
+For user basics array is defined by two kinds of keys. One defines array size and
+is in the form:<br>
+<b>RG\\item\\size=</b> Numeric value is total count of items defined.
+
+The other defines individual parsing items and has general form of
+<em>RG\\item\\<n\>\\<subkey\></em>, where \<n\> represents **one based** index
+into item's array and \<subkey\> represents one of the below defined subkeys,
+who's value allways relates to the parsing item of corresponding index:
+
+<b>RG\\item\\\<n\>\\name=</b><br> String value which is presented to upstream server
+as the name (HTTP POST key) of the value parsed from this particular item.
+
+One of:<br>
+<b>RG\\item\\\<n\>\\index=</b><br>
+<b>RG\\item\\\<n\>\\offset=</b><br>
+where both describe position of the binary data to be parsed from the beginning
+of Modbus PDU. If both are present (not recommended), offset takes precedence.
+Offset value is simply byte count from the beginning of Modbus PDU, while index
+represents offset of <em>1 (function code) + 1 (registers count) + (\<index value\>-1)
+\*\<bytesPerItem\></em> bytes.
+
+\note Notice the difference between PDU and ADU in the Modbus standard. Here we
+use offset against PDU start, what may be further different from the physical
+response data start by the size of addressing or such prefix of ADU.
+
+<b>RG\\item\\\<n\>\\bytesPerItem=</b> Bytes count per one item. This **optional**
+value, if present, overrides global bytesPerItem value defined for whole group
+(see above).
+
+<b>RG\\\<n\>\\multiplier=</b><br> Floating point value, which is **optional**  and
+defaults to 1.0 if not present. This value is considered user definable and allows
+configuration for different measurement transformers.
+
+<b>RG\\\<n\>\\divider=</b><br> Integer value, which is **optional**  and
+defaults to 1 if not present. This value is considered system defined and contains
+powers of ten, positioning decimal point in the parsed value.
+
+The exact formula describing how the value presented to the upstream server
+is parsed from binary data of the Modbus response is then:<br>
+<em>(<bytesPerItem> bytes at <offset> in PDU -> <converted from big-endian (Modbus)
+byte order to the CPU native order -> converted to double precission float) * multiplier
+ / divider.</em>
+
+---
+\anchor VariableRadix
+\note Useful syntax feature applies to some values, that allows to express
+them as constants with different radix. This syntax follows the C++ convention,
+so the initial characters (i.e. prefix) of the constant determines radix as follows:
+- **prefix 0x** - hexadecimal radix with "digits" 0..9A..F
+- **prefix 0** - octal radix
+- **no prefix** (i.e. constant beginning with non-zero digit) - "normal" decimal radix.
+
+
+---
+
+\section HttpResponseCommands HTTP response commands
+Will parse eventual HTTP response on any POST command and modify configuration
+files appropriately.
+\todo To be both implemented and doxygenized
+
+
+*/

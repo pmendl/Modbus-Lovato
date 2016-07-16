@@ -1,0 +1,15 @@
+/**
+\mainpage
+\section Introduction
+Modbus project is intended to run on Raspberry Pi. It periodically reads Lovato
+devices attached via RS-485 line supporting Modbus protocol, logs measured values
+and reports them uplink via HTTP POST.
+
+All of above is highly configurable via INI format configuration files, which
+are in turn remote-modifiable via HTTP protocol (even passively, via responses
+to HTTP POSTs).
+
+\section Documentation
+- \subpage IniFile
+
+*/

@@ -41,4 +41,6 @@ HEADERS += \
     Processing/RequestDefinition.h
 
 DISTFILES += \
-    Data/Config/LovatoModbus.conf
+    Data/Config/LovatoModbus.conf \
+    Doxygen/MainPage.dox \
+    Doxygen/IniFormat.dox
