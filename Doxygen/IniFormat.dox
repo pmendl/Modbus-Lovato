@@ -107,7 +107,9 @@ represents offset of <em>1 (function code) + 1 (registers count) + (\<index valu
 
 \note Notice the difference between PDU and ADU in the Modbus standard. Here we
 use offset against PDU start, what may be further different from the physical
-response data start by the size of addressing or such prefix of ADU.
+response data start by the size of addressing or such prefix of ADU.<br>
+Notice that \<bytesPerItem\> in the index calculation above means **global** one,
+i.e. completely ignores eventual item-local override for this item.
 
 <b>RG\\item\\\<n\>\\bytesPerItem=</b> Bytes count per one item. This **optional**
 value, if present, overrides global bytesPerItem value defined for whole group

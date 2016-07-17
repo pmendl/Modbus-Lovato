@@ -15,29 +15,26 @@
  * via (QSettings::beginGroup()).
  * @param parent
  */
-RequestManager::RequestManager(QSettings &settings, QObject *parent) : QObject(parent)
+RequestManager::RequestManager(QSettings &settings, QObject *parent) :
+	QObject(parent),
+	_command(0x03)
 {
 	dataItemDefinition_t item;
 	setObjectName(REQUEST_MANAGER_NAME_PREFIX + QString(settings.group()).remove(QRegularExpression(".*/")));
 	if((_active = settings.value(REQUEST_ACTIVITY, false).toBool())) {
 
-/*
-	// Other configuration (like timing, URL...) will go here later
-
-//	device = settings.value("device").toInt();
-//	command = settings.value("command").toInt();
+	_device = settings.value("device").toString().toInt();
+	_address = settings.value("address").toString().toInt();
 
 	int size = settings.beginReadArray("item");
 	for (int i = 0; i < size; ++i) {
 		settings.setArrayIndex(i);
-		item.name = settings.value("name").toString();
-		item.offset = settings.value("offset").toInt();
-		item.size = settings.value("size").toInt();
-		item.multiplier = settings.value("multiplier").toDouble();
-		itemDefinition.append(item);
+		item._name = settings.value("name").toString();
+		item._pduOffset = settings.value("offset").toInt();
+		item._multiplier = settings.value("multiplier").toDouble();
+		_itemDefinition.append(item);
 	}
 	settings.endArray();
-*/
 
 		qDebug() << "Object" << objectName() << "is active.";
 	}
@@ -54,4 +51,9 @@ RequestManager::RequestManager(QSettings &settings, QObject *parent) : QObject(p
 				   ;
 	}
 */
+}
+
+bool RequestManager::isActive() const
+{
+	return _active;
 }

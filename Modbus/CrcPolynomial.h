@@ -10,7 +10,7 @@ public:
 	void reset(void);
 	CrcPolynomial& operator <<(quint8 input);
 	CrcPolynomial& operator <<(QByteArray input);
-	operator quint16();
+	operator quint16() const;
 
 protected:
 	quint16 polynom;

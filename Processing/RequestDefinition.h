@@ -2,11 +2,11 @@
 #define REQUESTDEFINITION_H
 
 typedef struct {
-	QString name;
-	quint8 pduOffset;
-	quint8 size;
-	double multiplier;
-	quint64 divider;
+	QString _name;
+	quint8 _pduOffset, _bytesPerItem;
+	quint8 _size;
+	double _multiplier;
+	quint64 _divider;
 } dataItemDefinition_t;
 
 #endif // REQUESTDEFINITION_H

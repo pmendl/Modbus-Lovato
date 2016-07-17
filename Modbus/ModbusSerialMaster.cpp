@@ -25,13 +25,13 @@ ADUSharedPtr_t ModbusSerialMaster::process(ADUSharedPtr_t request)
 {
 	QSettings settings;
 	ADUSharedPtr_t response(new ApplicationDataUnitSerial());
-	int retries(settings.value("Modbus/MaxRetries", MODBUS_MAXRETRIES_DEFAULT).toInt());
+	int retries(settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_MAXRETRIES_KEY), MODBUS_MAXRETRIES_DEFAULT).toInt());
 	int timeout;
 
 	while(retries--) {
 		clearError();
 		response->clear();
-		timeout = settings.value("Modbus/InitialReadTimeout", MODBUS_INITIALREADTIMEOUT_DEFAULT).toInt();
+		timeout = settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_INITIALREADTIMEOUT_KEY), MODBUS_INITIALREADTIMEOUT_DEFAULT).toInt();
 		write(*request);
 		if(error()) {
 			qDebug() <<	"Error: " << errorString();
@@ -39,7 +39,7 @@ ADUSharedPtr_t ModbusSerialMaster::process(ADUSharedPtr_t request)
 		}
 		clearError();
 		while(waitForReadyRead(timeout)) {
-			timeout=settings.value("Modbus/ConsequentReadTimeout", MODBUS_CONSEQUENTREADTIMEOUT_DEFAULT).toInt();
+			timeout=settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_CONSEQUENTREADTIMEOUT_KEY), MODBUS_CONSEQUENTREADTIMEOUT_DEFAULT).toInt();
 			response->append(read(256));
 			if(response->isValid()) {
 				qDebug() << "Collected" << response->size() << "bytes: " << response->toHex();
@@ -47,6 +47,6 @@ ADUSharedPtr_t ModbusSerialMaster::process(ADUSharedPtr_t request)
 			}
 		}
 	}
-	qDebug() << "FAILED after " << settings.value("Modbus/MaxRetries", MODBUS_MAXRETRIES_DEFAULT).toInt() << "retries !!!";
+	qDebug() << "FAILED after " << settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_MAXRETRIES_KEY), MODBUS_MAXRETRIES_DEFAULT).toInt() << "retries !!!";
 	return ADUSharedPtr_t();
 }

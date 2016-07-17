@@ -75,6 +75,6 @@ CrcPolynomial& CrcPolynomial::operator <<(QByteArray input) {
 /**
  * @brief Assigning object into quint16 actually assigns the resulting CRC.
  */
-CrcPolynomial::operator quint16() {
+CrcPolynomial::operator quint16() const {
 	return _result;
 }
