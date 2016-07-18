@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 		{
 			QSettings settings;
 			QList<QSharedPointer<RequestManager>> requestManagers;
-			settings.beginGroup(REQUEST_GROUPS);
+			settings.beginGroup(REQUEST_GROUPS_KEY);
 			foreach(QString group, settings.childGroups()) {
 				qDebug() << "Processing group" << group;
 				settings.beginGroup(group);

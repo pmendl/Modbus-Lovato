@@ -60,16 +60,31 @@ by modifying of single line.
 <b>RG\\device=</b> This key contains Modbus address of the corresponding device
 to be requested over RS-485/232 serial line. Allowed values are 1..255 as 0 is
 reserved for Modbus broadcasts.
-\ref VariableRadix "Variable constant radix applies." (see below)
+\ref VariableRadix "Variable radix of constants applies." (see below)
 
 <b>RG\\address=</b> This key contains address of the first Modbus register contained
 in this group. Allowed values are 0..65535.
-\ref VariableRadix "Variable constant radix applies." (see below)
+\ref VariableRadix "Variable radix of constants applies." (see below)
+
+<b>RG\\dataType=</b> While register allways contains unsigned integer
+according to the Modbus standard, item parsed in the group may contain virtually
+any valid datatype C++ language supports. This value specifies data type, which
+is assumed during parsing.<br>
+The value is **optional** and defaults to unsigned int (i.e. quint16; 2 bytes)
+if not present.<br>
+The value is used **as default** value for all distinct parse items in the given
+request group, but **can be overriden** in each distinct parse item definitions
+(see below).
+\note Endianness transformation is applied automatically, assuming big endian
+on the PDU (Modbus) side and actual processor endianness on the parser side.<br>
+Only float and double types parsing is implemented so far; all others are
+parsed as default quint16.
 
 <b>RG\\bytesPerItem=</b> Bytes count per one item. While register is allways
 2 bytes long according to the Modbus standard, item parsed in the group may span
 over multiple registers. This value defines this parse item size (in bytes).
-Value is **optional** and **defaults to 2** if key not present.<br>
+Value is **optional** and defaults to length of the \<dataType\> above
+if key not present.<br>
 The value is used **as default** value for all distinct parse items in the given
 request group, but **can be overriden** in each distinct parse item definitions
 (see below).
@@ -97,23 +112,26 @@ who's value allways relates to the parsing item of corresponding index:
 as the name (HTTP POST key) of the value parsed from this particular item.
 
 One of:<br>
-<b>RG\\item\\\<n\>\\index=</b><br>
-<b>RG\\item\\\<n\>\\offset=</b><br>
-where both describe position of the binary data to be parsed from the beginning
-of Modbus PDU. If both are present (not recommended), offset takes precedence.
+<b>RG\\item\\\<n\>\\pduIndex=</b><br>
+<b>RG\\item\\\<n\>\\pduOffset=</b><br>
+where both describe zero-based position of the binary data to be parsed from the beginning
+of Modbus PDU (in bytes). If both are present (not recommended), offset takes precedence.
 Offset value is simply byte count from the beginning of Modbus PDU, while index
 represents offset of <em>1 (function code) + 1 (registers count) + (\<index value\>-1)
 \*\<bytesPerItem\></em> bytes.
+\ref VariableRadix "Variable radix of constants applies for offset." (see below)
+
 
 \note Notice the difference between PDU and ADU in the Modbus standard. Here we
 use offset against PDU start, what may be further different from the physical
-response data start by the size of addressing or such prefix of ADU.<br>
+response data start by the size of addressing or such prefix of ADU.<br><br>
 Notice that \<bytesPerItem\> in the index calculation above means **global** one,
 i.e. completely ignores eventual item-local override for this item.
 
-<b>RG\\item\\\<n\>\\bytesPerItem=</b> Bytes count per one item. This **optional**
-value, if present, overrides global bytesPerItem value defined for whole group
-(see above).
+<b>RG\\dataType=</b><br>
+<b>RG\\item\\\<n\>\\bytesPerItem=</b><br>
+These **optional** values, if present, overrides for this particular item
+global values of the same name defined for the whole group (see above).
 
 <b>RG\\\<n\>\\multiplier=</b><br> Floating point value, which is **optional**  and
 defaults to 1.0 if not present. This value is considered user definable and allows
@@ -123,11 +141,18 @@ configuration for different measurement transformers.
 defaults to 1 if not present. This value is considered system defined and contains
 powers of ten, positioning decimal point in the parsed value.
 
+
 The exact formula describing how the value presented to the upstream server
 is parsed from binary data of the Modbus response is then:<br>
 <em>(<bytesPerItem> bytes at <offset> in PDU -> <converted from big-endian (Modbus)
 byte order to the CPU native order -> converted to double precission float) * multiplier
  / divider.</em>
+
+<b>RG\\\<n\>\\signumIndex=</b><br> Index (into item definition's array; so one-based)
+of the item, who's signum (positive or negative) is copied into the value
+presented for this item. This value is **optional** and if not present,
+no signum transformation applies.
+
 
 ---
 \anchor VariableRadix

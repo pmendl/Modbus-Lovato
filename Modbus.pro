@@ -37,8 +37,7 @@ HEADERS += \
     Modbus/DataUnits.h \
     Globals.h \
     Modbus/CrcPolynomial.h \
-    Processing/RequestManager.h \
-    Processing/RequestDefinition.h
+    Processing/RequestManager.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \
