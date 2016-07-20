@@ -13,6 +13,7 @@ class ProtocolDataUnit : public QByteArray
 public:
 	explicit ProtocolDataUnit(std::initializer_list<char> l);
 	explicit ProtocolDataUnit(QByteArray byteArray);
+	explicit ProtocolDataUnit(quint8 fn, quint16 address, quint8 regCount);
 	virtual ~ProtocolDataUnit() {}
 	virtual bool isValid() const;
 	virtual qint16 bytesToRead() const;

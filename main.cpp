@@ -14,11 +14,12 @@
 #include "Globals.h"
 #include "Modbus/DataUnits.h"
 #include "Modbus/ModbusSerialMaster.h"
+#include "Processing/ProcessingManager.h"
 #include "Processing/RequestManager.h"
 
 int main(int argc, char *argv[])
 {
-	ProtocolDataUnit u({1,2,3});
+//	ProtocolDataUnit u({1,2,3});
 
 	QCoreApplication a(argc, argv);
 	QCoreApplication::setOrganizationName("PMCS");
@@ -149,6 +150,9 @@ int main(int argc, char *argv[])
 		qDebug() << "Host uses big endianness.";
 	else
 		qDebug() << "Host uses little endianness.";
+
+	std::cout << "Constructing ProcessingManager object...\n\n";
+	ProcessingManager p;
 	std::cout << "Modbus application started...\n\n";
 	int result = a.exec();
 	std::cout << "Modbus application quited...\n";

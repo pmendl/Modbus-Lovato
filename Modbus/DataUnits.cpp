@@ -14,6 +14,18 @@ ProtocolDataUnit::ProtocolDataUnit(QByteArray byteArray) :
 	QByteArray(byteArray)
 {}
 
+ProtocolDataUnit::ProtocolDataUnit(quint8 fn, quint16 address, quint8 regCount) {
+	switch(fn) {
+	case 0x03:
+		append(fn);
+		append(address >> 8);
+		append(address & 0xFF);
+		append(static_cast<char>(0));
+		append(regCount);
+		break;
+	}
+}
+
 qint16 ProtocolDataUnit::commandResolutionSize() const
 {
 	switch(pduAt(0)) {
