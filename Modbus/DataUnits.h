@@ -34,7 +34,7 @@ public:
 	explicit ApplicationDataUnitSerial(QByteArray qba = QByteArray());
 	virtual ~ApplicationDataUnitSerial() {}
 	virtual bool isValid();
-	quint16 crc(qint16 adjustSize);
+	quint16 computeCrc(qint16 adjustSize = 0);
 	bool isCrcValid();
 	virtual qint16 aduPrefixSize() const;
 	virtual qint16 aduPostfixSize() const;

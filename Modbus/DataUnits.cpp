@@ -102,6 +102,9 @@ ApplicationDataUnitSerial::ApplicationDataUnitSerial(quint8 address, PDUSharedPt
 	ProtocolDataUnit(*pdu)
 {
 	prepend(address);
+	quint16 crc(computeCrc());
+	append(crc & 0xFF);
+	append(crc >> 8);
 }
 
 ApplicationDataUnitSerial::ApplicationDataUnitSerial(QByteArray qba) :
@@ -112,7 +115,7 @@ bool ApplicationDataUnitSerial::isValid() {
 	return (bytesToRead() == 0) && isCrcValid() ;
 }
 
-quint16 ApplicationDataUnitSerial::crc(qint16 adjustSize) {
+quint16 ApplicationDataUnitSerial::computeCrc(qint16 adjustSize) {
 	CrcPolynomial crc;
 	crc << left(size()+adjustSize);
 	return crc;
@@ -120,7 +123,7 @@ quint16 ApplicationDataUnitSerial::crc(qint16 adjustSize) {
 
 
 bool ApplicationDataUnitSerial::isCrcValid() {
-	return ((crc(-2) >> 8) == at(size()-1)) && ((crc(-2) & 0xFF) == at(size()-2));
+	return ((computeCrc(-2) >> 8) == at(size()-1)) && ((computeCrc(-2) & 0xFF) == at(size()-2));
 }
 
 

@@ -34,5 +34,6 @@ void ProcessingManager::onRequest() {
 	}
 	else {
 		qDebug() << "\tRESPONSE: " << response->toHex();
+		rm->onResponse(response);
 	};
 }
