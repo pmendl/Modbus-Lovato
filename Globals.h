@@ -54,4 +54,7 @@
 typedef QSharedPointer<class ProtocolDataUnit> PDUSharedPtr_t;
 typedef QSharedPointer<class ApplicationDataUnitSerial> ADUSharedPtr_t;
 
+// === Global variables ===
+extern QSharedPointer<class ModbusSerialMaster> serialMaster;
+
 #endif // GLOBALS_H

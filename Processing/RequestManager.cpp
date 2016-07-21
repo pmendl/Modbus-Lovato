@@ -90,8 +90,6 @@ RequestManager::RequestManager(QSettings &settings, QObject *parent) :
 		else {
 			qDebug() << "Timer start failed! " << objectName() << "->" << period;
 		}
-
-
 	}
 	else {
 		qDebug() << "Object" << objectName() << "is INACTIVE.";
@@ -99,9 +97,19 @@ RequestManager::RequestManager(QSettings &settings, QObject *parent) :
 }
 
 void RequestManager::timerEvent(QTimerEvent *event) {
-	qDebug() << "TIMER EVENT: id=" << event->timerId() << "-->" << objectName();
-	PDUSharedPtr_t pdu(new ProtocolDataUnit(_command, _address, _registerCount));
+	(void) event;
+//	qDebug() << "TIMER EVENT: id=" << event->timerId() << "-->" << objectName();
+//	PDUSharedPtr_t pdu(new ProtocolDataUnit(_command, _address, _registerCount));
 	emit requesting();
+}
+
+quint8 RequestManager::device() const
+{
+	return _device;
+}
+
+PDUSharedPtr_t RequestManager::request() {
+	return PDUSharedPtr_t(new ProtocolDataUnit(_command, _address, _registerCount));
 }
 
 void RequestManager::onResponse(PDUSharedPtr_t response) {

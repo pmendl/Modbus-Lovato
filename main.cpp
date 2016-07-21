@@ -17,6 +17,10 @@
 #include "Processing/ProcessingManager.h"
 #include "Processing/RequestManager.h"
 
+#define extern
+QSharedPointer<ModbusSerialMaster> serialMaster(new ModbusSerialMaster("/dev/ttyRPC0"));
+#undef extern
+
 int main(int argc, char *argv[])
 {
 //	ProtocolDataUnit u({1,2,3});
@@ -28,7 +32,6 @@ int main(int argc, char *argv[])
 
 	KeyboardScanner ks;
 //	ModbusSerialMaster master("/dev/ttyRPC0", 0, 9600);
-	ModbusSerialMaster master("/dev/ttyRPC0");
 	QObject::connect(&ks, &KeyboardScanner::KeyPressed, &a, [&](char c){
 		qDebug() << c;
 		switch (toupper(c)) {
@@ -43,7 +46,7 @@ int main(int argc, char *argv[])
 			ADUSharedPtr_t request(new ApplicationDataUnitSerial(static_cast<quint8>(2), pdu));
 
 //			qDebug() << request;
-			master.process(request);
+			serialMaster->process(request);
 		}
 			break;
 

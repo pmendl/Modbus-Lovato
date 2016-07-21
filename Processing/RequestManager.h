@@ -29,14 +29,17 @@ public:
 		quint8 _signumIndex; // 1-based; 0 value means ignore/unset
 	} dataItemDefinition_t;
 
-
 	explicit RequestManager(class QSettings &settings, QObject *parent = 0);
+	PDUSharedPtr_t request();
+	quint8 device() const;
 
 signals:
 	void requesting();
 
 public slots:
 	void onResponse(PDUSharedPtr_t response);
+
+protected slots:
 	void timerEvent(QTimerEvent *event);
 
 private:
