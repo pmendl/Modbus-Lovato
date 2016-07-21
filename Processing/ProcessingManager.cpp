@@ -21,6 +21,7 @@ ProcessingManager::ProcessingManager(QObject *parent) : QObject(parent)
 	settings.endGroup();
 }
 
-void ProcessingManager::onRequest(PDUSharedPtr_t request) {
-	qDebug() << sender() << "->" << request->toHex();
+void ProcessingManager::onRequest() {
+	qDebug() << "PROCESSING MANAGER received request from:" << sender();
+
 }

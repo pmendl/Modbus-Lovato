@@ -2,6 +2,7 @@
 #define PROCESSINGMANAGER_H
 
 #include <QObject>
+#include <QQueue>
 
 #include "Globals.h"
 
@@ -15,7 +16,10 @@ public:
 signals:
 
 public slots:
-	void onRequest(PDUSharedPtr_t request);
+	void onRequest();
+
+private:
+	QQueue<ADUSharedPtr_t> _queue;
 };
 
 #endif // PROCESSINGMANAGER_H
