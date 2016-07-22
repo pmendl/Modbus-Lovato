@@ -5,6 +5,7 @@
 #include <QList>
 #include <QHash>
 #include <QBasicTimer>
+#include <QVariant>
 
 #include "Globals.h"
 #include "Modbus/DataUnits.h"
@@ -30,8 +31,9 @@ public:
 	} dataItemDefinition_t;
 
 	explicit RequestManager(class QSettings &settings, QObject *parent = 0);
-	PDUSharedPtr_t request();
 	quint8 device() const;
+	PDUSharedPtr_t request();
+	QVariant item(dataItemDefinition_t def);
 
 signals:
 	void requesting();
@@ -49,6 +51,7 @@ private:
 	quint8 _registerCount;
 	QList<dataItemDefinition_t> _itemDefinitions;
 	QList<QSharedPointer<class ParsingProcessor>> _parsingProcessors;
+	PDUSharedPtr_t _response;
 	QBasicTimer _timer;
 };
 

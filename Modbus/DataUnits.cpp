@@ -31,8 +31,8 @@ ProtocolDataUnit::ProtocolDataUnit(quint8 fn, quint16 address, quint8 regCount) 
 qint16 ProtocolDataUnit::commandResolutionSize() const
 {
 //	switch(pduAt(0)) {
-	char cmd;
-	switch(extractAt(0, cmd)) {
+//	char cmd;
+	switch(extractAt<char>(0)) {
 	case 0x03:
 		return 1+1;
 
@@ -48,10 +48,10 @@ qint16 ProtocolDataUnit::commandResolutionSize() const
 qint16 ProtocolDataUnit::commandResponseSize()  const
 {
 	//	switch(pduAt(0)) {
-		char cmd;
-		switch(extractAt(0, cmd)) {
+	//	char cmd;
+		switch(extractAt<char>(0)) {
 	case 0x03:
-		return 1+1+extractAt(1, cmd);
+		return 1+1+extractAt<char>(1);
 
 	case 0x83:
 		return 1;
@@ -91,7 +91,6 @@ qint16 ProtocolDataUnit::aduPostfixSize() const
 {
 	return 0;
 }
-
 
 // ----------------------- Modbus ADU - serial -----------------------------
 
