@@ -1,6 +1,8 @@
 #include "DataUnits.h"
 
 #include <QDebug>
+#include <QtGlobal>
+#include <QtEndian>
 
 #include "CrcPolynomial.h"
 
@@ -28,7 +30,9 @@ ProtocolDataUnit::ProtocolDataUnit(quint8 fn, quint16 address, quint8 regCount) 
 
 qint16 ProtocolDataUnit::commandResolutionSize() const
 {
-	switch(pduAt(0)) {
+//	switch(pduAt(0)) {
+	char cmd;
+	switch(extractFromPdu(0, cmd)) {
 	case 0x03:
 		return 1+1;
 
@@ -43,9 +47,11 @@ qint16 ProtocolDataUnit::commandResolutionSize() const
 
 qint16 ProtocolDataUnit::commandResponseSize()  const
 {
-	switch(pduAt(0)) {
+	//	switch(pduAt(0)) {
+		char cmd;
+		switch(extractFromPdu(0, cmd)) {
 	case 0x03:
-		return 1+1+pduAt(1);
+		return 1+1+extractFromPdu(1, cmd);
 
 	case 0x83:
 		return 1;
@@ -76,10 +82,12 @@ qint16 ProtocolDataUnit::bytesToRead(void) const
 
 }
 
+/*
 char ProtocolDataUnit::pduAt(int i) const
 {
 	return at(aduPrefixSize()+i);
 }
+*/
 
 qint16 ProtocolDataUnit::aduPrefixSize() const
 {

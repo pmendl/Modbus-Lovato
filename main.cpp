@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <cctype>
+#include <limits>
 
 #include "Network/NetworkResource.h"
 #include "Console/KeyboardScanner.h"
@@ -31,7 +32,6 @@ int main(int argc, char *argv[])
 	QCoreApplication::setApplicationName("LovatoModbus");
 
 	KeyboardScanner ks;
-//	ModbusSerialMaster master("/dev/ttyRPC0", 0, 9600);
 	QObject::connect(&ks, &KeyboardScanner::KeyPressed, &a, [&](char c){
 		qDebug() << c;
 		switch (toupper(c)) {
@@ -153,6 +153,11 @@ int main(int argc, char *argv[])
 		qDebug() << "Host uses big endianness.";
 	else
 		qDebug() << "Host uses little endianness.";
+
+	if(std::numeric_limits<float>::is_iec559)
+		qDebug() << "Host complies to IEEE 754.";
+	else
+		qDebug() << "Host does not comply to IEEE 754.";
 
 	std::cout << "Constructing ProcessingManager object...\n\n";
 	ProcessingManager p;

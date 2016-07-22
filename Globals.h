@@ -25,6 +25,7 @@
 #define REQUEST_DEVICE_KEY "device"
 #define REQUEST_ADDRESS_KEY "address"
 #define REQUEST_DATA_TYPE_KEY "dataType"
+#define REQUEST_DATA_TYPE_VALUE_INT int
 #define REQUEST_DATA_TYPE_VALUE_FLOAT float
 #define REQUEST_DATA_TYPE_VALUE_DOUBLE double
 #define REQUEST_BYTES_PER_ITEM "bytesPerItem"

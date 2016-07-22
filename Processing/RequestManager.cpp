@@ -10,6 +10,9 @@
 
 RequestManager::itemType_t dataTypeFromString(QString s,
 										  RequestManager::itemType_t deflt = RequestManager::uintType) {
+	if(s.toLower() == xstr(REQUEST_DATA_TYPE_VALUE_INT))
+		return RequestManager::uintType;
+
 	if(s.toLower() == xstr(REQUEST_DATA_TYPE_VALUE_FLOAT))
 		return RequestManager::floatType;
 
@@ -28,7 +31,6 @@ quint8 bytesPerType(RequestManager::itemType_t t, quint8 deflt = sizeof(quint16)
 	default:
 		return deflt;
 	}
-
 }
 
 /**
@@ -58,12 +60,12 @@ RequestManager::RequestManager(QSettings &settings, QObject *parent) :
 		for (int i = 0; i < arraySize; ++i) {
 			dataItemDefinition_t item;
 			settings.setArrayIndex(i);
-			item._name = settings.value(REQUEST_ITEM_NAME_KEY).toString();
-			item._pduOffset = 1+1+(settings.value(REQUEST_ITEM_PDU_INDEX_KEY,1).toUInt()-1)*bytesPerItem;
-			item._pduOffset = settings.value(REQUEST_ITEM_PDU_OFFSET_KEY, item._pduOffset).toUInt();
+			item.name = settings.value(REQUEST_ITEM_NAME_KEY).toString();
+			item.pduOffset = 1+1+(settings.value(REQUEST_ITEM_PDU_INDEX_KEY,1).toUInt()-1)*bytesPerItem;
+			item.pduOffset = settings.value(REQUEST_ITEM_PDU_OFFSET_KEY, item.pduOffset).toUInt();
 			item._multiplier = settings.value(REQUEST_ITEM_MULTIPLIER_KEY,1.0).toDouble();
-			item._divider = settings.value(REQUEST_ITEM_DIVIDER_KEY,1).toUInt();
-			item._signumIndex = settings.value(REQUEST_ITEM_SIGNUM_INDEX_KEY,0).toInt();
+			item.divider = settings.value(REQUEST_ITEM_DIVIDER_KEY,1).toUInt();
+			item.signumIndex = settings.value(REQUEST_ITEM_SIGNUM_INDEX_KEY,0).toInt();
 			_itemDefinitions.append(item);
 
 		}
@@ -114,4 +116,23 @@ PDUSharedPtr_t RequestManager::request() {
 
 void RequestManager::onResponse(PDUSharedPtr_t response) {
 	qDebug() << "Response received: " << response->toHex();
+	qDebug() << "PARSING:";
+
+	foreach(dataItemDefinition_t def, _itemDefinitions) {
+
+#warning Needs to respect type later !!!
+		quint32 i;
+		response->extractFromPdu(def.pduOffset, i);
+
+		qDebug() << "\t" << def.name << ":" << i << "(offset=" << def.pduOffset << ")";
+/*
+		char *fp(static_cast<char *>(static_cast<void*>(&f)));
+		if(def.pduOffset == 2) {
+			for(int i=sizeof(f); i--; fp++) {
+//				qDebug() << "\t\t" << i << ":" << static_cast<uint>(*fp);
+				qDebug() << "\t\t" << i << ":" << QString("%1").arg(*fp, 2, 16, QChar('0'));
+			}
+		}
+*/
+	}
 }

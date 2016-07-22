@@ -21,12 +21,12 @@ public:
 	} itemType_t;
 
 	typedef struct {
-		QString _name;
-		quint8 _pduOffset, _bytesPerItem;
+		QString name;
+		quint8 pduOffset, bytesPerItem;
 		itemType_t type;
 		double _multiplier;
-		quint64 _divider;
-		quint8 _signumIndex; // 1-based; 0 value means ignore/unset
+		quint64 divider;
+		quint8 signumIndex; // 1-based; 0 value means ignore/unset
 	} dataItemDefinition_t;
 
 	explicit RequestManager(class QSettings &settings, QObject *parent = 0);
