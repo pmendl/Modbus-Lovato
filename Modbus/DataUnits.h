@@ -17,9 +17,7 @@ public:
 	virtual ~ProtocolDataUnit() {}
 	virtual bool isValid() const;
 	virtual qint16 bytesToRead() const;
-	template <typename T> T & extractFromPdu(int i, T &x) const;
-//	virtual char pduAt(int i) const;
-//	virtual float floatPduAt(int i) const;
+	template <typename T> T & extractAt(int i, T &x) const;
 	virtual qint16 aduPrefixSize() const;
 	virtual qint16 aduPostfixSize() const;
 protected:
@@ -45,7 +43,7 @@ public:
 //------------------------------------------------------------------------------
 
 template <typename T>
-T & ProtocolDataUnit::extractFromPdu(int i, T &x) const {
+T & ProtocolDataUnit::extractAt(int i, T &x) const {
 	char *tp(static_cast<char *>(static_cast<void*>(&x)));
 #if Q_BYTE_ORDER != Q_BIG_ENDIAN
 	const char *fp(data()+aduPrefixSize()+i+sizeof(T)-1);

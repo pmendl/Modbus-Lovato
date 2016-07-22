@@ -32,7 +32,7 @@ qint16 ProtocolDataUnit::commandResolutionSize() const
 {
 //	switch(pduAt(0)) {
 	char cmd;
-	switch(extractFromPdu(0, cmd)) {
+	switch(extractAt(0, cmd)) {
 	case 0x03:
 		return 1+1;
 
@@ -49,9 +49,9 @@ qint16 ProtocolDataUnit::commandResponseSize()  const
 {
 	//	switch(pduAt(0)) {
 		char cmd;
-		switch(extractFromPdu(0, cmd)) {
+		switch(extractAt(0, cmd)) {
 	case 0x03:
-		return 1+1+extractFromPdu(1, cmd);
+		return 1+1+extractAt(1, cmd);
 
 	case 0x83:
 		return 1;
@@ -81,13 +81,6 @@ qint16 ProtocolDataUnit::bytesToRead(void) const
 		return aduPrefixSize()+s+aduPostfixSize()-size();
 
 }
-
-/*
-char ProtocolDataUnit::pduAt(int i) const
-{
-	return at(aduPrefixSize()+i);
-}
-*/
 
 qint16 ProtocolDataUnit::aduPrefixSize() const
 {

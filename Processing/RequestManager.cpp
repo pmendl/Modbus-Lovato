@@ -50,8 +50,9 @@ RequestManager::RequestManager(QSettings &settings, QObject *parent) :
 	if((settings.value(REQUEST_ACTIVITY_KEY, false).toBool())) {
 		qDebug() << "Object" << objectName() << "is active.";
 
-		_device = settings.value(REQUEST_DEVICE_KEY).toString().toUInt();
-		_address = settings.value(REQUEST_ADDRESS_KEY).toString().toUInt();
+		_device = settings.value(REQUEST_DEVICE_KEY).toString().toUInt(0,0);
+		_address = settings.value(REQUEST_ADDRESS_KEY).toString().toUInt(0,0);
+		qDebug() << "@ address=" << _address << "/" << settings.value(REQUEST_ADDRESS_KEY);
 		itemType_t type=dataTypeFromString(settings.value(REQUEST_DATA_TYPE_KEY).toString());
 		quint8 bytesPerItem= settings.value(REQUEST_BYTES_PER_ITEM, bytesPerType(type)).toUInt();
 		int arraySize = settings.beginReadArray(REQUEST_ARRAY_ITEM_KEY);
@@ -122,9 +123,9 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 
 #warning Needs to respect type later !!!
 		quint32 i;
-		response->extractFromPdu(def.pduOffset, i);
+		response->extractAt(def.pduOffset, i);
 
-		qDebug() << "\t" << def.name << ":" << i << "(offset=" << def.pduOffset << ")";
+		qDebug() << "\t" << def.name << ":" << i*def._multiplier/def.divider << "(offset=" << def.pduOffset << ")";
 /*
 		char *fp(static_cast<char *>(static_cast<void*>(&f)));
 		if(def.pduOffset == 2) {
