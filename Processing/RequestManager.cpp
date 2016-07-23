@@ -7,7 +7,7 @@
 
 #include "Globals.h"
 #include "Processing/ProcessingManager.h"
-//#include "Processing/ParsingProcessor.h"
+#include "Processing/ParsingProcessor.h"
 
 RequestManager::itemType_t dataTypeFromString(QString s,
 											  RequestManager::itemType_t deflt = RequestManager::uintType) {
@@ -150,7 +150,6 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	qDebug() << "\tRESPONSE: " << response->toHex();
 	_response = response;
 	qDebug() << "PARSING:";
-#warning Should move to ParsingProcessor and needs "sign" key to be implemented
 //	foreach(dataItemDefinition_t def, _itemDefinitions) {
 	_parsedItems.clear();
 	foreach(QSharedPointer<dataItemDefinition_t> def, _itemDefinitions) {
@@ -161,9 +160,14 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 					 (((!(def->signumKey.isEmpty())) && (responseItemParsed(def->signumKey) < 0))?-1:1);
 		_parsedItems.insert(def->name, item);
 
+#warning Should move to ParsingProcessor
 		QString s("%1 : %2 (offset=%3)");
 		qDebug() << "\t" << s.arg(item.def->name)
 					.arg(item.value.toDouble())
 					.arg(item.def->pduOffset);
+	}
+
+	foreach (QSharedPointer<ParsingProcessor> processor, _parsingProcessors) {
+		processor->process(this);
 	}
 }
