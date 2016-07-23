@@ -9,8 +9,7 @@
 #include "Processing/ParsingProcessor.h"
 
 RequestManager::itemType_t dataTypeFromString(QString s,
-										  RequestManager::itemType_t deflt = RequestManager::uintType) {
-//	qDebug() << "#1=" << s;
+											  RequestManager::itemType_t deflt = RequestManager::uintType) {
 	if(s.toLower() == xstr(REQUEST_DATA_TYPE_VALUE_INT))
 		return RequestManager::uintType;
 
@@ -54,7 +53,6 @@ RequestManager::RequestManager(QSettings &settings, QObject *parent) :
 		_device = settings.value(REQUEST_DEVICE_KEY).toString().toUInt(0,0);
 		_address = settings.value(REQUEST_ADDRESS_KEY).toString().toUInt(0,0);
 		itemType_t type=dataTypeFromString(settings.value(REQUEST_DATA_TYPE_KEY).toString());
-//		qDebug() << "#2=" << type;
 		quint8 bytesPerItem= settings.value(REQUEST_BYTES_PER_ITEM, bytesPerType(type)).toUInt();
 		int arraySize = settings.beginReadArray(REQUEST_ARRAY_ITEM_KEY);
 		_registerCount = settings.value(REQUEST_REGISTER_COUNT, arraySize*bytesPerItem/2).toUInt();
@@ -69,16 +67,21 @@ RequestManager::RequestManager(QSettings &settings, QObject *parent) :
 			else
 				item.bytesPerItem = bytesPerItem;
 
-//			qDebug() << "#3=" << item.type;
-			item.pduOffset = 1+1+(settings.value(REQUEST_ITEM_PDU_INDEX_KEY,1).toUInt()-1)*bytesPerItem;
-			item.pduOffset = settings.value(REQUEST_ITEM_PDU_OFFSET_KEY, item.pduOffset).toUInt();
-			item._multiplier = settings.value(REQUEST_ITEM_MULTIPLIER_KEY,1.0).toDouble();
+			item.pduOffset = settings.value(REQUEST_ITEM_PDU_OFFSET_KEY,
+											1+1+(settings.value(REQUEST_ITEM_PDU_INDEX_KEY,1).toUInt()-1)*bytesPerItem
+											).toUInt();
+			item.multiplier = settings.value(REQUEST_ITEM_MULTIPLIER_KEY,1.0).toDouble();
 			item.divider = settings.value(REQUEST_ITEM_DIVIDER_KEY,1).toUInt();
-			item.signumIndex = settings.value(REQUEST_ITEM_SIGNUM_INDEX_KEY,0).toInt();
+			if(!(item.signumKey = settings.value(REQUEST_ITEM_SIGNUM_INDEX_KEY,QString()).toString()).isEmpty())
+			_signums.insert(item.signumKey, 1);
 			_itemDefinitions.append(item);
-
 		}
 		settings.endArray();
+
+		foreach(dataItemDefinition_t item, _itemDefinitions) {
+			item.isSignumKey=_signums.contains(item.name);
+		}
+
 
 		arraySize = settings.beginReadArray(REQUEST_ARRAY_PARSING_KEY);
 		for (int i = 0; i < arraySize; ++i) {
@@ -122,7 +125,6 @@ PDUSharedPtr_t RequestManager::request() {
 }
 
 QVariant RequestManager::item(dataItemDefinition_t def) {
-//	qDebug() << "@1=" << def.type;
 	switch(def.type) {
 	case uintType:
 		switch(def.bytesPerItem) {
@@ -131,7 +133,8 @@ QVariant RequestManager::item(dataItemDefinition_t def) {
 		case 2:
 			return _response->extractAt<quint16>(def.pduOffset);
 		case 4:
-			return _response->extractAt<quint32>(def.pduOffset);
+#warning SIGNUM TESTS - LAST MULTIPLIER MUST BE REMOVED AFTERWARDS
+			return _response->extractAt<qint32>(def.pduOffset) * (def.name=="P3jal"?-1:1);
 		case 8:
 			return _response->extractAt<quint64>(def.pduOffset);
 		}
@@ -150,11 +153,9 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	qDebug() << "PARSING:";
 #warning Should move to ParsingProcessor and needs "sign" key to be implemented
 	foreach(dataItemDefinition_t def, _itemDefinitions) {
-		QString s("\t%1 : %2 (offset=%3)");
-		//		s << "\t" << def.name << ":" << i*def._multiplier/def.divider << "(offset=" << def.pduOffset << ")";
-//		qDebug() << "@2=" << item(def);
-		qDebug() << s.arg(def.name)
-					.arg(item(def).toDouble()*def._multiplier/def.divider)
+		QString s("%1 : %2 (offset=%3)");
+		qDebug() << "\t" << s.arg(def.name)
+					.arg(item(def).toDouble()*def.multiplier/def.divider*(def.signumKey.isEmpty()?1:_signums.value(def.signumKey, 1)))
 					.arg(def.pduOffset);
 	}
 }

@@ -25,9 +25,10 @@ public:
 		QString name;
 		quint8 pduOffset, bytesPerItem;
 		itemType_t type;
-		double _multiplier;
+		double multiplier;
 		quint64 divider;
-		quint8 signumIndex; // 1-based; 0 value means ignore/unset
+		QString signumKey;
+		bool isSignumKey;
 	} dataItemDefinition_t;
 
 	explicit RequestManager(class QSettings &settings, QObject *parent = 0);
@@ -51,6 +52,7 @@ private:
 	quint8 _registerCount;
 	QList<dataItemDefinition_t> _itemDefinitions;
 	QList<QSharedPointer<class ParsingProcessor>> _parsingProcessors;
+	QHash<QString, quint8> _signums;
 	PDUSharedPtr_t _response;
 	QBasicTimer _timer;
 };

@@ -40,7 +40,7 @@
 #define REQUEST_ITEM_PDU_OFFSET_KEY "pduOffset"
 #define REQUEST_ITEM_MULTIPLIER_KEY "multiplier"
 #define REQUEST_ITEM_DIVIDER_KEY "divider"
-#define REQUEST_ITEM_SIGNUM_INDEX_KEY "signumIndex"
+#define REQUEST_ITEM_SIGNUM_INDEX_KEY "signum"
 
 #define REQUEST_ARRAY_PARSING_KEY "parsing"
 #define REQUEST_PARSING_TYPE_KEY "type"
