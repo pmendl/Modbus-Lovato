@@ -128,8 +128,7 @@ QVariant RequestManager::responseItemRaw(QSharedPointer<const dataItemDefinition
 		case 2:
 			return _response->extractAt<quint16>(def->pduOffset);
 		case 4:
-#warning SIGNUM TESTS - LAST MULTIPLIER MUST BE REMOVED AFTERWARDS
-			return _response->extractAt<qint32>(def->pduOffset) * (def->name=="P3jal"?-1:1);
+			return _response->extractAt<qint32>(def->pduOffset);
 		case 8:
 			return _response->extractAt<quint64>(def->pduOffset);
 		}
@@ -147,7 +146,7 @@ QVariant RequestManager::responseItemParsed(QString name) const {
 }
 
 void RequestManager::onResponse(PDUSharedPtr_t response) {
-	qDebug() << "Response received: " << response->toHex();
+	qDebug() << "\tRESPONSE: " << response->toHex();
 	_response = response;
 	qDebug() << "PARSING:";
 #warning Should move to ParsingProcessor and needs "sign" key to be implemented
@@ -159,7 +158,6 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 		item.raw = responseItemRaw(def);
 		item.value = responseItemRaw(def).toDouble()*def->multiplier/def->divider *
 					 (((!(def->signumKey.isEmpty())) && (responseItemParsed(def->signumKey) < 0))?-1:1);
-		qDebug() << "@ " << def->signumKey << "->" << responseItemParsed(def->signumKey);
 		_parsedItems.insert(def->name, item);
 
 		QString s("%1 : %2 (offset=%3)");
