@@ -18,10 +18,6 @@
 #include "Processing/ProcessingManager.h"
 #include "Processing/RequestManager.h"
 
-#define extern
-QSharedPointer<ModbusSerialMaster> serialMaster(new ModbusSerialMaster("/dev/ttyRPC0"));
-#undef extern
-
 int main(int argc, char *argv[])
 {
 //	ProtocolDataUnit u({1,2,3});
@@ -40,15 +36,6 @@ int main(int argc, char *argv[])
 			ks.finish();
 			break;
 
-		case 'M':	// Modbus
-		{
-			PDUSharedPtr_t pdu(new ProtocolDataUnit({0x03, 0x00, 0x01, 0x00, 0x2A, 0x95, 0xE6}));
-			ADUSharedPtr_t request(new ApplicationDataUnitSerial(static_cast<quint8>(2), pdu));
-
-//			qDebug() << request;
-			serialMaster->process(request);
-		}
-			break;
 
 		/* IMPORTANT !!!
 		 *
@@ -124,21 +111,6 @@ int main(int argc, char *argv[])
 		}
 			break;
 
-		case 'P': // Processing
-		{
-			QSettings settings;
-			QList<QSharedPointer<RequestManager>> requestManagers;
-			settings.beginGroup(REQUEST_GROUPS_KEY);
-			foreach(QString group, settings.childGroups()) {
-				qDebug() << "Processing group" << group;
-				settings.beginGroup(group);
-				requestManagers.append(QSharedPointer<RequestManager>(new RequestManager(settings)));
-				settings.endGroup();
-			}
-			settings.endGroup();
-		}
-
-			break;
 
 //----------------------------------
 
@@ -159,9 +131,9 @@ int main(int argc, char *argv[])
 	else
 		qDebug() << "Host does not comply to IEEE 754.";
 
-	std::cout << "Constructing ProcessingManager object...\n\n";
+	std::cout << "\nConstructing ProcessingManager object...\n";
 	ProcessingManager p;
-	std::cout << "Modbus application started...\n\n";
+	std::cout << "\nModbus application started...\n\n";
 	int result = a.exec();
 	std::cout << "Modbus application quited...\n";
 	return result;

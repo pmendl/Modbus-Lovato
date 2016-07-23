@@ -29,7 +29,8 @@ SOURCES += main.cpp \
     Modbus/CrcPolynomial.cpp \
     Processing/RequestManager.cpp \
     Processing/ProcessingManager.cpp \
-    Processing/ParsingProcessor.cpp
+    Processing/ParsingProcessor.cpp \
+    Network/NetworkSender.cpp
 
 HEADERS += \
     Network/NetworkResource.h \
@@ -41,7 +42,8 @@ HEADERS += \
     Modbus/CrcPolynomial.h \
     Processing/RequestManager.h \
     Processing/ProcessingManager.h \
-    Processing/ParsingProcessor.h
+    Processing/ParsingProcessor.h \
+    Network/NetworkSender.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \

@@ -12,14 +12,16 @@ class ProcessingManager : public QObject
 	Q_OBJECT
 public:
 	explicit ProcessingManager(QObject *parent = 0);
+	static QSharedPointer<class ParsingProcessor> processor(class QSettings *settings);
 
 signals:
 
 public slots:
-	void onRequest();
+	void onQueryRequest();
 
 private:
 	QQueue<ADUSharedPtr_t> _queue;
+	static QSharedPointer<class ModbusSerialMaster> _serialMaster;
 };
 
 #endif // PROCESSINGMANAGER_H

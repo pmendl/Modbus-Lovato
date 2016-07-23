@@ -36,7 +36,7 @@ public:
 		QVariant value;
 	} parsedItem_t;
 
-	explicit RequestManager(class QSettings &settings, QObject *parent = 0);
+	explicit RequestManager(class QSettings &settings, class ProcessingManager *processingManager);
 	quint8 device() const;
 	PDUSharedPtr_t request();
 	QVariant responseItemRaw(QSharedPointer<const dataItemDefinition_t> def) const;

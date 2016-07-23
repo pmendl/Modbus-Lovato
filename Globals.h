@@ -1,12 +1,6 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <QSharedPointer>
-
-// === Macro stringification helpers ===
-#define xstr(s) str(s)
-#define str(s) #s
-
 // === Timings ===
 #define MODBUS_MAXRETRIES_DEFAULT	5
 #define MODBUS_INITIALREADTIMEOUT_DEFAULT	100
@@ -44,20 +38,24 @@
 
 #define REQUEST_ARRAY_PARSING_KEY "parsing"
 #define REQUEST_PARSING_TYPE_KEY "type"
-#define REQUEST_PARSING_TYPE_VALUE_INVALID invalid
+//#define REQUEST_PARSING_TYPE_VALUE_INVALID invalid
 #define REQUEST_PARSING_TYPE_VALUE_POST post
-#define REQUEST_PARSING_TYPE_CONSTANT_POST 1
 #define REQUEST_PARSING_TYPE_VALUE_LOG log
-#define REQUEST_PARSING_TYPE_CONSTANT_LOG 2
+#define REQUEST_PARSING_POST_URL_KEY "url"
 
 // === Object names/prefixes ===
 #define REQUEST_MANAGER_NAME_PREFIX "RequestManagerOf"
 
 // === Global datatypes ===
+#include <QSharedPointer>
 typedef QSharedPointer<class ProtocolDataUnit> PDUSharedPtr_t;
 typedef QSharedPointer<class ApplicationDataUnitSerial> ADUSharedPtr_t;
 
+// === Macro stringification helpers ===
+#define xstr(s) str(s)
+#define str(s) #s
+
 // === Global variables ===
-extern QSharedPointer<class ModbusSerialMaster> serialMaster;
+//extern QSharedPointer<class ModbusSerialMaster> serialMaster;
 
 #endif // GLOBALS_H

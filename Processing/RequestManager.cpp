@@ -6,7 +6,8 @@
 #include <QTimerEvent>
 
 #include "Globals.h"
-#include "Processing/ParsingProcessor.h"
+#include "Processing/ProcessingManager.h"
+//#include "Processing/ParsingProcessor.h"
 
 RequestManager::itemType_t dataTypeFromString(QString s,
 											  RequestManager::itemType_t deflt = RequestManager::uintType) {
@@ -42,8 +43,8 @@ quint8 bytesPerType(RequestManager::itemType_t t, quint8 deflt = sizeof(quint16)
  * via (QSettings::beginGroup()).
  * @param parent
  */
-RequestManager::RequestManager(QSettings &settings, QObject *parent) :
-	QObject(parent),
+RequestManager::RequestManager(QSettings &settings, ProcessingManager *processingManager) :
+	QObject(processingManager),
 	_command(0x03)
 {
 	setObjectName(REQUEST_MANAGER_NAME_PREFIX + QString(settings.group()).remove(QRegularExpression(".*/")));
@@ -81,8 +82,8 @@ RequestManager::RequestManager(QSettings &settings, QObject *parent) :
 		arraySize = settings.beginReadArray(REQUEST_ARRAY_PARSING_KEY);
 		for (int i = 0; i < arraySize; ++i) {
 			settings.setArrayIndex(i);
-			QSharedPointer<ParsingProcessor> processor = ParsingProcessor::processor(settings.value(REQUEST_PARSING_TYPE_KEY).toString(), &settings);
-			if(processor != 0) {
+			QSharedPointer<class ParsingProcessor> processor = processingManager->processor(&settings);
+			if(!processor.isNull()) {
 				_parsingProcessors.append(processor);
 			}
 			else {
