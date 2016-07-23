@@ -72,15 +72,10 @@ RequestManager::RequestManager(QSettings &settings, QObject *parent) :
 											).toUInt();
 			item->multiplier = settings.value(REQUEST_ITEM_MULTIPLIER_KEY,1.0).toDouble();
 			item->divider = settings.value(REQUEST_ITEM_DIVIDER_KEY,1).toUInt();
-			if(!(item->signumKey = settings.value(REQUEST_ITEM_SIGNUM_INDEX_KEY,QString()).toString()).isEmpty())
-				_signums.insert(item->signumKey, 1);
+			item->signumKey = settings.value(REQUEST_ITEM_SIGNUM_INDEX_KEY).toString();
 			_itemDefinitions.append(item);
 		}
 		settings.endArray();
-
-		foreach(QSharedPointer<dataItemDefinition_t> item, _itemDefinitions) {
-			item->isSignumKey=_signums.contains(item->name);
-		}
 
 
 		arraySize = settings.beginReadArray(REQUEST_ARRAY_PARSING_KEY);
@@ -124,7 +119,7 @@ PDUSharedPtr_t RequestManager::request() {
 	return PDUSharedPtr_t(new ProtocolDataUnit(_command, _address, _registerCount));
 }
 
-QVariant RequestManager::item(QSharedPointer<dataItemDefinition_t> def) {
+QVariant RequestManager::responseItemRaw(QSharedPointer<const dataItemDefinition_t> def) const {
 	switch(def->type) {
 	case uintType:
 		switch(def->bytesPerItem) {
@@ -147,6 +142,10 @@ QVariant RequestManager::item(QSharedPointer<dataItemDefinition_t> def) {
 	return QVariant();
 }
 
+QVariant RequestManager::responseItemParsed(QString name) const {
+	return _parsedItems.value(name).value;
+}
+
 void RequestManager::onResponse(PDUSharedPtr_t response) {
 	qDebug() << "Response received: " << response->toHex();
 	_response = response;
@@ -155,15 +154,17 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 //	foreach(dataItemDefinition_t def, _itemDefinitions) {
 	_parsedItems.clear();
 	foreach(QSharedPointer<dataItemDefinition_t> def, _itemDefinitions) {
-		parsedItem_t itm;
-		itm.def = def;
-		itm.raw = item(def);
-		itm.value = item(def).toDouble()*def->multiplier/def->divider*(def->signumKey.isEmpty()?1:_signums.value(def->signumKey, 1));
-		_parsedItems.insert(def->name, itm);
+		parsedItem_t item;
+		item.def = def;
+		item.raw = responseItemRaw(def);
+		item.value = responseItemRaw(def).toDouble()*def->multiplier/def->divider *
+					 (((!(def->signumKey.isEmpty())) && (responseItemParsed(def->signumKey) < 0))?-1:1);
+		qDebug() << "@ " << def->signumKey << "->" << responseItemParsed(def->signumKey);
+		_parsedItems.insert(def->name, item);
 
 		QString s("%1 : %2 (offset=%3)");
-		qDebug() << "\t" << s.arg(itm.def->name)
-					.arg(itm.value.toDouble())
-					.arg(itm.def->pduOffset);
+		qDebug() << "\t" << s.arg(item.def->name)
+					.arg(item.value.toDouble())
+					.arg(item.def->pduOffset);
 	}
 }
