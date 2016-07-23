@@ -138,6 +138,8 @@ QVariant RequestManager::responseItemRaw(QSharedPointer<const dataItemDefinition
 		return _response->extractAt<float>(def->pduOffset);
 	case doubleType:
 		return _response->extractAt<double>(def->pduOffset);
+	case invalidType:
+		break;
 	}
 	return QVariant();
 }
@@ -147,7 +149,20 @@ QVariant RequestManager::responseItemParsed(QString name) const {
 }
 
 void RequestManager::onResponse(PDUSharedPtr_t response) {
-	qDebug() << "\tRESPONSE: " << response->toHex();
+/******************************************************************************
+ * This stuff is intended for simulation of error responses only.
+ * Uncomment only if you fully understand what you are doing !
+ * /
+
+// --- NULL RESPONSE TEST ---
+//	response.reset();
+
+// --- ERROR RESPONSE TEST ---
+//	response->operator [](1) = 0x83;
+//	response->operator [](2) = 2;
+/ *****************************************************************************/
+	if(!response.isNull())
+		qDebug() << "\tRESPONSE: " << response->toHex();
 	_response = response;
 	qDebug() << "PARSING:";
 //	foreach(dataItemDefinition_t def, _itemDefinitions) {
@@ -180,7 +195,7 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 				new const dataItemDefinition_t({PARSED_ITEM_ERROR_RESPONSE_CODE_KEY,
 				  0,1,
 				  RequestManager::uintType,
-				  0., 1, QString()
+				  1., 1, QString()
 				 })
 					);
 
@@ -188,7 +203,7 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 					new const dataItemDefinition_t({PARSED_ITEM_ERROR_RESPONSE_EXCEPTION_KEY,
 					  1,1,
 					  RequestManager::uintType,
-					  0., 1, QString()
+					  1., 1, QString()
 					 })
 					);
 
@@ -218,17 +233,19 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 			_parsedItems.insert(def->name, item);
 		}
 
-		foreach (parsedItem_t item, _parsedItems.values()) {
-			QString s("%2 : %1 (offset=%3)");
-			if (item.def->name == PARSED_ITEM_RESPONSE_TYPE_KEY)
-				s=s.arg(item.value.toString());
-			else
-				s=s.arg(item.value.toDouble());
-
-			qDebug() << "\t" << s.arg(item.def->name)
-						.arg(item.def->pduOffset);
-		}
 	}
+
+	foreach (parsedItem_t item, _parsedItems.values()) {
+		QString s("%1 : %2 (offset=%3)");
+
+		if (item.def->name == PARSED_ITEM_RESPONSE_TYPE_KEY)
+			s=s;
+
+		qDebug() << "\t" << s.arg(item.def->name)
+					.arg(item.value.toString())
+					.arg(item.def->pduOffset);
+	}
+
 	foreach (QSharedPointer<ParsingProcessor> processor, _parsingProcessors) {
 		processor->process(this);
 	}

@@ -54,7 +54,7 @@
 #define PARSED_ITEM_RESPONSE_TYPE_NULL_RESPONSE_VALUE	"nullResponse"
 #define PARSED_ITEM_RESPONSE_TYPE_ERROR_RESPONSE_VALUE	"errorResponse"
 #define PARSED_ITEM_ERROR_RESPONSE_CODE_KEY	"errorResponseCode"
-#define PARSED_ITEM_ERROR_RESPONSE_EXCEPTION_KEY	"errorResponseValue"
+#define PARSED_ITEM_ERROR_RESPONSE_EXCEPTION_KEY	"errorResponseException"
 
 // === Global datatypes ===
 #include <QSharedPointer>

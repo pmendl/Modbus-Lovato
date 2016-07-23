@@ -24,7 +24,8 @@ public:
 
 	typedef struct {
 		QString name;
-		quint8 pduOffset, bytesPerItem;
+		quint8 pduOffset;
+		quint8 bytesPerItem;
 		itemType_t type;
 		double multiplier;
 		quint64 divider;

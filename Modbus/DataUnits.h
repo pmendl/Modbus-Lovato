@@ -1,6 +1,7 @@
 #ifndef DATAUNITS_H
 #define DATAUNITS_H
 
+#include <QDebug>
 #include <QByteArray>
 
 #include <initializer_list>
