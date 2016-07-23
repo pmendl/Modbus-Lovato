@@ -31,10 +31,16 @@ public:
 		bool isSignumKey;
 	} dataItemDefinition_t;
 
+	typedef struct {
+		QSharedPointer<dataItemDefinition_t> def;
+		QVariant raw;
+		QVariant value;
+	} parsedItem_t;
+
 	explicit RequestManager(class QSettings &settings, QObject *parent = 0);
 	quint8 device() const;
 	PDUSharedPtr_t request();
-	QVariant item(dataItemDefinition_t def);
+	QVariant item(QSharedPointer<dataItemDefinition_t> def);
 
 signals:
 	void requesting();
@@ -50,11 +56,12 @@ private:
 	const quint8 _command; // Reserved for further extensions. Const 0x03 so far.
 	quint16 _address;
 	quint8 _registerCount;
-	QList<dataItemDefinition_t> _itemDefinitions;
+	QList<QSharedPointer<dataItemDefinition_t>> _itemDefinitions;
 	QList<QSharedPointer<class ParsingProcessor>> _parsingProcessors;
 	QHash<QString, quint8> _signums;
 	PDUSharedPtr_t _response;
 	QBasicTimer _timer;
+	QHash<QString, parsedItem_t> _parsedItems;
 };
 
 #endif // REQUESTMANAGER_H

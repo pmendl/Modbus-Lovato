@@ -58,28 +58,28 @@ RequestManager::RequestManager(QSettings &settings, QObject *parent) :
 		_registerCount = settings.value(REQUEST_REGISTER_COUNT, arraySize*bytesPerItem/2).toUInt();
 
 		for (int i = 0; i < arraySize; ++i) {
-			dataItemDefinition_t item;
+			QSharedPointer<dataItemDefinition_t> item(new dataItemDefinition_t);
 			settings.setArrayIndex(i);
-			item.name = settings.value(REQUEST_ITEM_NAME_KEY).toString();
-			item.type = dataTypeFromString(settings.value(REQUEST_ITEM_DATA_TYPE_KEY).toString(), type);
+			item->name = settings.value(REQUEST_ITEM_NAME_KEY).toString();
+			item->type = dataTypeFromString(settings.value(REQUEST_ITEM_DATA_TYPE_KEY).toString(), type);
 			if(settings.contains(REQUEST_ITEM_BYTES_PER_ITEM))
-				item.bytesPerItem = settings.value(REQUEST_ITEM_BYTES_PER_ITEM).toUInt();
+				item->bytesPerItem = settings.value(REQUEST_ITEM_BYTES_PER_ITEM).toUInt();
 			else
-				item.bytesPerItem = bytesPerItem;
+				item->bytesPerItem = bytesPerItem;
 
-			item.pduOffset = settings.value(REQUEST_ITEM_PDU_OFFSET_KEY,
+			item->pduOffset = settings.value(REQUEST_ITEM_PDU_OFFSET_KEY,
 											1+1+(settings.value(REQUEST_ITEM_PDU_INDEX_KEY,1).toUInt()-1)*bytesPerItem
 											).toUInt();
-			item.multiplier = settings.value(REQUEST_ITEM_MULTIPLIER_KEY,1.0).toDouble();
-			item.divider = settings.value(REQUEST_ITEM_DIVIDER_KEY,1).toUInt();
-			if(!(item.signumKey = settings.value(REQUEST_ITEM_SIGNUM_INDEX_KEY,QString()).toString()).isEmpty())
-			_signums.insert(item.signumKey, 1);
+			item->multiplier = settings.value(REQUEST_ITEM_MULTIPLIER_KEY,1.0).toDouble();
+			item->divider = settings.value(REQUEST_ITEM_DIVIDER_KEY,1).toUInt();
+			if(!(item->signumKey = settings.value(REQUEST_ITEM_SIGNUM_INDEX_KEY,QString()).toString()).isEmpty())
+				_signums.insert(item->signumKey, 1);
 			_itemDefinitions.append(item);
 		}
 		settings.endArray();
 
-		foreach(dataItemDefinition_t item, _itemDefinitions) {
-			item.isSignumKey=_signums.contains(item.name);
+		foreach(QSharedPointer<dataItemDefinition_t> item, _itemDefinitions) {
+			item->isSignumKey=_signums.contains(item->name);
 		}
 
 
@@ -124,25 +124,25 @@ PDUSharedPtr_t RequestManager::request() {
 	return PDUSharedPtr_t(new ProtocolDataUnit(_command, _address, _registerCount));
 }
 
-QVariant RequestManager::item(dataItemDefinition_t def) {
-	switch(def.type) {
+QVariant RequestManager::item(QSharedPointer<dataItemDefinition_t> def) {
+	switch(def->type) {
 	case uintType:
-		switch(def.bytesPerItem) {
+		switch(def->bytesPerItem) {
 		case 1:
-			return _response->extractAt<quint8>(def.pduOffset);
+			return _response->extractAt<quint8>(def->pduOffset);
 		case 2:
-			return _response->extractAt<quint16>(def.pduOffset);
+			return _response->extractAt<quint16>(def->pduOffset);
 		case 4:
 #warning SIGNUM TESTS - LAST MULTIPLIER MUST BE REMOVED AFTERWARDS
-			return _response->extractAt<qint32>(def.pduOffset) * (def.name=="P3jal"?-1:1);
+			return _response->extractAt<qint32>(def->pduOffset) * (def->name=="P3jal"?-1:1);
 		case 8:
-			return _response->extractAt<quint64>(def.pduOffset);
+			return _response->extractAt<quint64>(def->pduOffset);
 		}
 		break;
 	case floatType:
-		return _response->extractAt<float>(def.pduOffset);
+		return _response->extractAt<float>(def->pduOffset);
 	case doubleType:
-		return _response->extractAt<double>(def.pduOffset);
+		return _response->extractAt<double>(def->pduOffset);
 	}
 	return QVariant();
 }
@@ -152,10 +152,18 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	_response = response;
 	qDebug() << "PARSING:";
 #warning Should move to ParsingProcessor and needs "sign" key to be implemented
-	foreach(dataItemDefinition_t def, _itemDefinitions) {
+//	foreach(dataItemDefinition_t def, _itemDefinitions) {
+	_parsedItems.clear();
+	foreach(QSharedPointer<dataItemDefinition_t> def, _itemDefinitions) {
+		parsedItem_t itm;
+		itm.def = def;
+		itm.raw = item(def);
+		itm.value = item(def).toDouble()*def->multiplier/def->divider*(def->signumKey.isEmpty()?1:_signums.value(def->signumKey, 1));
+		_parsedItems.insert(def->name, itm);
+
 		QString s("%1 : %2 (offset=%3)");
-		qDebug() << "\t" << s.arg(def.name)
-					.arg(item(def).toDouble()*def.multiplier/def.divider*(def.signumKey.isEmpty()?1:_signums.value(def.signumKey, 1)))
-					.arg(def.pduOffset);
+		qDebug() << "\t" << s.arg(itm.def->name)
+					.arg(itm.value.toDouble())
+					.arg(itm.def->pduOffset);
 	}
 }
