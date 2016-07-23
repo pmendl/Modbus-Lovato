@@ -6,6 +6,8 @@
 #define MODBUS_INITIALREADTIMEOUT_DEFAULT	100
 #define MODBUS_CONSEQUENTREADTIMEOUT_DEFAULT	5
 
+#define NETWORK_DEFAULT_TIMEOUT	10*1000
+
 // === Settings keys ===
 // --- Modbus related ---
 #define MODBUS_GROUP_NAME "Modbus"
@@ -45,6 +47,14 @@
 
 // === Object names/prefixes ===
 #define REQUEST_MANAGER_NAME_PREFIX "RequestManagerOf"
+
+// === Special parsed items's names/values ===
+#define PARSED_ITEM_RESPONSE_TYPE_KEY	"responseType"
+#define PARSED_ITEM_RESPONSE_TYPE_NORMAL_RESPONSE_VALUE	"normalResponse"
+#define PARSED_ITEM_RESPONSE_TYPE_NULL_RESPONSE_VALUE	"nullResponse"
+#define PARSED_ITEM_RESPONSE_TYPE_ERROR_RESPONSE_VALUE	"errorResponse"
+#define PARSED_ITEM_ERROR_RESPONSE_CODE_KEY	"errorResponseCode"
+#define PARSED_ITEM_ERROR_RESPONSE_EXCEPTION_KEY	"errorResponseValue"
 
 // === Global datatypes ===
 #include <QSharedPointer>

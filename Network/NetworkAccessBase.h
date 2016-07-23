@@ -3,7 +3,7 @@
 
 #include <QtNetwork/QNetworkAccessManager>
 
-#include <memory>
+//#include <memory>
 
 
 /// Pure virtual base implementing global QNetworkAccessManager.

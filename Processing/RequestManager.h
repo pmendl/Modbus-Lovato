@@ -16,6 +16,7 @@ class RequestManager : public QObject
 
 public:
 	typedef enum {
+		invalidType=0,
 		uintType=sizeof(quint16),
 		floatType=sizeof(float),
 		doubleType=sizeof(double)

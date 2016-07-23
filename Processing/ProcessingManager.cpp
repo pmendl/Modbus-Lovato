@@ -30,14 +30,13 @@ void ProcessingManager::onQueryRequest() {
 	ADUSharedPtr_t req(new ApplicationDataUnitSerial(rm->device(), rm->request()));
 	qDebug() << "\tREQUEST: " << req->toHex();
 	ADUSharedPtr_t response(_serialMaster->process(req));
-	if(response.isNull()) {
+	if(response.isNull())
 		qDebug() << "\tNULL RESPONSE!";
-		rm->onResponse(response);
-	}
-	else {
-//		qDebug() << "\tRESPONSE: " << response->toHex();
-		rm->onResponse(response);
+	// Command 0x03 hardwired for now; can get reimplemented more flexible later
+	else if(response->extractAt<char>(0) != 0x03) {
+			qDebug() << "\tERROR RESPONSE!";
 	};
+	rm->onResponse(response);
 }
 
 QSharedPointer<ParsingProcessor> ProcessingManager::processor(QSettings *settings)

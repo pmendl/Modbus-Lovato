@@ -6,19 +6,17 @@
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QHttpMultiPart>
 
-#include "Globals.h"
+#include "Processing/RequestManager.h"
 
-NetworkSender::NetworkSender(QObject *parent, QString url, quint64 period, quint64 timeout) :
+NetworkSender::NetworkSender(QObject *parent, QString url, quint64 timeout) :
 	QObject(parent),
 	_url(QUrl(url)),
 	_reply(0),
-	_lastSent(QDateTime::currentMSecsSinceEpoch() - period),
-	_period(period),
 	_timeout(timeout)
 {}
 
-NetworkSender::NetworkSender(QString url, quint64 period, quint64 timeout) :
-	NetworkSender(0, url, period)
+NetworkSender::NetworkSender(QString url, quint64 timeout) :
+	NetworkSender(0, url, timeout)
 {}
 
 /*
@@ -83,6 +81,6 @@ void NetworkSender::send(channelsSet_t channels) {
 }
 */
 
-QNetworkReply *NetworkSender::reply(void) {
+const QNetworkReply *NetworkSender::reply(void) const {
 	return _reply;
 }

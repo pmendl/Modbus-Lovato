@@ -152,21 +152,83 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	qDebug() << "PARSING:";
 //	foreach(dataItemDefinition_t def, _itemDefinitions) {
 	_parsedItems.clear();
-	foreach(QSharedPointer<dataItemDefinition_t> def, _itemDefinitions) {
-		parsedItem_t item;
-		item.def = def;
-		item.raw = responseItemRaw(def);
-		item.value = responseItemRaw(def).toDouble()*def->multiplier/def->divider *
-					 (((!(def->signumKey.isEmpty())) && (responseItemParsed(def->signumKey) < 0))?-1:1);
-		_parsedItems.insert(def->name, item);
 
-#warning Should move to ParsingProcessor
-		QString s("%1 : %2 (offset=%3)");
-		qDebug() << "\t" << s.arg(item.def->name)
-					.arg(item.value.toDouble())
-					.arg(item.def->pduOffset);
+	const QSharedPointer<const dataItemDefinition_t> responseType(
+				new const dataItemDefinition_t({PARSED_ITEM_RESPONSE_TYPE_KEY,
+				  0,0,
+				  RequestManager::invalidType,
+				  0., 1, QString()
+				 })
+				);
+	parsedItem_t item;
+	item.def = responseType;
+	item.raw = 0;
+
+	// NULL RESPONSE
+	if(response.isNull()) {
+		item.value = QStringLiteral(PARSED_ITEM_RESPONSE_TYPE_NULL_RESPONSE_VALUE);
+		_parsedItems.insert(PARSED_ITEM_RESPONSE_TYPE_KEY, item);
+
 	}
+	// Command 0x03 hardwired for now; can get reimplemented more flexible later
+	// ERROR RESPONSE
+	else if(response->extractAt<char>(0) != 0x03) {
+		item.value = QStringLiteral(PARSED_ITEM_RESPONSE_TYPE_ERROR_RESPONSE_VALUE);
+		_parsedItems.insert(PARSED_ITEM_RESPONSE_TYPE_KEY, item);
 
+		const QSharedPointer<const dataItemDefinition_t> errResponseCode(
+				new const dataItemDefinition_t({PARSED_ITEM_ERROR_RESPONSE_CODE_KEY,
+				  0,1,
+				  RequestManager::uintType,
+				  0., 1, QString()
+				 })
+					);
+
+		const QSharedPointer<const dataItemDefinition_t> errResponseException(
+					new const dataItemDefinition_t({PARSED_ITEM_ERROR_RESPONSE_EXCEPTION_KEY,
+					  1,1,
+					  RequestManager::uintType,
+					  0., 1, QString()
+					 })
+					);
+
+		parsedItem_t item;
+		item.def = errResponseCode;
+		item.raw = responseItemRaw(errResponseCode);
+		QString convert(QStringLiteral("0x%1"));
+		item.value = convert.arg(item.raw.toUInt(),2,16,QChar('0'));
+		_parsedItems.insert(PARSED_ITEM_ERROR_RESPONSE_CODE_KEY, item);
+
+		item.def = errResponseException;
+		item.raw = responseItemRaw(errResponseException);
+		convert = QStringLiteral("0x%1");
+		item.value = convert.arg(item.raw.toUInt(),2,16,QChar('0'));
+		_parsedItems.insert(PARSED_ITEM_ERROR_RESPONSE_EXCEPTION_KEY, item);
+	}
+	// NORMAL RESPONSE
+	else {
+		item.value = QStringLiteral(PARSED_ITEM_RESPONSE_TYPE_NORMAL_RESPONSE_VALUE);
+		_parsedItems.insert(PARSED_ITEM_RESPONSE_TYPE_KEY, item);
+
+		foreach(QSharedPointer<dataItemDefinition_t> def, _itemDefinitions) {
+			item.def = def;
+			item.raw = responseItemRaw(def);
+			item.value = responseItemRaw(def).toDouble()*def->multiplier/def->divider *
+						 (((!(def->signumKey.isEmpty())) && (responseItemParsed(def->signumKey) < 0))?-1:1);
+			_parsedItems.insert(def->name, item);
+		}
+
+		foreach (parsedItem_t item, _parsedItems.values()) {
+			QString s("%2 : %1 (offset=%3)");
+			if (item.def->name == PARSED_ITEM_RESPONSE_TYPE_KEY)
+				s=s.arg(item.value.toString());
+			else
+				s=s.arg(item.value.toDouble());
+
+			qDebug() << "\t" << s.arg(item.def->name)
+						.arg(item.def->pduOffset);
+		}
+	}
 	foreach (QSharedPointer<ParsingProcessor> processor, _parsingProcessors) {
 		processor->process(this);
 	}

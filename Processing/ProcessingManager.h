@@ -20,7 +20,6 @@ public slots:
 	void onQueryRequest();
 
 private:
-	QQueue<ADUSharedPtr_t> _queue;
 	static QSharedPointer<class ModbusSerialMaster> _serialMaster;
 };
 
