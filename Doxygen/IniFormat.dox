@@ -72,13 +72,18 @@ any valid datatype C++ language supports. This value specifies data type, which
 is assumed during parsing.<br>
 The value is **optional** and defaults to unsigned int (i.e. quint16; 2 bytes)
 if not present.<br>
-The value is used **as default** value for all distinct parse items in the given
-request group, but **can be overriden** in each distinct parse item definitions
+Textually values are designated as:
+- *int*
+- *float*
+- *double*
+
+The int type parsing allways depends on actual (default or overriden) value
+of *bytesPreItem* (see bellow).<br>
+Both values are used **as default** value for all distinct parse items in the given
+request group, but **can be overriden** in each distinct parse item definition
 (see below).
 \note Endianness transformation is applied automatically, assuming big endian
 on the PDU (Modbus) side and actual processor endianness on the parser side.<br>
-Only float and double types parsing is implemented so far; all others are
-parsed as default quint16.
 
 <b>RG\\bytesPerItem=</b> Bytes count per one item. While register is allways
 2 bytes long according to the Modbus standard, item parsed in the group may span
@@ -95,19 +100,23 @@ If not present **defaults to \<group array size (see below)\> *\<bytesPerItem\>/
 \note Notice that the default value still has to fall into 1..125 range, effectively
 limiting maximal group size to 250/\<bytesPerItem\>.
 
+<b>RG\\period=</b> Period between re-requesting values defined for this items
+group expressed in miliseconds.
 
-Besides the above defined "global" keys, there is an "array" of items to be defined.
-It's concept corresponds to the QSettings array and as such details can be found
+---
+Besides the above defined "global" keys, there are two "arrays" to be defined.
+Their concept corresponds to the QSettings array and as such details can be found
 in Qt library's documentation.<br>
 For user basics array is defined by two kinds of keys. One defines array size and
 is in the form:<br>
-<b>RG\\item\\size=</b> Numeric value is total count of items defined.
-
+<b>RG\\<array_name>\\size=</b> Numeric value is total count of items defined.
 The other defines individual parsing items and has general form of
-<em>RG\\item\\<n\>\\<subkey\></em>, where \<n\> represents **one based** index
+<em>RG\\<array_name>\\<n\>\\<subkey\></em>, where \<n\> represents **one based** index
 into item's array and \<subkey\> represents one of the below defined subkeys,
-who's value allways relates to the parsing item of corresponding index:
+who's value allways relates to the parsing item of corresponding index.
 
+---
+<em>Array defining items is named "item" and contains</em>:<br>
 <b>RG\\item\\\<n\>\\name=</b><br> String value which is presented to upstream server
 as the name (HTTP POST key) of the value parsed from this particular item.
 
@@ -133,11 +142,11 @@ i.e. completely ignores eventual item-local override for this item.
 These **optional** values, if present, overrides for this particular item
 global values of the same name defined for the whole group (see above).
 
-<b>RG\\\<n\>\\multiplier=</b><br> Floating point value, which is **optional**  and
+<b>RG\\item\\\<n\>\\multiplier=</b>< Floating point value, which is **optional**  and
 defaults to 1.0 if not present. This value is considered user definable and allows
 configuration for different measurement transformers.
 
-<b>RG\\\<n\>\\divider=</b><br> Integer value, which is **optional**  and
+<b>RG\\item\\\<n\>\\divider=</b> Integer value, which is **optional**  and
 defaults to 1 if not present. This value is considered system defined and contains
 powers of ten, positioning decimal point in the parsed value.
 
@@ -148,11 +157,37 @@ is parsed from binary data of the Modbus response is then:<br>
 byte order to the CPU native order -> converted to double precission float) * multiplier
  / divider.</em>
 
-<b>RG\\\<n\>\\signumIndex=</b><br> Index (into item definition's array; so one-based)
-of the item, who's signum (positive or negative) is copied into the value
+<b>RG\\item\\\<n\>\\signum=</b> Name of the item (soo it's <em>RG\\\<n\>\\name</em> value),
+who's signum (positive or negative) is copied into the value
 presented for this item. This value is **optional** and if not present,
 no signum transformation applies.
+@note
+- Key must point to the item with lower index number (i.e. sooner parsed)
+then this item.<br>
+- Signum transformation applies only to the parsed value, not the "raw" one. Which
+one gets used and in what manner depends on the exact ParsingProcessor
+in use. (see also parsing array below)
 
+
+---
+<em>Array defining parsing is named "parsing" and contains</em>:<br>
+The reason behind the parsing array is to define various processes, which should
+propagate just received values of the item group. It can represent posting upstream,
+logging into file etc. So far the following keys are defined:
+
+<b>RG\\parsing\\\<n\>\\type=</b> Name of the ParsingProcessor subclass to be used.<br>
+So far only *post* is defined.
+@note Other parameters may or may not apply to various types. Generally their
+presence and semantics depends on the actual parsing type.
+
+<b>RG\\parsing\\\<n\>\\url=</b> URL of the upstream server where values have
+to be posted.
+
+<b>RG\\parsing\\\<n\>\\occurance=</b> Only the given occurance of new data will
+cause the specific parsing process. It effectively means, that the given process
+will occure after \<RG\\period\> * \<RG\\parsing\\\<n\>\\occurance\> miliseconds.<br>
+<em>Typical use can be e.g. to post values often, but log locally after greater period.</em>
+@todo <em>RG\\parsing\\\<n\>\\occurance<em> key not yet implemented.
 
 ---
 \anchor VariableRadix
