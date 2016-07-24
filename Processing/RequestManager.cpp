@@ -152,7 +152,7 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 /******************************************************************************
  * This stuff is intended for simulation of error responses only.
  * Uncomment only if you fully understand what you are doing !
- * /
+ */
 
 // --- NULL RESPONSE TEST ---
 //	response.reset();
@@ -160,14 +160,24 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 // --- ERROR RESPONSE TEST ---
 //	response->operator [](1) = 0x83;
 //	response->operator [](2) = 2;
-/ *****************************************************************************/
+/******************************************************************************/
 	if(!response.isNull())
 		qDebug() << "\tRESPONSE: " << response->toHex();
+
 	_response = response;
 	qDebug() << "PARSING:";
-//	foreach(dataItemDefinition_t def, _itemDefinitions) {
 	_parsedItems.clear();
+	parsedItem_t item;
 
+/******************************************************************************
+ * Key responseType removed from other then null response postings
+ * as it is context-deducible.
+ *
+ * To make it appear again comment following #define line.
+ ******************************************************************************/
+#define NO_RESPONSE_TYPE_KEY_USED
+
+#ifndef NO_RESPONSE_TYPE_KEY_USED
 	const QSharedPointer<const dataItemDefinition_t> responseType(
 				new const dataItemDefinition_t({PARSED_ITEM_RESPONSE_TYPE_KEY,
 				  0,0,
@@ -175,12 +185,22 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 				  0., 1, QString()
 				 })
 				);
-	parsedItem_t item;
 	item.def = responseType;
 	item.raw = 0;
-
+#endif
 	// NULL RESPONSE
 	if(response.isNull()) {
+#ifdef NO_RESPONSE_TYPE_KEY_USED
+		const QSharedPointer<const dataItemDefinition_t> responseType(
+					new const dataItemDefinition_t({PARSED_ITEM_RESPONSE_TYPE_KEY,
+					  0,0,
+					  RequestManager::invalidType,
+					  0., 1, QString()
+					 })
+					);
+		item.def = responseType;
+		item.raw = 0;
+#endif
 		item.value = QStringLiteral(PARSED_ITEM_RESPONSE_TYPE_NULL_RESPONSE_VALUE);
 		_parsedItems.insert(PARSED_ITEM_RESPONSE_TYPE_KEY, item);
 
@@ -188,8 +208,10 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	// Command 0x03 hardwired for now; can get reimplemented more flexible later
 	// ERROR RESPONSE
 	else if(response->extractAt<char>(0) != 0x03) {
+#ifndef NO_RESPONSE_TYPE_KEY_USED
 		item.value = QStringLiteral(PARSED_ITEM_RESPONSE_TYPE_ERROR_RESPONSE_VALUE);
 		_parsedItems.insert(PARSED_ITEM_RESPONSE_TYPE_KEY, item);
+#endif
 
 		const QSharedPointer<const dataItemDefinition_t> errResponseCode(
 				new const dataItemDefinition_t({PARSED_ITEM_ERROR_RESPONSE_CODE_KEY,
@@ -222,9 +244,10 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	}
 	// NORMAL RESPONSE
 	else {
+#ifndef NO_RESPONSE_TYPE_KEY_USED
 		item.value = QStringLiteral(PARSED_ITEM_RESPONSE_TYPE_NORMAL_RESPONSE_VALUE);
 		_parsedItems.insert(PARSED_ITEM_RESPONSE_TYPE_KEY, item);
-
+#endif
 		foreach(QSharedPointer<dataItemDefinition_t> def, _itemDefinitions) {
 			item.def = def;
 			item.raw = responseItemRaw(def);
