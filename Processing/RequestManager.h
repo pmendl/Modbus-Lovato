@@ -43,6 +43,7 @@ public:
 	PDUSharedPtr_t request();
 	QVariant responseItemRaw(QSharedPointer<const dataItemDefinition_t> def) const;
 	QVariant responseItemParsed(QString name) const;
+	const QHash<QString, parsedItem_t> parsedItems() const;
 
 signals:
 	void requesting();

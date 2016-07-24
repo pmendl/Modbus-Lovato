@@ -19,6 +19,11 @@ NetworkSender::NetworkSender(QString url, quint64 timeout) :
 	NetworkSender(0, url, timeout)
 {}
 
+/**
+ * @brief NetworkSender::send
+ * @param channels
+ */
+
 /*
 void NetworkSender::send(channelsSet_t channels) {
 	if(_reply) {

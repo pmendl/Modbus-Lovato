@@ -47,6 +47,7 @@
 
 // === Object names/prefixes ===
 #define REQUEST_MANAGER_NAME_PREFIX "RequestManagerOf"
+#define POST_PARSING_PROCESSOR_NAME "PostParsingProcessor"
 
 // === Special parsed items's names/values ===
 #define PARSED_ITEM_RESPONSE_TYPE_KEY	"responseType"
@@ -64,8 +65,5 @@ typedef QSharedPointer<class ApplicationDataUnitSerial> ADUSharedPtr_t;
 // === Macro stringification helpers ===
 #define xstr(s) str(s)
 #define str(s) #s
-
-// === Global variables ===
-//extern QSharedPointer<class ModbusSerialMaster> serialMaster;
 
 #endif // GLOBALS_H
