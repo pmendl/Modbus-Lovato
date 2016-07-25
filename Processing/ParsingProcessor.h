@@ -31,6 +31,11 @@ public:
 	virtual ~PostParsingProcessor() {}
 	virtual bool isValid();
 	virtual void process(class RequestManager *rm);
+
+public slots:
+	void onFinished();
+	void onTimer();
+
 /*
 signals:
 	/ **

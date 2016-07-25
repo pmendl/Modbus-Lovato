@@ -174,14 +174,6 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	_parsedItems.clear();
 	parsedItem_t item;
 
-/******************************************************************************
- * Key responseType removed from other then null response postings
- * as it is context-deducible.
- *
- * To make it appear again comment following #define line.
- ******************************************************************************/
-#define NO_RESPONSE_TYPE_KEY_USED
-
 #ifndef NO_RESPONSE_TYPE_KEY_USED
 	const QSharedPointer<const dataItemDefinition_t> responseType(
 				new const dataItemDefinition_t({PARSED_ITEM_RESPONSE_TYPE_KEY,

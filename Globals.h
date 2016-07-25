@@ -66,4 +66,13 @@ typedef QSharedPointer<class ApplicationDataUnitSerial> ADUSharedPtr_t;
 #define xstr(s) str(s)
 #define str(s) #s
 
+/******************************************************************************
+ * Key responseType removed from other then null response postings
+ * as it is context-deducible.
+ *
+ * To make it appear again comment following #define line.
+ ******************************************************************************/
+#define NO_RESPONSE_TYPE_KEY_USED
+
+
 #endif // GLOBALS_H
