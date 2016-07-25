@@ -24,9 +24,8 @@ bool PostParsingProcessor::isValid()
 
 void PostParsingProcessor::process(RequestManager *rm)
 {
-
 	if(_reply) {
-		qDebug() << "@@@ STILL WAITING FOR RESPONSE retry #" << ++_delayedCount;
+		qDebug() << "URL" << _url.url() << "STILL WAITING FOR RESPONSE retry #" << ++_delayedCount;
 
 		requestPriority_t priority = normalRequestPriority;
 		if(rm->parsedItems().contains(PARSED_ITEM_ERROR_RESPONSE_CODE_KEY))
@@ -46,19 +45,23 @@ void PostParsingProcessor::process(RequestManager *rm)
 	}
 
 	// Adapted from http://doc.qt.io/qt-5/qhttpmultipart.html#details
-	QHttpMultiPart *multiPart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
+//	QHttpMultiPart *multiPart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
+	_multiPart.reset(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 
 	QHttpPart textPart;
 	for ( RequestManager::parsedItem_t item : rm->parsedItems()) {
+//		qDebug() << "CHECKPOINT ALPHA" << rm;
 		textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
 						   QVariant(QString(QStringLiteral("form-data; name="))+item.def->name));
 		textPart.setBody(item.value.toString().toUtf8());
+//		_multiPart->append(textPart);
 		_multiPart->append(textPart);
 	}
 	// Adapted code end
+	qDebug() << "CHECKPOINT BETA";
 
 
-	_multiPart.reset(multiPart);
+//	_multiPart.reset(multiPart);
 
 	if(_reply)
 		return;
@@ -70,7 +73,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 		_multiPart->append(textPart);
 	}
 
-	_reply = networkAccessManager()->post(QNetworkRequest(_url), multiPart);
+	_reply = networkAccessManager()->post(QNetworkRequest(_url), _multiPart.data());
 	connect(_reply, &QNetworkReply::finished, this, &PostParsingProcessor::onFinished);
 }
 
