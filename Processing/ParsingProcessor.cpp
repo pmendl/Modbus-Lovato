@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QHttpMultiPart>
 #include <QNetworkReply>
+#include <QDateTime>
 
 #include "Globals.h"
 #include "Processing/RequestManager.h"
@@ -45,23 +46,22 @@ void PostParsingProcessor::process(RequestManager *rm)
 	}
 
 	// Adapted from http://doc.qt.io/qt-5/qhttpmultipart.html#details
-//	QHttpMultiPart *multiPart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 	_multiPart.reset(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 
 	QHttpPart textPart;
+	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
+					   QStringLiteral("form-data; name=responseTime"));
+	textPart.setBody(QDateTime::currentDateTimeUtc().toString().toUtf8());
+	_multiPart->append(textPart);
+
+
 	for ( RequestManager::parsedItem_t item : rm->parsedItems()) {
-//		qDebug() << "CHECKPOINT ALPHA" << rm;
 		textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
 						   QVariant(QString(QStringLiteral("form-data; name="))+item.def->name));
 		textPart.setBody(item.value.toString().toUtf8());
-//		_multiPart->append(textPart);
 		_multiPart->append(textPart);
 	}
 	// Adapted code end
-	qDebug() << "CHECKPOINT BETA";
-
-
-//	_multiPart.reset(multiPart);
 
 	if(_reply)
 		return;
