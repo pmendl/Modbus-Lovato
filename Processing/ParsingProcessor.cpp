@@ -81,12 +81,20 @@ void PostParsingProcessor::process(RequestManager *rm)
 	 _timer.stop();
 	 if(_reply->error() != 0)
 		 qDebug() << "URL" << _url.url() << "SENDING ERROR: " << _reply->errorString();
-	else
+	else {
 		 qDebug() << "URL" << _url.url() << "SENT WITH RESULT" << _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 /// @todo Consider more sophisticated processing above - even signalling uplink
-	 _reply->deleteLater();
-	 _reply = 0;
-	 _delayedCount = 0;
+
+		 qDebug() << "HEADERS:";
+		 foreach (QNetworkReply::RawHeaderPair header, _reply->rawHeaderPairs()) {
+			 qDebug() << "\t" << header.first << "=" << header.second;
+		 }
+		 qDebug() << "DATA:\n" << _reply->readAll();
+
+		 _reply->deleteLater();
+		 _reply = 0;
+		 _delayedCount = 0;
+	 }
 }
 
 void PostParsingProcessor::onTimer() {

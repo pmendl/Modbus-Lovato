@@ -22,11 +22,12 @@ int main(int argc, char *argv[])
 {
 //	ProtocolDataUnit u({1,2,3});
 
+	/// @warning The code assumes Linux OS to be used, as QSettings::setDefaultFormat(...INI...)
+	/// does not behave properly - at least it reads no groups/values on construction.
 	QCoreApplication a(argc, argv);
 	QCoreApplication::setOrganizationName("PMCS");
 	QCoreApplication::setOrganizationDomain("mendl.info");
 	QCoreApplication::setApplicationName("LovatoModbus");
-	QSettings::setDefaultFormat(QSettings::IniFormat);
 
 	KeyboardScanner ks;
 	QObject::connect(&ks, &KeyboardScanner::KeyPressed, &a, [&](char c){
