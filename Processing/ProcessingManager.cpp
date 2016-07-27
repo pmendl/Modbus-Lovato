@@ -5,7 +5,7 @@
 
 #include "Globals.h"
 #include "Processing/RequestManager.h"
-#include "Processing/ParsingProcessor.h"
+#include "Processing/AllParsingProcessors.h"
 #include "Modbus/ModbusSerialMaster.h"
 
 ProcessingManager::ProcessingManager(QObject *parent) : QObject(parent)

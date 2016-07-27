@@ -1,4 +1,4 @@
-#include "ParsingProcessor.h"
+#include "PostParsingProcessor.h"
 
 #include <QDebug>
 #include <QHttpMultiPart>
@@ -11,7 +11,8 @@
 PostParsingProcessor::PostParsingProcessor(QSettings *settings) :
 	_url(settings->value(REQUEST_PARSING_POST_URL_KEY).toString()),
 	_reply(0),
-	_delayedCount(0)
+	_delayedCount(0),
+	_timeout(settings->value(REQUEST_PARSING_POST_TIMEOUT_KEY, 10000).toUInt())
 {
 	setObjectName(POST_PARSING_PROCESSOR_NAME);
 	if(!_url.isValid())
@@ -75,6 +76,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 
 	_reply = networkAccessManager()->post(QNetworkRequest(_url), _multiPart.data());
 	connect(_reply, &QNetworkReply::finished, this, &PostParsingProcessor::onFinished);
+	_timer.start(_timeout, this);
 }
 
  void PostParsingProcessor::onFinished() {
@@ -97,7 +99,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 	 }
 }
 
-void PostParsingProcessor::onTimer() {
+void PostParsingProcessor::timerEvent(QTimerEvent *) {
 	qDebug() << "URL" << _url.url() << "SENDING TIMEOUT - ABORTING !!!";
 	_reply->abort();
 	_reply->deleteLater();
