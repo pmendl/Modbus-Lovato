@@ -9,7 +9,6 @@
 #include <cctype>
 #include <limits>
 
-#include "Network/NetworkResource.h"
 #include "Console/KeyboardScanner.h"
 
 #include "Globals.h"

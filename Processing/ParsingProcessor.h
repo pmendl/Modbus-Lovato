@@ -36,20 +36,6 @@ public slots:
 	void onFinished();
 	void onTimer();
 
-/*
-signals:
-	/ **
-	 * @brief Send parsed items' values to the server.
-	 * @param sender String unique to the given group of reported items. It is
-	 * used to prevent flood of newly created connections if previous request
-	 * gets delayed in transition (or server side) while allowing paralel transmittion of different
-	 * items groups.
-	 * @sa NetworkSender
-	 * @param url Address of the destination server.
-	 * @param http HTTP multipart object to be transmitted.
-	 * /
-	void sendRequest(QString sender, QUrl url, QSharedPointer<class QHttpMultiPart> http);
-*/
 protected:
 	/**
 	 * @brief Content type dependent priority of HTTP POST.
@@ -73,5 +59,7 @@ private:
 	QBasicTimer _timer;
 	// ?type _timeout;
 };
+
+
 
 #endif // PARSINGPROCESSOR_H

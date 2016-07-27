@@ -21,7 +21,6 @@ config.files = Data/Config/*
 config.path = /home/pavel/.config/PMCS
 
 SOURCES += main.cpp \
-    Network/NetworkResource.cpp \
     Network/NetworkAccessBase.cpp \
     Console/KeyboardScanner.cpp \
     Modbus/ModbusSerialMaster.cpp \
@@ -29,11 +28,9 @@ SOURCES += main.cpp \
     Modbus/CrcPolynomial.cpp \
     Processing/RequestManager.cpp \
     Processing/ProcessingManager.cpp \
-    Processing/ParsingProcessor.cpp \
-    Network/NetworkSender.cpp
+    Processing/ParsingProcessor.cpp
 
 HEADERS += \
-    Network/NetworkResource.h \
     Network/NetworkAccessBase.h \
     Console/KeyboardScanner.h \
     Modbus/ModbusSerialMaster.h \
@@ -42,8 +39,7 @@ HEADERS += \
     Modbus/CrcPolynomial.h \
     Processing/RequestManager.h \
     Processing/ProcessingManager.h \
-    Processing/ParsingProcessor.h \
-    Network/NetworkSender.h
+    Processing/ParsingProcessor.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \
