@@ -45,9 +45,10 @@ quint8 bytesPerType(RequestManager::itemType_t t, quint8 deflt = sizeof(quint16)
  */
 RequestManager::RequestManager(QSettings &settings, ProcessingManager *processingManager) :
 	QObject(processingManager),
+	_groupName(settings.group().remove(QRegularExpression(".*/"))),
 	_command(0x03)
 {
-	setObjectName(REQUEST_MANAGER_NAME_PREFIX + QString(settings.group()).remove(QRegularExpression(".*/")));
+	setObjectName(REQUEST_MANAGER_NAME_PREFIX + _groupName);
 	if((settings.value(REQUEST_ACTIVITY_KEY, false).toBool())) {
 		qDebug() << "Object" << objectName() << "is active.";
 
@@ -87,7 +88,7 @@ RequestManager::RequestManager(QSettings &settings, ProcessingManager *processin
 				_parsingProcessors.append(processor);
 			}
 			else {
-				qDebug() << "\tInvalid ParsingProcessor type required.";
+				qDebug() << "\tParsingProcessor could not be constructed !";
 			}
 		}
 		settings.endArray();
@@ -95,10 +96,10 @@ RequestManager::RequestManager(QSettings &settings, ProcessingManager *processin
 		int period = settings.value(REQUEST_PERIOD_KEY, 0).toInt();
 		if(period > 0) {
 			_timer.start(period, this),
-			qDebug() << "Timer started:" << objectName() << "->" << period;
+			qDebug() << "\tTimer started:" << objectName() << "->" << period;
 		}
 		else {
-			qDebug() << "Timer start failed! " << objectName() << "->" << period;
+			qDebug() << "\tTimer start failed! " << objectName() << "->" << period;
 		}
 	}
 	else {
@@ -109,6 +110,11 @@ RequestManager::RequestManager(QSettings &settings, ProcessingManager *processin
 void RequestManager::timerEvent(QTimerEvent *event) {
 	(void) event;
 	emit requesting();
+}
+
+QString RequestManager::groupName() const
+{
+	return _groupName;
 }
 
 const QHash<QString, RequestManager::parsedItem_t> RequestManager::parsedItems() const

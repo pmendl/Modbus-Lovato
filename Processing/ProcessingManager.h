@@ -2,17 +2,17 @@
 #define PROCESSINGMANAGER_H
 
 #include <QObject>
-#include <QQueue>
 
 #include "Globals.h"
-
+#include "Modbus/ModbusSerialMaster.h"
+#include "Log/LogServer.h"
 
 class ProcessingManager : public QObject
 {
 	Q_OBJECT
 public:
 	explicit ProcessingManager(QObject *parent = 0);
-	static QSharedPointer<class ParsingProcessor> processor(class QSettings *settings);
+	QSharedPointer<class ParsingProcessor> processor(class QSettings *settings);
 
 signals:
 
@@ -20,7 +20,9 @@ public slots:
 	void onQueryRequest();
 
 private:
-	static QSharedPointer<class ModbusSerialMaster> _serialMaster;
+//	static QSharedPointer<class ModbusSerialMaster> _serialMaster;
+	ModbusSerialMaster _serialMaster;
+	QSharedPointer<LogServer> _logServer;
 };
 
 #endif // PROCESSINGMANAGER_H

@@ -44,6 +44,7 @@ public:
 	QVariant responseItemRaw(QSharedPointer<const dataItemDefinition_t> def) const;
 	QVariant responseItemParsed(QString name) const;
 	const QHash<QString, parsedItem_t> parsedItems() const;
+	QString groupName() const;
 
 signals:
 	void requesting();
@@ -55,6 +56,7 @@ protected slots:
 	void timerEvent(QTimerEvent *event);
 
 private:
+	QString _groupName;
 	quint8 _device;
 	const quint8 _command; // Reserved for further extensions. Const 0x03 so far.
 	quint16 _address;

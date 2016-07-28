@@ -45,6 +45,10 @@
 #define REQUEST_PARSING_TYPE_VALUE_LOG log
 #define REQUEST_PARSING_POST_URL_KEY "url"
 #define REQUEST_PARSING_POST_TIMEOUT_KEY "timeout"
+
+#define REQUEST_PARSING_LOG_PATH_KEY "logPath"
+#define REQUEST_PARSING_LOG_PATH_DEFAULT "Logs"
+
 // === Object names/prefixes ===
 #define REQUEST_MANAGER_NAME_PREFIX "RequestManagerOf"
 #define POST_PARSING_PROCESSOR_NAME "PostParsingProcessor"

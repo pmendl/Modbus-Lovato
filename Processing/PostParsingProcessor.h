@@ -5,7 +5,6 @@
 
 #include <QSharedPointer>
 #include <QBasicTimer>
-#include <QSettings>
 #include <QUrl>
 
 
@@ -14,7 +13,7 @@ class PostParsingProcessor : public ParsingProcessor, public NetworkAccessBase
 	Q_OBJECT
 
 public:
-	PostParsingProcessor(QSettings *settings);
+	PostParsingProcessor(class QSettings *settings);
 	virtual ~PostParsingProcessor() {}
 	virtual bool isValid();
 	virtual void process(class RequestManager *rm);

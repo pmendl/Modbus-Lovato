@@ -1,18 +1,22 @@
 #include "ProcessingManager.h"
 
+#include<QCoreApplication>
 #include <QDebug>
 #include <QSettings>
+#include <QDir>
 
 #include "Globals.h"
 #include "Processing/RequestManager.h"
 #include "Processing/AllParsingProcessors.h"
 #include "Modbus/ModbusSerialMaster.h"
 
-ProcessingManager::ProcessingManager(QObject *parent) : QObject(parent)
+ProcessingManager::ProcessingManager(QObject *parent) :
+	QObject(parent),
+	_serialMaster("/dev/ttyRPC0"),
+	_logServer(new LogServer(REQUEST_PARSING_LOG_PATH_DEFAULT))
 {
-	if(_serialMaster.isNull())
-		_serialMaster.reset(new ModbusSerialMaster("/dev/ttyRPC0"));
 	QSettings settings;
+
 	settings.beginGroup(REQUEST_GROUPS_KEY);
 	foreach(QString group, settings.childGroups()) {
 		qDebug() << "Processing group" << group;
@@ -29,7 +33,7 @@ void ProcessingManager::onQueryRequest() {
 	qDebug() << "PROCESSING" << rm->objectName() << ":" << rm;
 	ADUSharedPtr_t req(new ApplicationDataUnitSerial(rm->device(), rm->request()));
 	qDebug() << "\tREQUEST: " << req->toHex();
-	ADUSharedPtr_t response(_serialMaster->process(req));
+	ADUSharedPtr_t response(_serialMaster.process(req));
 	if(response.isNull())
 		qDebug() << "\tNULL RESPONSE!";
 	// Command 0x03 hardwired for now; can get reimplemented more flexible later
@@ -41,15 +45,17 @@ void ProcessingManager::onQueryRequest() {
 
 QSharedPointer<ParsingProcessor> ProcessingManager::processor(QSettings *settings)
 {
-	if(settings->value(REQUEST_PARSING_TYPE_KEY) == xstr(REQUEST_PARSING_TYPE_VALUE_POST)) {
-		QSharedPointer<PostParsingProcessor> p(new PostParsingProcessor(settings));
-		if(!p.isNull() && p->isValid()) {
-			qDebug () << "\tProcessingManager::processor returns" << p;
-			return p;
-		}
+	QSharedPointer<ParsingProcessor> p;
+	qDebug() << "\tConstructing ParsingProcessor of type" << settings->value(REQUEST_PARSING_TYPE_KEY);
+	if(settings->value(REQUEST_PARSING_TYPE_KEY) == xstr(REQUEST_PARSING_TYPE_VALUE_POST))
+		p.reset(new PostParsingProcessor(settings));
+	else if(settings->value(REQUEST_PARSING_TYPE_KEY) == xstr(REQUEST_PARSING_TYPE_VALUE_LOG))
+		p.reset(new LogParsingProcessor(settings, _logServer));
+
+	if(!p.isNull() && p->isValid()) {
+		qDebug () << "\t\tProcessingManager::processor returns" << p;
+		return p;
 	}
 
 	return QSharedPointer<ParsingProcessor>();
 }
-
-QSharedPointer<class ModbusSerialMaster> ProcessingManager::_serialMaster;

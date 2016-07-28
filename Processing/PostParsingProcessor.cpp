@@ -1,6 +1,7 @@
 #include "PostParsingProcessor.h"
 
 #include <QDebug>
+#include <QSettings>
 #include <QHttpMultiPart>
 #include <QNetworkReply>
 #include <QDateTime>
@@ -17,6 +18,8 @@ PostParsingProcessor::PostParsingProcessor(QSettings *settings) :
 	setObjectName(POST_PARSING_PROCESSOR_NAME);
 	if(!_url.isValid())
 		_url = QUrl::fromUserInput(settings->value(REQUEST_PARSING_POST_URL_KEY).toString());
+
+	qDebug() << "\t\tParsingProcessor will post to" << _url.url();
 }
 
 bool PostParsingProcessor::isValid()
@@ -51,10 +54,14 @@ void PostParsingProcessor::process(RequestManager *rm)
 
 	QHttpPart textPart;
 	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
+					   QStringLiteral("form-data; name=groupName"));
+	textPart.setBody(rm->groupName().toUtf8());
+	_multiPart->append(textPart);
+
+	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QStringLiteral("form-data; name=responseTime"));
 	textPart.setBody(QDateTime::currentDateTimeUtc().toString().toUtf8());
 	_multiPart->append(textPart);
-
 
 	for ( RequestManager::parsedItem_t item : rm->parsedItems()) {
 		textPart.setHeader(QNetworkRequest::ContentDispositionHeader,

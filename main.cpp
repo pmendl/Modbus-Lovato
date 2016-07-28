@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QSettings>
+#include <QDir>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
@@ -27,6 +28,9 @@ int main(int argc, char *argv[])
 	QCoreApplication::setOrganizationName("PMCS");
 	QCoreApplication::setOrganizationDomain("mendl.info");
 	QCoreApplication::setApplicationName("LovatoModbus");
+
+	// Make relative paths start in the application folder
+//	QDir::setCurrent(QCoreApplication::applicationDirPath());
 
 	KeyboardScanner ks;
 	QObject::connect(&ks, &KeyboardScanner::KeyPressed, &a, [&](char c){

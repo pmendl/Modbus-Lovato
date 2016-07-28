@@ -11,6 +11,7 @@
 
 ModbusSerialMaster::ModbusSerialMaster(QString device, QObject *parent, qint32 baudRate) :
 	QSerialPort(device, parent)
+
 {
 	setBaudRate(baudRate);
 	if(QSerialPort::open(QIODevice::ReadWrite)) {
