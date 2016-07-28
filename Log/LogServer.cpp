@@ -42,7 +42,7 @@ LogServer::LogServer(QString defaultLogPath, QObject *parent) : QObject(parent)
 }
 
 void LogServer::log(QString filename, QString record) {
-	LogWritter *writter = new LogWritter(pathname(filename), record);
+	LogWritter *writter = new LogWritter(pathname(filename), record, this);
 	writter->start();
 }
 
@@ -64,6 +64,8 @@ void LogWritter::run() {
 					+ QStringLiteral("\n")).toUtf8());
 		file.close();
 	}
+	else
+		qDebug() << _pathname << file.errorString();
 	deleteLater();
 }
 

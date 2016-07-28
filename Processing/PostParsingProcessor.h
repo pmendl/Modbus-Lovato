@@ -13,9 +13,9 @@ class PostParsingProcessor : public ParsingProcessor, public NetworkAccessBase
 	Q_OBJECT
 
 public:
-	PostParsingProcessor(class QSettings *settings);
+	PostParsingProcessor(class QSettings *settings, QString group);
 	virtual ~PostParsingProcessor() {}
-	virtual bool isValid();
+	virtual bool isValid() const;
 	virtual void process(class RequestManager *rm);
 
 public slots:

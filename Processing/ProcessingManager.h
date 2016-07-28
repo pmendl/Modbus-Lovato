@@ -12,7 +12,8 @@ class ProcessingManager : public QObject
 	Q_OBJECT
 public:
 	explicit ProcessingManager(QObject *parent = 0);
-	QSharedPointer<class ParsingProcessor> processor(class QSettings *settings);
+	QSharedPointer<class ParsingProcessor> processor(class QSettings *settings, QString group = QStringLiteral(""));
+	static QString objectNameFromGroup(QString prefix, QString group);
 
 signals:
 

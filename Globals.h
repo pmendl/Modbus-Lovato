@@ -43,15 +43,22 @@
 //#define REQUEST_PARSING_TYPE_VALUE_INVALID invalid
 #define REQUEST_PARSING_TYPE_VALUE_POST post
 #define REQUEST_PARSING_TYPE_VALUE_LOG log
+#define REQUEST_PARSING_OCCURANCE_KEY "occurance"
+#define REQUEST_PARSING_OCCURANCE_DEFAULT 1
+
 #define REQUEST_PARSING_POST_URL_KEY "url"
 #define REQUEST_PARSING_POST_TIMEOUT_KEY "timeout"
 
 #define REQUEST_PARSING_LOG_PATH_KEY "logPath"
 #define REQUEST_PARSING_LOG_PATH_DEFAULT "Logs"
+#define REQUEST_PARSING_LOG_FILENAME_KEY "logName"
+
 
 // === Object names/prefixes ===
-#define REQUEST_MANAGER_NAME_PREFIX "RequestManagerOf"
-#define POST_PARSING_PROCESSOR_NAME "PostParsingProcessor"
+#define OBJECT_NAME_PREPOSITION "Of"
+#define REQUEST_MANAGER_NAME_PREFIX "RequestManager"
+#define POST_PARSING_PROCESSOR_PREFIX "PostParsingProcessor"
+#define LOG_PARSING_PROCESSOR_PREFIX "LogParsingProcessor"
 
 // === Special parsed items's names/values ===
 #define PARSED_ITEM_RESPONSE_TYPE_KEY	"responseType"

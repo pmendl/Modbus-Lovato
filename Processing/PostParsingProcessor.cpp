@@ -8,27 +8,32 @@
 
 #include "Globals.h"
 #include "Processing/RequestManager.h"
+#include "Processing/ProcessingManager.h"
 
-PostParsingProcessor::PostParsingProcessor(QSettings *settings) :
+PostParsingProcessor::PostParsingProcessor(QSettings *settings, QString group) :
 	_url(settings->value(REQUEST_PARSING_POST_URL_KEY).toString()),
 	_reply(0),
 	_delayedCount(0),
 	_timeout(settings->value(REQUEST_PARSING_POST_TIMEOUT_KEY, 10000).toUInt())
 {
-	setObjectName(POST_PARSING_PROCESSOR_NAME);
+	setObjectName(ProcessingManager::objectNameFromGroup(POST_PARSING_PROCESSOR_PREFIX, group));
+	setOccurance(settings);
 	if(!_url.isValid())
 		_url = QUrl::fromUserInput(settings->value(REQUEST_PARSING_POST_URL_KEY).toString());
 
 	qDebug() << "\t\tParsingProcessor will post to" << _url.url();
 }
 
-bool PostParsingProcessor::isValid()
+bool PostParsingProcessor::isValid() const
 {
 	return _url.isValid();
 }
 
 void PostParsingProcessor::process(RequestManager *rm)
 {
+	if(nextOccurance())
+		return;
+
 	if(_reply) {
 		qDebug() << "URL" << _url.url() << "STILL WAITING FOR RESPONSE retry #" << ++_delayedCount;
 

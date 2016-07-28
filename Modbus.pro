@@ -30,7 +30,8 @@ SOURCES += main.cpp \
     Processing/ProcessingManager.cpp \
     Processing/PostParsingProcessor.cpp \
     Processing/LogParsingProcessor.cpp \
-    Log/LogServer.cpp
+    Log/LogServer.cpp \
+    Processing/ParsingProcessor.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \

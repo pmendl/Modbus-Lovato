@@ -43,14 +43,14 @@ void ProcessingManager::onQueryRequest() {
 	rm->onResponse(response);
 }
 
-QSharedPointer<ParsingProcessor> ProcessingManager::processor(QSettings *settings)
+QSharedPointer<ParsingProcessor> ProcessingManager::processor(QSettings *settings, QString group)
 {
 	QSharedPointer<ParsingProcessor> p;
 	qDebug() << "\tConstructing ParsingProcessor of type" << settings->value(REQUEST_PARSING_TYPE_KEY);
 	if(settings->value(REQUEST_PARSING_TYPE_KEY) == xstr(REQUEST_PARSING_TYPE_VALUE_POST))
-		p.reset(new PostParsingProcessor(settings));
+		p.reset(new PostParsingProcessor(settings, group));
 	else if(settings->value(REQUEST_PARSING_TYPE_KEY) == xstr(REQUEST_PARSING_TYPE_VALUE_LOG))
-		p.reset(new LogParsingProcessor(settings, _logServer));
+		p.reset(new LogParsingProcessor(settings, group, _logServer));
 
 	if(!p.isNull() && p->isValid()) {
 		qDebug () << "\t\tProcessingManager::processor returns" << p;
@@ -58,4 +58,11 @@ QSharedPointer<ParsingProcessor> ProcessingManager::processor(QSettings *setting
 	}
 
 	return QSharedPointer<ParsingProcessor>();
+}
+
+QString ProcessingManager::objectNameFromGroup(QString prefix, QString group) {
+	if(group.isEmpty())
+		return prefix;
+	else
+		return prefix + OBJECT_NAME_PREPOSITION + group;
 }

@@ -48,7 +48,7 @@ RequestManager::RequestManager(QSettings &settings, ProcessingManager *processin
 	_groupName(settings.group().remove(QRegularExpression(".*/"))),
 	_command(0x03)
 {
-	setObjectName(REQUEST_MANAGER_NAME_PREFIX + _groupName);
+	setObjectName(ProcessingManager::objectNameFromGroup(REQUEST_MANAGER_NAME_PREFIX, _groupName));
 	if((settings.value(REQUEST_ACTIVITY_KEY, false).toBool())) {
 		qDebug() << "Object" << objectName() << "is active.";
 
@@ -83,7 +83,7 @@ RequestManager::RequestManager(QSettings &settings, ProcessingManager *processin
 		arraySize = settings.beginReadArray(REQUEST_ARRAY_PARSING_KEY);
 		for (int i = 0; i < arraySize; ++i) {
 			settings.setArrayIndex(i);
-			QSharedPointer<class ParsingProcessor> processor = processingManager->processor(&settings);
+			QSharedPointer<class ParsingProcessor> processor = processingManager->processor(&settings, _groupName);
 			if(!processor.isNull()) {
 				_parsingProcessors.append(processor);
 			}
