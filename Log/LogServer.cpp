@@ -9,11 +9,7 @@ class LogWritter : public QThread {
 	Q_OBJECT
 
 public:
-	LogWritter(QString pathname, QString record, QObject *parent = 0) :
-		QThread(parent),
-		_pathname(pathname),
-		_record(record)
-	{}
+	LogWritter(QString pathname, QString record, QObject *parent = 0);
 
 	virtual ~LogWritter() {}
 
@@ -55,6 +51,15 @@ bool LogServer::isValid() const
 	return _isValid;
 }
 
+LogWritter::LogWritter(QString pathname, QString record, QObject *parent) :
+	QThread(parent),
+	_pathname(pathname),
+	_record(record)
+{
+	connect(this, &LogWritter::finished, this, &LogWritter::deleteLater);
+}
+
+
 void LogWritter::run() {
 	QFile file(_pathname);
 	if (file.open(QIODevice::ReadWrite | QIODevice::Append | QIODevice::Text)) {
@@ -63,10 +68,12 @@ void LogWritter::run() {
 					+ _record
 					+ QStringLiteral("\n")).toUtf8());
 		file.close();
+		file.flush();
+		qDebug() << "WRITTEN" << _pathname;
 	}
 	else
 		qDebug() << _pathname << file.errorString();
-	deleteLater();
+//	deleteLater();
 }
 
 #include "LogServer.moc"
