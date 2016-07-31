@@ -5,6 +5,8 @@
 #include <QThread>
 #include <QDateTime>
 
+#include "Globals.h"
+
 class LogWritter : public QThread {
 	Q_OBJECT
 
@@ -64,9 +66,9 @@ void LogWritter::run() {
 	QFile file(_pathname);
 	if (file.open(QIODevice::ReadWrite | QIODevice::Append | QIODevice::Text)) {
 		file.write((QDateTime::currentDateTimeUtc().toString()
-					+ QStringLiteral(" | ")
+					+ QStringLiteral(LOG_SEPARATOR_ITEMS)
 					+ _record
-					+ QStringLiteral("\n")).toUtf8());
+					+ QStringLiteral(LOG_SEPARATOR_RECORD)).toUtf8());
 		file.close();
 		file.flush();
 		qDebug() << "WRITTEN" << _pathname;

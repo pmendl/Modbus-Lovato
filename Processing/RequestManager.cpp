@@ -264,21 +264,6 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	foreach (parsedItem_t item, _parsedItems.values()) {
 		QString s("%1 : %2 (offset=%3)");
 
-		if (item.def->name == PARSED_ITEM_RESPONSE_TYPE_KEY)
-			s=s;
-
-		qDebug() << "\t" << s.arg(item.def->name)
-					.arg(item.value.toString())
-					.arg(item.def->pduOffset);
-	}
-
-
-	foreach (parsedItem_t item, _parsedItems.values()) {
-		QString s("%1 : %2 (offset=%3)");
-
-		if (item.def->name == PARSED_ITEM_RESPONSE_TYPE_KEY)
-			s=s;
-
 		qDebug() << "\t" << s.arg(item.def->name)
 					.arg(item.value.toString())
 					.arg(item.def->pduOffset);

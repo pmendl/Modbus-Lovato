@@ -103,7 +103,8 @@ void PostParsingProcessor::process(RequestManager *rm)
 		 foreach (QNetworkReply::RawHeaderPair header, _reply->rawHeaderPairs()) {
 			 qDebug() << "\t" << header.first << "=" << header.second;
 		 }
-		 qDebug() << "DATA:\n" << _reply->readAll();
+//		 qDebug() << "DATA:\n" << _reply->readAll();
+		 qDebug() << "DATA SIZE:" << _reply->bytesAvailable();
 
 		 _reply->deleteLater();
 		 _reply = 0;
