@@ -22,6 +22,7 @@
 #include "Processing/ProcessingManager.h"
 #include "Processing/RequestManager.h"
 #include "Network/NetworkAccessBase.h"
+#include "Log/LogReader.h"
 
 int main(int argc, char *argv[])
 {
@@ -48,8 +49,9 @@ int main(int argc, char *argv[])
 
 		case 'P': // POST file
 		{
-			QBuffer *demoFile = new QBuffer();
-			demoFile->setData(QStringLiteral("Testovací log:\nŘádek 1\nŘádek 2\n").toUtf8());
+//			QBuffer *demoFile = new QBuffer();
+//			demoFile->setData(QStringLiteral("Testovací log:\nŘádek 1\nŘádek 2\n").toUtf8());
+			LogReader *demoFile = new LogReader("test");
 
 			demoFile->open(QIODevice::ReadOnly);
 

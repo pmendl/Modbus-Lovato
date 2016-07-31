@@ -7,7 +7,7 @@
  * or testing only.
  * SHOULD BE COMMENTED-OUT ALL TIMES in the production environment !!!
  */
-//#define NO_AUTOMATIC_PROCESSING
+#define NO_AUTOMATIC_PROCESSING
 
 // === Log record types and separators ===
 #define LOG_RECORD_VALUES "VALUES "

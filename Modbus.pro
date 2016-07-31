@@ -31,7 +31,9 @@ SOURCES += main.cpp \
     Processing/PostParsingProcessor.cpp \
     Processing/LogParsingProcessor.cpp \
     Log/LogServer.cpp \
-    Processing/ParsingProcessor.cpp
+    Processing/ParsingProcessor.cpp \
+    Log/LogReader.cpp \
+    Network/NetworkSender.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \
@@ -46,7 +48,9 @@ HEADERS += \
     Processing/PostParsingProcessor.h \
     Processing/AllParsingProcessors.h \
     Processing/LogParsingProcessor.h \
-    Log/LogServer.h
+    Log/LogServer.h \
+    Log/LogReader.h \
+    Network/NetworkSender.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \
