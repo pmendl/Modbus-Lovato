@@ -7,20 +7,22 @@
 #include <QBasicTimer>
 #include <QUrl>
 
+#include "Globals.h"
+
 
 class PostParsingProcessor : public ParsingProcessor, public NetworkAccessBase
 {
 	Q_OBJECT
 
 public:
-	PostParsingProcessor(class QSettings *settings, QString group);
+	PostParsingProcessor(class QSettings *settings, QString group,
+						 quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
 	virtual ~PostParsingProcessor() {}
 	virtual bool isValid() const;
 	virtual void process(class RequestManager *rm);
 
 public slots:
-	void onFinished();
-	void timerEvent(QTimerEvent *);
+	void onFinished(QSharedPointer<QNetworkReply> reply);
 
 protected:
 	/**
@@ -38,10 +40,11 @@ protected:
 
 private:
 	QUrl _url;
-	QSharedPointer<QHttpMultiPart> _multiPart;
-	QNetworkReply *_reply;
+	bool _inProcess;
+	QHttpMultiPart* _multiPart;
 	requestPriority_t _priority;
 	quint16 _delayedCount;
+	class NetworkSender * _sender;
 	QBasicTimer _timer;
 	quint16 _timeout;
 };

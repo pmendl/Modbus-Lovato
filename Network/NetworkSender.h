@@ -15,7 +15,9 @@ class NetworkSender : public QObject, public NetworkAccessBase
 
 public:
 	explicit NetworkSender(QString url, class QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
+	explicit NetworkSender(QUrl url, class QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
 	virtual ~NetworkSender() {}
+	static QUrl parseUrl(QString url);
 
 signals:
 	void finished(QSharedPointer<class QNetworkReply> reply);

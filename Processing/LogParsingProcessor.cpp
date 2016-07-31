@@ -23,6 +23,7 @@ LogParsingProcessor::LogParsingProcessor(QSettings *settings, QString group, QSh
 
 bool LogParsingProcessor::isValid() const {
 #warning TESTING ONLY
+// Should employ some _logServer->test(_logName);
 	return true;
 }
 
@@ -30,19 +31,11 @@ void LogParsingProcessor::process(RequestManager *rm){
 	if(nextOccurance())
 		return;
 
-//	_logServer->log(_logName,QStringLiteral("TEST: ")+rm->groupName());
-
 	QString record(QStringLiteral(LOG_RECORD_VALUES)+rm->groupName()+QStringLiteral(LOG_SEPARATOR_ITEMS));
 	foreach (RequestManager::parsedItem_t item, rm->parsedItems().values()) {
-//		QString s("%1 : %2 (offset=%3)");
 		record += item.def->name + QStringLiteral("=")
 				  + item.value.toString() + QStringLiteral(LOG_SEPARATOR_ITEMS);
 
-/*
-		qDebug() << "\t" << s.arg(item.def->name)
-					.arg(item.value.toString())
-					.arg(item.def->pduOffset);
-*/
 	}
 	_logServer->log(_logName, record);
 }
