@@ -5,6 +5,10 @@
 #include <QDir>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+#include <QBuffer>
+#include <QHttpMultiPart>
+#include <QDateTime>
+#include <QNetworkReply>
 
 #include <iostream>
 #include <cctype>
@@ -17,6 +21,7 @@
 #include "Modbus/ModbusSerialMaster.h"
 #include "Processing/ProcessingManager.h"
 #include "Processing/RequestManager.h"
+#include "Network/NetworkAccessBase.h"
 
 int main(int argc, char *argv[])
 {
@@ -40,6 +45,42 @@ int main(int argc, char *argv[])
 			std::cout << "Quitting...\n";
 			ks.finish();
 			break;
+
+		case 'P': // POST file
+		{
+			QBuffer *demoFile = new QBuffer();
+			demoFile->setData(QStringLiteral("Testovací log:\nŘádek 1\nŘádek 2\n").toUtf8());
+
+			demoFile->open(QIODevice::ReadOnly);
+
+			QHttpMultiPart *multipart = new QHttpMultiPart();
+			QHttpPart part;
+			part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain"));
+			part.setHeader(QNetworkRequest::ContentDispositionHeader,
+						   QVariant("form-data; name=\"logFile\"; ; filename=\"Test.log\""));
+			part.setRawHeader("Expires", QDateTime::currentDateTimeUtc().toString().toUtf8());
+			part.setBodyDevice(demoFile);
+
+			multipart->append(part);
+			QNetworkReply *reply = NetworkAccessBase::networkAccessManager()->
+								   post(QNetworkRequest(QUrl("http://www.contes.cz/mendl/import.php")), multipart);
+			reply->setParent(&a);
+			multipart->setParent(reply);
+			demoFile->setParent(reply);
+
+			QObject::connect(reply, &QNetworkReply::finished, [reply](){
+				qDebug() << "POST finished with result" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+				qDebug() << "HEADERS:";
+				foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs()) {
+					qDebug() << "\t" << header.first << "=" << header.second;
+				}
+				qDebug() << "DATA:\n" << reply->readAll();
+				reply->deleteLater();
+			});
+
+			qDebug() << "Leaving 'P' command...";
+			break;
+		}
 
 
 		/* IMPORTANT !!!

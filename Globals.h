@@ -1,6 +1,14 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+/*
+ * The following define blocks any automatic processing, leaving in action
+ * only main.cpp defined responses to keypresses. It is intended for debug
+ * or testing only.
+ * SHOULD BE COMMENTED-OUT ALL TIMES in the production environment !!!
+ */
+#define NO_AUTOMATIC_PROCESSING
+
 // === Timings ===
 #define MODBUS_MAXRETRIES_DEFAULT	5
 #define MODBUS_INITIALREADTIMEOUT_DEFAULT	100

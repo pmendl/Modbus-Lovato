@@ -15,6 +15,11 @@ ProcessingManager::ProcessingManager(QObject *parent) :
 	_serialMaster("/dev/ttyRPC0"),
 	_logServer(new LogServer(REQUEST_PARSING_LOG_PATH_DEFAULT))
 {
+#ifdef NO_AUTOMATIC_PROCESSING
+	#warning TESTING ONLY
+	return;
+#endif
+
 	QSettings settings;
 
 	settings.beginGroup(REQUEST_GROUPS_KEY);
