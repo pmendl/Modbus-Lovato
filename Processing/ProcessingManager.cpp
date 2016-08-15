@@ -48,6 +48,11 @@ void ProcessingManager::onQueryRequest() {
 	rm->onResponse(response);
 }
 
+QSharedPointer<LogServer> ProcessingManager::logServer() const
+{
+    return _logServer;
+}
+
 QSharedPointer<ParsingProcessor> ProcessingManager::processor(QSettings *settings, QString group)
 {
 	QSharedPointer<ParsingProcessor> p;

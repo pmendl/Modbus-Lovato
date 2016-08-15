@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QEventLoop>
 
 QUrl NetworkSender::parseUrl(QString url) {
 	QUrl resultUrl(url);
@@ -13,19 +14,30 @@ QUrl NetworkSender::parseUrl(QString url) {
 	return resultUrl;
 }
 
-NetworkSender::NetworkSender(QString url, QHttpMultiPart *multiPart, quint64 timeout) :
-	NetworkSender(parseUrl(url), multiPart, timeout)
+
+NetworkSender::NetworkSender(QString url, QSharedPointer<class QHttpMultiPart> multiPart, bool autodestroy) :
+	NetworkSender(url, multiPart, NETWORK_DEFAULT_TIMEOUT, autodestroy)
 {}
 
-NetworkSender::NetworkSender(QUrl url, class QHttpMultiPart *multiPart, quint64 timeout)
-	: _url(url)
+NetworkSender::NetworkSender(QString url, QSharedPointer<QHttpMultiPart> multiPart, quint64 timeout, bool autodestroy) :
+	NetworkSender(parseUrl(url), multiPart, timeout, autodestroy)
+{}
+
+NetworkSender::NetworkSender(QUrl url, QSharedPointer<class QHttpMultiPart> multiPart, bool autodestroy) :
+	NetworkSender(url, multiPart, NETWORK_DEFAULT_TIMEOUT, autodestroy)
+{}
+
+
+NetworkSender::NetworkSender(QUrl url, QSharedPointer<class QHttpMultiPart> multiPart, quint64 timeout, bool autodestroy)
+	: _url(url),
+	  _autodestroy(autodestroy)
 {
 	if(!_url.isValid()) {
 		emit finished(QSharedPointer<QNetworkReply>());
-		deleteLater();
+		if(_autodestroy) deleteLater();;
 	}
 
-	_reply.reset(networkAccessManager()->post(QNetworkRequest(_url), multiPart));
+	_reply.reset(networkAccessManager()->post(QNetworkRequest(_url), multiPart.data()));
 	connect(_reply.data(), &QNetworkReply::finished, this, &NetworkSender::onFinished);
 	_timer.start(timeout, this);
 
@@ -47,7 +59,7 @@ void NetworkSender::onFinished() {
 //		 qDebug() << "DATA:\n" << _reply->readAll();
 		qDebug() << "DATA SIZE:" << _reply->bytesAvailable();
 		emit finished(_reply);
-		deleteLater();
+		if(_autodestroy) deleteLater();;
 	}
 }
 
@@ -55,5 +67,19 @@ void NetworkSender::timerEvent(QTimerEvent *) {
    qDebug() << "URL" << _url.url() << "SENDING TIMEOUT - ABORTING !!!";
    _reply->abort();
    emit finished(QSharedPointer<QNetworkReply>());
-   deleteLater();
+   if(_autodestroy) deleteLater();;
+}
+
+QSharedPointer<QNetworkReply> NetworkSender::reply() const
+{
+	return _reply;
+}
+
+QSharedPointer<QNetworkReply> NetworkSender::wait() {
+	if(_reply->isRunning()) {
+		QEventLoop loop;
+		connect(_reply.data(), &QNetworkReply::finished, &loop, &QEventLoop::quit);
+		loop.exec();
+	};
+	return _reply;
 }

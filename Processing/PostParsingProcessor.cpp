@@ -52,9 +52,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 	_priority = priority;
 
 	// Adapted from http://doc.qt.io/qt-5/qhttpmultipart.html#details
-	if(_multiPart)
-		delete _multiPart;
-	_multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+	_multiPart.reset(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 
 	QHttpPart textPart;
 	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
@@ -89,12 +87,12 @@ void PostParsingProcessor::process(RequestManager *rm)
 		_multiPart->append(textPart);
 	}
 
-	_sender = new NetworkSender(_url, _multiPart);
+	_sender = new NetworkSender(_url, _multiPart, true);
 	connect(_sender, &NetworkSender::finished, this, &PostParsingProcessor::onFinished);
 }
 
  void PostParsingProcessor::onFinished(QSharedPointer<class QNetworkReply> reply) {
-	 if(reply->error() == 0) {
+	 if(!(reply.isNull()) && (reply->error() == 0)) {
 		 qDebug() << "HEADERS:";
 		 foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs()) {
 			 qDebug() << "\t" << header.first << "=" << header.second;

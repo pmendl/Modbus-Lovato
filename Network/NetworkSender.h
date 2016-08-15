@@ -14,10 +14,15 @@ class NetworkSender : public QObject, public NetworkAccessBase
 	Q_OBJECT
 
 public:
-	explicit NetworkSender(QString url, class QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
-	explicit NetworkSender(QUrl url, class QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
+	explicit NetworkSender(QString url, QSharedPointer<class QHttpMultiPart> multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT, bool autodestroy = false);
+	explicit NetworkSender(QString url, QSharedPointer<class QHttpMultiPart> multiPart, bool autodestroy);
+	explicit NetworkSender(QUrl url, QSharedPointer<class QHttpMultiPart> multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT, bool autodestroy = false);
+	explicit NetworkSender(QUrl url, QSharedPointer<class QHttpMultiPart> multiPart, bool autodestroy);
 	virtual ~NetworkSender() {}
 	static QUrl parseUrl(QString url);
+
+	QSharedPointer<QNetworkReply> reply() const;
+	QSharedPointer<QNetworkReply> wait();
 
 signals:
 	void finished(QSharedPointer<class QNetworkReply> reply);
@@ -31,6 +36,7 @@ protected:
 private:
 	QUrl _url;
 	QSharedPointer<class QNetworkReply> _reply;
+	bool _autodestroy;
 	QBasicTimer _timer;
 
 };

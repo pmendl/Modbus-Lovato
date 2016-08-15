@@ -13,6 +13,7 @@
 #include <iostream>
 #include <cctype>
 #include <limits>
+#include <unistd.h>
 
 #include "Console/KeyboardScanner.h"
 
@@ -22,7 +23,44 @@
 #include "Processing/ProcessingManager.h"
 #include "Processing/RequestManager.h"
 #include "Network/NetworkAccessBase.h"
+#include "Network/NetworkSender.h"
 #include "Log/LogReader.h"
+
+void postFile(void) {
+	QBuffer *demoFile = new QBuffer();
+	demoFile->setData(QStringLiteral("Testovací log:\nŘádek 1\nŘádek 2\n").toUtf8());
+	demoFile->open(QIODevice::ReadOnly);
+
+	QHttpMultiPart *multipart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+	QHttpPart part;
+	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain"));
+	part.setHeader(QNetworkRequest::ContentDispositionHeader,
+				   QVariant("form-data; name=\"logFile\"; filename=\"Test.log\""));
+//	part.setRawHeader("Expires", QDateTime::currentDateTimeUtc().toString().toUtf8());
+	part.setBodyDevice(demoFile);
+	multipart->append(part);
+
+	QNetworkReply *reply = NetworkAccessBase::networkAccessManager()->
+						   post(QNetworkRequest(QUrl("http://www.contes.cz/mendl/import.php")), multipart);
+	reply->setParent(QCoreApplication::instance());
+	multipart->setParent(reply);
+	demoFile->setParent(reply);
+
+	QObject::connect(reply, &QNetworkReply::finished, [reply](){
+		qDebug() << "POST finished with result" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+		qDebug() << "HEADERS:";
+		foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs()) {
+			qDebug() << "\t" << header.first << "=" << header.second;
+		}
+//		qDebug() << "DATA:\n" << reply->readAll();
+		qDebug() << "DATA SIZE:" << reply->bytesAvailable();
+		reply->deleteLater();
+		sleep(10);
+		postFile();
+	});
+
+	qDebug() << "Leaving postFile()...";
+}
 
 int main(int argc, char *argv[])
 {
@@ -38,6 +76,9 @@ int main(int argc, char *argv[])
 	// Make relative paths start in the application folder
 //	QDir::setCurrent(QCoreApplication::applicationDirPath());
 
+	std::cout << "\nConstructing ProcessingManager object...\n";
+	ProcessingManager processingManager;
+
 	KeyboardScanner ks;
 	QObject::connect(&ks, &KeyboardScanner::KeyPressed, &a, [&](char c){
 		qDebug() << c;
@@ -47,40 +88,23 @@ int main(int argc, char *argv[])
 			ks.finish();
 			break;
 
-		case 'P': // POST file
+		case 'P': // Post file test
+			postFile();
+			break;
+
+		case 'L': // Log reader test
 		{
-//			QBuffer *demoFile = new QBuffer();
-//			demoFile->setData(QStringLiteral("Testovací log:\nŘádek 1\nŘádek 2\n").toUtf8());
-			LogReader *demoFile = new LogReader("test");
+			LogReader *lr(new LogReader("http://www.contes.cz/mendl/import.php",
+										processingManager.logServer()->pathname("Common.log"),
+										QDateTime::fromString("Sun Jul 31 12:00:00 2016 GMT"),
+//										QDateTime::fromString(""),
+										QDateTime::fromString("Sun Jul 31 15:30:00 2016 GMT"),
+										"Gr.*_.?"
+										)
+						  );
+			lr->start();
 
-			demoFile->open(QIODevice::ReadOnly);
-
-			QHttpMultiPart *multipart = new QHttpMultiPart();
-			QHttpPart part;
-			part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain"));
-			part.setHeader(QNetworkRequest::ContentDispositionHeader,
-						   QVariant("form-data; name=\"logFile\"; ; filename=\"Test.log\""));
-			part.setRawHeader("Expires", QDateTime::currentDateTimeUtc().toString().toUtf8());
-			part.setBodyDevice(demoFile);
-
-			multipart->append(part);
-			QNetworkReply *reply = NetworkAccessBase::networkAccessManager()->
-								   post(QNetworkRequest(QUrl("http://www.contes.cz/mendl/import.php")), multipart);
-			reply->setParent(&a);
-			multipart->setParent(reply);
-			demoFile->setParent(reply);
-
-			QObject::connect(reply, &QNetworkReply::finished, [reply](){
-				qDebug() << "POST finished with result" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-				qDebug() << "HEADERS:";
-				foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs()) {
-					qDebug() << "\t" << header.first << "=" << header.second;
-				}
-				qDebug() << "DATA:\n" << reply->readAll();
-				reply->deleteLater();
-			});
-
-			qDebug() << "Leaving 'P' command...";
+			qDebug() << "Leaving 'L' command...";
 			break;
 		}
 
@@ -210,8 +234,6 @@ int main(int argc, char *argv[])
 	else
 		qDebug() << "Host does not comply to IEEE 754.";
 
-	std::cout << "\nConstructing ProcessingManager object...\n";
-	ProcessingManager p;
 	std::cout << "\nModbus application started...\n\n";
 	int result = a.exec();
 	std::cout << "Modbus application quited...\n";

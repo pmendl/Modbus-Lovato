@@ -7,12 +7,13 @@
  * or testing only.
  * SHOULD BE COMMENTED-OUT ALL TIMES in the production environment !!!
  */
-//#define NO_AUTOMATIC_PROCESSING
+#define NO_AUTOMATIC_PROCESSING
 
-// === Log record types and separators ===
+// === Log related settings ===
 #define LOG_RECORD_VALUES "VALUES "
 #define LOG_SEPARATOR_ITEMS "|"
 #define LOG_SEPARATOR_RECORD "\n"
+#define LOG_MAX_BUFFER_SIZE (1024*1024)
 
 // === Timings ===
 #define MODBUS_MAXRETRIES_DEFAULT	5
@@ -76,10 +77,19 @@
 // === Special parsed items's names/values ===
 #define PARSED_ITEM_RESPONSE_TYPE_KEY	"responseType"
 #define PARSED_ITEM_RESPONSE_TYPE_NORMAL_RESPONSE_VALUE	"normalResponse"
-#define PARSED_ITEM_RESPONSE_TYPE_NULL_RESPONSE_VALUE	"nullResponse"
+#define PARSED_ITEM_RESPONSE_TYPE_NULL_RESPONSE_VALUE "nullResponse"
 #define PARSED_ITEM_RESPONSE_TYPE_ERROR_RESPONSE_VALUE	"errorResponse"
 #define PARSED_ITEM_ERROR_RESPONSE_CODE_KEY	"errorResponseCode"
-#define PARSED_ITEM_ERROR_RESPONSE_EXCEPTION_KEY	"errorResponseException"
+#define PARSED_ITEM_ERROR_RESPONSE_EXCEPTION_KEY "errorResponseException"
+
+// === Other POST elements ===
+#define POST_ELEMENT_LOG_FILE_NAME "logFile"
+#define POST_ELEMENT_LOG_NO_ID_VALUE "unidentified"
+#define POST_ELEMENT_LOG_ID_NAME "id"
+#define POST_ELEMENT_LOG_FROM_NAME "from"
+#define POST_ELEMENT_LOG_TO_NAME "to"
+#define POST_ELEMENT_LOG_START_INDEX_NAME "startIndex"
+#define POST_ELEMENT_LOG_END_INDEX_NAME "endIndex"
 
 // === Global datatypes ===
 #include <QSharedPointer>
