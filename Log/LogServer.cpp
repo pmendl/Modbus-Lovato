@@ -44,7 +44,7 @@ void LogServer::log(QString filename, QString record) {
 	writter->start();
 }
 
-QString LogServer::pathname(QString filename) {
+QString LogServer::pathname(QString filename) const {
 	return _logDir.absoluteFilePath(filename);
 }
 

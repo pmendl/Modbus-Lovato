@@ -11,7 +11,7 @@ class LogServer : public QObject
 public:
 	explicit LogServer(QString defaultLogPath, QObject *parent = 0);
 	void log(QString filename, QString record);
-	QString pathname(QString filename);
+	QString pathname(QString filename) const;
 
 	bool isValid() const;
 

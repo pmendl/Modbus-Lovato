@@ -69,67 +69,75 @@ void LogReader::run() {
 					)
 				continue;
 
-			if((_logOutput.size() + record.size()) < LOG_MAX_BUFFER_SIZE)
+			if((_logOutput.size() + record.size()) < LOG_MAX_BUFFER_SIZE) {
 				_logOutput += record;
-			else {
-				QSharedPointer<QHttpMultiPart> multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
+//				qDebug() << "\t" << _logOutput;
+				qDebug() << "\trecord.isEmpty()=" << record.isEmpty() << record;
+				if(!record.isEmpty())
+					continue;
+			}
 
-				QHttpPart part;
-				part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain"));
-				part.setHeader(QNetworkRequest::ContentDispositionHeader,
-							   QVariant(
-								   QString(QStringLiteral("form-data; name=\"%1\"; filename=\"%2\""))
-								   .arg(POST_ELEMENT_LOG_FILE_NAME)
-								   .arg(_logFile.fileName())
-								   )
-							   );
-				part.setBodyDevice(&_logBuffer);
-				multipart->append(part);
+			qDebug() << "LogReader starts HTTP transmit ...";
 
-				if(!_id.isEmpty()) {
-					part.setHeader(QNetworkRequest::ContentDispositionHeader,
-									   QString(QStringLiteral("form-data; name=%1"))
-									   .arg(POST_ELEMENT_LOG_ID_NAME));
-					part.setBody(_id.toUtf8());
-					multipart->append(part);
-				}
+			QSharedPointer<QHttpMultiPart> multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 
-				if(_from.isValid()) {
-					part.setHeader(QNetworkRequest::ContentDispositionHeader,
-									   QString(QStringLiteral("form-data; name=%1"))
-									   .arg(POST_ELEMENT_LOG_FROM_NAME));
-					part.setBody(_from.toString().toUtf8());
-					multipart->append(part);
-				}
+			QHttpPart part;
+			part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain"));
+			part.setHeader(QNetworkRequest::ContentDispositionHeader,
+						   QVariant(
+							   QString(QStringLiteral("form-data; name=\"%1\"; filename=\"%2\""))
+							   .arg(POST_ELEMENT_LOG_FILE_NAME)
+							   .arg(_logFile.fileName())
+							   )
+						   );
+			part.setBodyDevice(&_logBuffer);
+			multipart->append(part);
 
-				if(_to.isValid()) {
-					part.setHeader(QNetworkRequest::ContentDispositionHeader,
-									   QString(QStringLiteral("form-data; name=%1"))
-									   .arg(POST_ELEMENT_LOG_TO_NAME));
-					part.setBody(_to.toString().toUtf8());
-					multipart->append(part);
-				}
-
+			if(!_id.isEmpty()) {
 				part.setHeader(QNetworkRequest::ContentDispositionHeader,
 								   QString(QStringLiteral("form-data; name=%1"))
-								   .arg(POST_ELEMENT_LOG_START_INDEX_NAME));
-				part.setBody(QString(QStringLiteral("%1")).arg(_startIndex).toUtf8());
+								   .arg(POST_ELEMENT_LOG_ID_NAME));
+				part.setBody(_id.toUtf8());
 				multipart->append(part);
+			}
 
+			if(_from.isValid()) {
 				part.setHeader(QNetworkRequest::ContentDispositionHeader,
 								   QString(QStringLiteral("form-data; name=%1"))
-								   .arg(POST_ELEMENT_LOG_END_INDEX_NAME));
-				part.setBody(QString(QStringLiteral("%1")).arg(_endIndex).toUtf8());
+								   .arg(POST_ELEMENT_LOG_FROM_NAME));
+				part.setBody(_from.toString().toUtf8());
 				multipart->append(part);
+			}
+
+			if(_to.isValid()) {
+				part.setHeader(QNetworkRequest::ContentDispositionHeader,
+								   QString(QStringLiteral("form-data; name=%1"))
+								   .arg(POST_ELEMENT_LOG_TO_NAME));
+				part.setBody(_to.toString().toUtf8());
+				multipart->append(part);
+			}
+
+			part.setHeader(QNetworkRequest::ContentDispositionHeader,
+							   QString(QStringLiteral("form-data; name=%1"))
+							   .arg(POST_ELEMENT_LOG_START_INDEX_NAME));
+			part.setBody(QString(QStringLiteral("%1")).arg(_startIndex).toUtf8());
+			multipart->append(part);
+
+			part.setHeader(QNetworkRequest::ContentDispositionHeader,
+							   QString(QStringLiteral("form-data; name=%1"))
+							   .arg(POST_ELEMENT_LOG_END_INDEX_NAME));
+			part.setBody(QString(QStringLiteral("%1")).arg(_endIndex).toUtf8());
+			multipart->append(part);
 
 #warning CONTINUE IMPLEMENTATION HERE
 // Call NetworkSender
-				_sender->wait();
-				_sender.reset(new NetworkSender(_url, multipart));
+			qDebug() << "\tCalling _sender->wait()";
+			_sender->wait();
+			qDebug() << "\t_sender.reset(new NetworkSender(...)";
+			_sender.reset(new NetworkSender(_url, multipart));
 
-				_startIndex = _endIndex;
-				_logFile.seek(_startIndex);
-			}
+			_startIndex = _endIndex;
+			_logFile.seek(_startIndex);
 		}
 
 

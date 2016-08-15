@@ -38,6 +38,7 @@ NetworkSender::NetworkSender(QUrl url, QSharedPointer<class QHttpMultiPart> mult
 	}
 
 	_reply.reset(networkAccessManager()->post(QNetworkRequest(_url), multiPart.data()));
+	qDebug() << "NetworkSender transmitted to " << _url << "reply.isRunnung()=" << _reply->isRunning();
 	connect(_reply.data(), &QNetworkReply::finished, this, &NetworkSender::onFinished);
 	_timer.start(timeout, this);
 
