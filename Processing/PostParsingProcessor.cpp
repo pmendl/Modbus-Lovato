@@ -59,17 +59,20 @@ void PostParsingProcessor::process(RequestManager *rm)
 					   QStringLiteral("form-data; name=groupName"));
 	textPart.setBody(rm->groupName().toUtf8());
 	_multiPart->append(textPart);
+	textPart= QHttpPart();
 
 	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QStringLiteral("form-data; name=responseTime"));
 	textPart.setBody(QDateTime::currentDateTimeUtc().toString().toUtf8());
 	_multiPart->append(textPart);
+	textPart= QHttpPart();
 
 	for ( RequestManager::parsedItem_t item : rm->parsedItems()) {
 		textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
 						   QVariant(QString(QStringLiteral("form-data; name="))+item.def->name));
 		textPart.setBody(item.value.toString().toUtf8());
 		_multiPart->append(textPart);
+		textPart= QHttpPart();
 	}
 	// Adapted code end
 

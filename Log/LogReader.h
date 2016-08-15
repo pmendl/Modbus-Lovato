@@ -33,7 +33,6 @@ private:
 	qint64 _startIndex, _endIndex;
 	QDateTime _from, _to;
 	QString _group, _id;
-	QByteArray _logOutput;
 	QBuffer _logBuffer;
 	QSharedPointer<class NetworkSender> _sender;
 };

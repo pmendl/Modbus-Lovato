@@ -28,8 +28,7 @@ LogReader::LogReader(QString url, QString pathname, QString id, QDateTime from, 
 	_from(from),
 	_to(to),
 	_group(group),
-	_id(id),
-	_logBuffer(&_logOutput)
+	_id(id)
 {
 	qDebug() << "LogReader" << pathname << "isValid() = " << _opened;
 	connect(this, &QThread::finished, this, &QObject::deleteLater);
@@ -77,7 +76,7 @@ void LogReader::run() {
 				_startIndex = _endIndex;
 				_logFile.seek(_startIndex);
 
-//				httpTransmit();
+				httpTransmit();
 				_logOutput.clear();
 			}
 		}
@@ -85,7 +84,7 @@ void LogReader::run() {
 	} while (!record.isEmpty());
 
 	if(!_logOutput.isEmpty()) {
-//		httpTransmit();
+		httpTransmit();
 
 		qDebug() << "LogReader waiting for last HTTP transmit to end..." << _sender.data()
 //				 << "->" << !_sender->reply().isNull()
@@ -115,6 +114,7 @@ void LogReader::httpTransmit(void)
 				   );
 	part.setBodyDevice(&_logBuffer);
 	multipart->append(part);
+	part = QHttpPart();
 
 	if(!_id.isEmpty()) {
 		part.setHeader(QNetworkRequest::ContentDispositionHeader,
@@ -122,6 +122,8 @@ void LogReader::httpTransmit(void)
 						   .arg(POST_ELEMENT_LOG_ID_NAME));
 		part.setBody(_id.toUtf8());
 		multipart->append(part);
+		part = QHttpPart();
+
 	}
 
 	if(_from.isValid()) {
@@ -130,6 +132,8 @@ void LogReader::httpTransmit(void)
 						   .arg(POST_ELEMENT_LOG_FROM_NAME));
 		part.setBody(_from.toString().toUtf8());
 		multipart->append(part);
+		part = QHttpPart();
+
 	}
 
 	if(_to.isValid()) {
@@ -138,6 +142,8 @@ void LogReader::httpTransmit(void)
 						   .arg(POST_ELEMENT_LOG_TO_NAME));
 		part.setBody(_to.toString().toUtf8());
 		multipart->append(part);
+		part = QHttpPart();
+
 	}
 
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
@@ -145,6 +151,8 @@ void LogReader::httpTransmit(void)
 					   .arg(POST_ELEMENT_LOG_START_INDEX_NAME));
 	part.setBody(QString(QStringLiteral("%1")).arg(_startIndex).toUtf8());
 	multipart->append(part);
+	part = QHttpPart();
+
 
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QString(QStringLiteral("form-data; name=%1"))

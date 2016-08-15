@@ -100,5 +100,5 @@ QSharedPointer<QNetworkReply> NetworkSender::wait() {
 void NetworkSender::test()
 {
 	QEventLoop loop;
-//	loop.exec();
+	loop.exec();
 }
