@@ -4,6 +4,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QEventLoop>
+#include <QHttpMultiPart>
 
 QUrl NetworkSender::parseUrl(QString url) {
 	QUrl resultUrl(url);
@@ -32,9 +33,13 @@ NetworkSender::NetworkSender(QUrl url, QSharedPointer<class QHttpMultiPart> mult
 	: _url(url),
 	  _autodestroy(autodestroy)
 {
-	if(!_url.isValid()) {
+	qDebug() << "NetworkSender: constructor for" << url.url();
+	if((!_url.isValid()) || (multiPart.isNull())) {
+		qDebug() << "NetworkSender: invalid URL=" << url.url();
 		emit finished(QSharedPointer<QNetworkReply>());
-		if(_autodestroy) deleteLater();;
+		_reply.reset();
+		if(_autodestroy) deleteLater();
+		return;
 	}
 
 	_reply.reset(networkAccessManager()->post(QNetworkRequest(_url), multiPart.data()));
@@ -77,10 +82,23 @@ QSharedPointer<QNetworkReply> NetworkSender::reply() const
 }
 
 QSharedPointer<QNetworkReply> NetworkSender::wait() {
-	if(_reply->isRunning()) {
+
+	if((!_reply.isNull()) && _reply->isRunning()) {
+		qDebug() << "CHECKPOINT ALPHA";
 		QEventLoop loop;
+		qDebug() << "CHECKPOINT BRAVO";
 		connect(_reply.data(), &QNetworkReply::finished, &loop, &QEventLoop::quit);
+		qDebug() << "CHECKPOINT CHARLIE";
 		loop.exec();
+		qDebug() << "CHECKPOINT DELTA";
+
 	};
+
 	return _reply;
+}
+
+void NetworkSender::test()
+{
+	QEventLoop loop;
+//	loop.exec();
 }

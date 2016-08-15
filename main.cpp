@@ -108,6 +108,21 @@ int main(int argc, char *argv[])
 			break;
 		}
 
+		case 'E': // Test event loop
+		{
+			qDebug() << "Entering QEventLoop test...";
+//*
+			QEventLoop loop;
+			QObject::connect(&ks, &KeyboardScanner::KeyPressed, &loop, &QEventLoop::quit);
+			loop.exec();
+//*/
+/*
+			NetworkSender sender(":::", QSharedPointer<QHttpMultiPart>());
+			sender.test();
+*/
+			qDebug() << "Exiting QEventLoop test...";
+			break;
+		}
 
 		/* IMPORTANT !!!
 		 *

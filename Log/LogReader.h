@@ -22,6 +22,9 @@ public:
 	bool isValid();
 	virtual void run();
 
+protected:
+	void httpTransmit(void);
+
 
 private:
 	QString _url;

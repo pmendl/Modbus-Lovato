@@ -24,6 +24,8 @@ public:
 	QSharedPointer<QNetworkReply> reply() const;
 	QSharedPointer<QNetworkReply> wait();
 
+	void test();
+
 signals:
 	void finished(QSharedPointer<class QNetworkReply> reply);
 
