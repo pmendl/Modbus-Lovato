@@ -6,14 +6,12 @@
 #include <QRegularExpression>
 #include <QNetworkReply>
 
-#include <cstring>
-
 #include "Globals.h"
 #include "Network/NetworkSender.h"
 
 LogReader::LogReader(QString url, QString pathname, QDateTime from, QDateTime to,
 					 QString group, QObject *parent) :
-	LogReader( url,  pathname,  QStringLiteral(POST_ELEMENT_LOG_NO_ID_VALUE),  from,  to,  group,  parent)
+	LogReader( url,  pathname,  POST_ELEMENT_LOG_NO_ID_VALUE,  from,  to,  group,  parent)
 {}
 
 
@@ -51,6 +49,7 @@ void LogReader::run() {
 
 	const QRegularExpression recordRegexp(QStringLiteral("(.*?)\\|VALUES (.*?)\\|(.*)"));
 	QString record;
+	_logBuffer = new QBuffer();
 	do {
 		_endIndex = _logFile.pos();
 		record = _logFile.readLine(LOG_MAX_BUFFER_SIZE);
@@ -68,8 +67,8 @@ void LogReader::run() {
 					)
 				continue;
 
-			if((_logOutput.size() + record.size()) < LOG_MAX_BUFFER_SIZE) {
-				_logOutput += record;
+			if((_logBuffer->size() + record.size()) < LOG_MAX_BUFFER_SIZE) {
+				_logBuffer->buffer().append(record);
 				continue;
 			}
 			else {
@@ -77,33 +76,35 @@ void LogReader::run() {
 				_logFile.seek(_startIndex);
 
 				httpTransmit();
-				_logOutput.clear();
 			}
 		}
 
 	} while (!record.isEmpty());
 
-	if(!_logOutput.isEmpty()) {
+	if(!_logBuffer->bytesToWrite() > 0) {
 		httpTransmit();
 
-		qDebug() << "LogReader waiting for last HTTP transmit to end..." << _sender.data()
+		qDebug() << "LogReader waiting for last HTTP transmit to end..." << _sender.data() << !_sender.isNull()
 //				 << "->" << !_sender->reply().isNull()
 ;
-		_sender->wait();
-//		_sender->test();
+//		_sender->wait();
+		_sender->test();
 
 	}
 
 	qDebug() << "LogReader completed.";
 }
 
-void LogReader::httpTransmit(void)
+void LogReader::httpTransmit()
 {
-	qDebug() << "LogReader starts HTTP transmit ...";
 
-	QSharedPointer<QHttpMultiPart> multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
+	qDebug() << "LogReader starts HTTP transmit ...";
+/*
+	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 
 	QHttpPart part;
+*/
+/*
 	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain"));
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 				   QVariant(
@@ -112,7 +113,7 @@ void LogReader::httpTransmit(void)
 					   .arg(_logFile.fileName())
 					   )
 				   );
-	part.setBodyDevice(&_logBuffer);
+	part.setBodyDevice(_logBuffer);
 	multipart->append(part);
 	part = QHttpPart();
 
@@ -125,7 +126,6 @@ void LogReader::httpTransmit(void)
 		part = QHttpPart();
 
 	}
-
 	if(_from.isValid()) {
 		part.setHeader(QNetworkRequest::ContentDispositionHeader,
 						   QString(QStringLiteral("form-data; name=%1"))
@@ -145,6 +145,8 @@ void LogReader::httpTransmit(void)
 		part = QHttpPart();
 
 	}
+*/
+/*
 
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QString(QStringLiteral("form-data; name=%1"))
@@ -159,12 +161,34 @@ void LogReader::httpTransmit(void)
 					   .arg(POST_ELEMENT_LOG_END_INDEX_NAME));
 	part.setBody(QString(QStringLiteral("%1")).arg(_endIndex).toUtf8());
 	multipart->append(part);
-
+*/
+/*
 	if(!_sender.isNull()) qDebug() << "\tCalling _sender->wait()";
 	if(!_sender.isNull()) _sender->wait();
+*/
+
+
+	QBuffer *demoFile = new QBuffer(this);
+	demoFile->setData(QStringLiteral("Testovací log:\nŘádek 1\nŘádek 2\n").toUtf8());
+	demoFile->open(QIODevice::ReadOnly);
+
+	QHttpMultiPart *multipart = new QHttpMultiPart(QHttpMultiPart::FormDataType, this);
+	QHttpPart part;
+	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain"));
+	part.setHeader(QNetworkRequest::ContentDispositionHeader,
+				   QVariant("form-data; name=\"logFile\"; filename=\"Test.log\""));
+//	part.setRawHeader("Expires", QDateTime::currentDateTimeUtc().toString().toUtf8());
+	part.setBodyDevice(demoFile);
+	multipart->append(part);
+
+
+
 	qDebug() << "\t_sender.reset(new NetworkSender(...)";
 	_sender.reset(new NetworkSender(_url, multipart));
+	_logBuffer->setParent(_sender->reply().data());
+	_logBuffer = new QBuffer();
 
+	_sender.reset(new NetworkSender(_url, multipart));
 	qDebug() << "LogReader finished HTTP transmit ...";
 
 }

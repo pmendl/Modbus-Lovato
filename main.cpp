@@ -40,8 +40,14 @@ void postFile(void) {
 	part.setBodyDevice(demoFile);
 	multipart->append(part);
 
+/* OLD VERSION
 	QNetworkReply *reply = NetworkAccessBase::networkAccessManager()->
 						   post(QNetworkRequest(QUrl("http://www.contes.cz/mendl/import.php")), multipart);
+*/
+// NEW VERSION
+	NetworkSender *ns(new NetworkSender("http://www.contes.cz/mendl/import.php", multipart, true));
+	QNetworkReply *reply = ns->reply().data();
+/**/
 	reply->setParent(QCoreApplication::instance());
 	multipart->setParent(reply);
 	demoFile->setParent(reply);
@@ -55,8 +61,6 @@ void postFile(void) {
 //		qDebug() << "DATA:\n" << reply->readAll();
 		qDebug() << "DATA SIZE:" << reply->bytesAvailable();
 		reply->deleteLater();
-		sleep(10);
-		postFile();
 	});
 
 	qDebug() << "Leaving postFile()...";

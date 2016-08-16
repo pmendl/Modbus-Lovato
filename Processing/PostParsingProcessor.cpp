@@ -52,26 +52,26 @@ void PostParsingProcessor::process(RequestManager *rm)
 	_priority = priority;
 
 	// Adapted from http://doc.qt.io/qt-5/qhttpmultipart.html#details
-	_multiPart.reset(new QHttpMultiPart(QHttpMultiPart::FormDataType));
+	QHttpMultiPart *multiPart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 
 	QHttpPart textPart;
 	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QStringLiteral("form-data; name=groupName"));
 	textPart.setBody(rm->groupName().toUtf8());
-	_multiPart->append(textPart);
+	multiPart->append(textPart);
 	textPart= QHttpPart();
 
 	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QStringLiteral("form-data; name=responseTime"));
 	textPart.setBody(QDateTime::currentDateTimeUtc().toString().toUtf8());
-	_multiPart->append(textPart);
+	multiPart->append(textPart);
 	textPart= QHttpPart();
 
 	for ( RequestManager::parsedItem_t item : rm->parsedItems()) {
 		textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
 						   QVariant(QString(QStringLiteral("form-data; name="))+item.def->name));
 		textPart.setBody(item.value.toString().toUtf8());
-		_multiPart->append(textPart);
+		multiPart->append(textPart);
 		textPart= QHttpPart();
 	}
 	// Adapted code end
@@ -87,10 +87,10 @@ void PostParsingProcessor::process(RequestManager *rm)
 		textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
 						   QStringLiteral("form-data; name=delayedCount"));
 		textPart.setBody(QString(QStringLiteral("%1").arg(_delayedCount)).toUtf8());
-		_multiPart->append(textPart);
+		multiPart->append(textPart);
 	}
 
-	_sender = new NetworkSender(_url, _multiPart, true);
+	_sender = new NetworkSender(_url, multiPart, true);
 	connect(_sender, &NetworkSender::finished, this, &PostParsingProcessor::onFinished);
 }
 

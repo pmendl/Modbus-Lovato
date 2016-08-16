@@ -22,10 +22,6 @@ public:
 	bool isValid();
 	virtual void run();
 
-protected:
-	void httpTransmit(void);
-
-
 private:
 	QString _url;
 	QFile _logFile;
@@ -33,8 +29,10 @@ private:
 	qint64 _startIndex, _endIndex;
 	QDateTime _from, _to;
 	QString _group, _id;
-	QBuffer _logBuffer;
+	QBuffer *_logBuffer;
 	QSharedPointer<class NetworkSender> _sender;
+
+	void httpTransmit(void);
 };
 
 #endif // LOGREADER_H

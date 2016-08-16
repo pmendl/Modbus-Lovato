@@ -41,7 +41,6 @@ protected:
 private:
 	QUrl _url;
 	bool _inProcess;
-	QSharedPointer<QHttpMultiPart> _multiPart;
 	requestPriority_t _priority;
 	quint16 _delayedCount;
 	class NetworkSender * _sender;

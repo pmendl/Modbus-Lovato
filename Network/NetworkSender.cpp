@@ -6,6 +6,11 @@
 #include <QEventLoop>
 #include <QHttpMultiPart>
 
+#include <iostream>
+//#include <cctype>
+//#include <limits>
+#include <unistd.h>
+
 QUrl NetworkSender::parseUrl(QString url) {
 	QUrl resultUrl(url);
 	if(!resultUrl.isValid())
@@ -16,25 +21,25 @@ QUrl NetworkSender::parseUrl(QString url) {
 }
 
 
-NetworkSender::NetworkSender(QString url, QSharedPointer<class QHttpMultiPart> multiPart, bool autodestroy) :
+NetworkSender::NetworkSender(QString url, QHttpMultiPart *multiPart, bool autodestroy) :
 	NetworkSender(url, multiPart, NETWORK_DEFAULT_TIMEOUT, autodestroy)
 {}
 
-NetworkSender::NetworkSender(QString url, QSharedPointer<QHttpMultiPart> multiPart, quint64 timeout, bool autodestroy) :
+NetworkSender::NetworkSender(QString url, QHttpMultiPart *multiPart, quint64 timeout, bool autodestroy) :
 	NetworkSender(parseUrl(url), multiPart, timeout, autodestroy)
 {}
 
-NetworkSender::NetworkSender(QUrl url, QSharedPointer<class QHttpMultiPart> multiPart, bool autodestroy) :
+NetworkSender::NetworkSender(QUrl url, QHttpMultiPart *multiPart, bool autodestroy) :
 	NetworkSender(url, multiPart, NETWORK_DEFAULT_TIMEOUT, autodestroy)
 {}
 
 
-NetworkSender::NetworkSender(QUrl url, QSharedPointer<class QHttpMultiPart> multiPart, quint64 timeout, bool autodestroy)
+NetworkSender::NetworkSender(QUrl url, QHttpMultiPart *multiPart, quint64 timeout, bool autodestroy)
 	: _url(url),
 	  _autodestroy(autodestroy)
 {
 	qDebug() << "NetworkSender: constructor for" << url.url();
-	if((!_url.isValid()) || (multiPart.isNull())) {
+	if((!_url.isValid()) || (multiPart == 0)) {
 		qDebug() << "NetworkSender: invalid URL=" << url.url();
 		emit finished(QSharedPointer<QNetworkReply>());
 		_reply.reset();
@@ -42,7 +47,8 @@ NetworkSender::NetworkSender(QUrl url, QSharedPointer<class QHttpMultiPart> mult
 		return;
 	}
 
-	_reply.reset(networkAccessManager()->post(QNetworkRequest(_url), multiPart.data()));
+	_reply.reset(networkAccessManager()->post(QNetworkRequest(_url), multiPart));
+	multiPart->setParent(_reply.data());
 	qDebug() << "NetworkSender transmitted to " << _url << "reply.isRunnung()=" << _reply->isRunning();
 	connect(_reply.data(), &QNetworkReply::finished, this, &NetworkSender::onFinished);
 	_timer.start(timeout, this);
@@ -99,6 +105,13 @@ QSharedPointer<QNetworkReply> NetworkSender::wait() {
 
 void NetworkSender::test()
 {
+/*
 	QEventLoop loop;
 	loop.exec();
+*/
+
+	while(_reply->isRunning()) {
+		std::cout << ".";
+		sleep(1);
+	}
 }
