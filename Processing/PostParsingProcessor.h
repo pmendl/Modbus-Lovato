@@ -8,6 +8,8 @@
 #include <QUrl>
 
 #include "Globals.h"
+#include "Network/NetworkSender.h"
+
 
 
 class PostParsingProcessor : public ParsingProcessor, public NetworkAccessBase
@@ -43,7 +45,7 @@ private:
 	bool _inProcess;
 	requestPriority_t _priority;
 	quint16 _delayedCount;
-	class NetworkSender * _sender;
+	NetworkSender _sender;
 	QBasicTimer _timer;
 	quint16 _timeout;
 };

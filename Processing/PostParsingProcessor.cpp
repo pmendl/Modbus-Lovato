@@ -9,7 +9,6 @@
 #include "Globals.h"
 #include "Processing/RequestManager.h"
 #include "Processing/ProcessingManager.h"
-#include "Network/NetworkSender.h"
 
 PostParsingProcessor::PostParsingProcessor(QSettings *settings, QString group, quint64 timeout) :
 	_url(NetworkSender::parseUrl(settings->value(REQUEST_PARSING_POST_URL_KEY).toString())),
@@ -90,8 +89,8 @@ void PostParsingProcessor::process(RequestManager *rm)
 		multiPart->append(textPart);
 	}
 
-	_sender = new NetworkSender(_url, multiPart, true);
-	connect(_sender, &NetworkSender::finished, this, &PostParsingProcessor::onFinished);
+	_sender.send(_url, multiPart, true);
+	connect(&_sender, &NetworkSender::finished, this, &PostParsingProcessor::onFinished);
 }
 
  void PostParsingProcessor::onFinished(QSharedPointer<class QNetworkReply> reply) {

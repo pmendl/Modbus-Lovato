@@ -7,7 +7,6 @@
 #include <QNetworkReply>
 
 #include "Globals.h"
-#include "Network/NetworkSender.h"
 
 LogReader::LogReader(QString url, QString pathname, QDateTime from, QDateTime to,
 					 QString group, QObject *parent) :
@@ -26,10 +25,12 @@ LogReader::LogReader(QString url, QString pathname, QString id, QDateTime from, 
 	_from(from),
 	_to(to),
 	_group(group),
-	_id(id)
+	_id(id),
+	_logBuffer(new QBuffer(this))
 {
 	qDebug() << "LogReader" << pathname << "isValid() = " << _opened;
-	connect(this, &QThread::finished, this, &QObject::deleteLater);
+	connect(this, &QThread::finished, this, &LogReader::onFinished);
+	start();
 }
 
 LogReader::~LogReader() {
@@ -44,12 +45,14 @@ bool LogReader::isValid() {
 
 void LogReader::run() {
 	qDebug() << "LogReader thread runs...";
-	if(!_opened)
+	if(!_opened) {
+		delete _logBuffer;
 		return;
+	}
 
 	const QRegularExpression recordRegexp(QStringLiteral("(.*?)\\|VALUES (.*?)\\|(.*)"));
 	QString record;
-	_logBuffer = new QBuffer();
+	_logFile.seek(_startIndex);
 	do {
 		_endIndex = _logFile.pos();
 		record = _logFile.readLine(LOG_MAX_BUFFER_SIZE);
@@ -73,30 +76,40 @@ void LogReader::run() {
 			}
 			else {
 				_startIndex = _endIndex;
-				_logFile.seek(_startIndex);
-
-				httpTransmit();
+				return;
 			}
 		}
 
 	} while (!record.isEmpty());
+	_startIndex = -1;
+	return;
+}
 
+void LogReader::onFinished() {
 	if(!_logBuffer->bytesToWrite() > 0) {
 		httpTransmit();
+	}
 
-		qDebug() << "LogReader waiting for last HTTP transmit to end..." << _sender.data() << !_sender.isNull()
-//				 << "->" << !_sender->reply().isNull()
-;
-//		_sender->wait();
-		_sender->test();
-
+	if(_startIndex >= 0) {
+		start();
+		qDebug() << "LogReader started next iteration.";
+		return;
 	}
 
 	qDebug() << "LogReader completed.";
+	deleteLater();
 }
+
 
 void LogReader::httpTransmit()
 {
+	qDebug() << "LogReader waiting for last HTTP transmit to end..."
+//			 << _sender
+//			 << "->" << !_sender.reply().isNull()
+;
+		_sender.wait();
+//	_sender->test();
+
 
 	qDebug() << "LogReader starts HTTP transmit ...";
 /*
@@ -184,11 +197,11 @@ void LogReader::httpTransmit()
 
 
 	qDebug() << "\t_sender.reset(new NetworkSender(...)";
-	_sender.reset(new NetworkSender(_url, multipart));
-	_logBuffer->setParent(_sender->reply().data());
-	_logBuffer = new QBuffer();
+	_sender.send(_url, multipart);
+	multipart->setParent(_sender.reply().data());
+	_logBuffer->setParent(_sender.reply().data());
+	_logBuffer = new QBuffer(this);
 
-	_sender.reset(new NetworkSender(_url, multipart));
 	qDebug() << "LogReader finished HTTP transmit ...";
 
 }

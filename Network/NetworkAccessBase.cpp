@@ -11,4 +11,4 @@ QNetworkAccessManager *NetworkAccessBase::networkAccessManager(void) {
 // Pure virtual destructor implementation is REQUIRED in C++ (even if empty)
 NetworkAccessBase::~NetworkAccessBase() {}
 
-QNetworkAccessManager* NetworkAccessBase::_networkAccessManager;
+QNetworkAccessManager* NetworkAccessBase::_networkAccessManager = 0;

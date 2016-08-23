@@ -20,40 +20,28 @@ QUrl NetworkSender::parseUrl(QString url) {
 	return resultUrl;
 }
 
+bool NetworkSender::send(QString url, QHttpMultiPart *multiPart, quint64 timeout) {
+	return send(parseUrl(url), multiPart, timeout);
+}
 
-NetworkSender::NetworkSender(QString url, QHttpMultiPart *multiPart, bool autodestroy) :
-	NetworkSender(url, multiPart, NETWORK_DEFAULT_TIMEOUT, autodestroy)
-{}
+bool NetworkSender::send(QUrl url, QHttpMultiPart *multiPart, quint64 timeout) {
+	qDebug() << "\tNetworkSender::send(" << url.url() << ")";
 
-NetworkSender::NetworkSender(QString url, QHttpMultiPart *multiPart, quint64 timeout, bool autodestroy) :
-	NetworkSender(parseUrl(url), multiPart, timeout, autodestroy)
-{}
-
-NetworkSender::NetworkSender(QUrl url, QHttpMultiPart *multiPart, bool autodestroy) :
-	NetworkSender(url, multiPart, NETWORK_DEFAULT_TIMEOUT, autodestroy)
-{}
-
-
-NetworkSender::NetworkSender(QUrl url, QHttpMultiPart *multiPart, quint64 timeout, bool autodestroy)
-	: _url(url),
-	  _autodestroy(autodestroy)
-{
-	qDebug() << "NetworkSender: constructor for" << url.url();
-	if((!_url.isValid()) || (multiPart == 0)) {
-		qDebug() << "NetworkSender: invalid URL=" << url.url();
+	if((!url.isValid()) || (multiPart == 0)) {
+		qDebug() << "\tNetworkSender: invalid request (URL=" << url.url() << ", multipart=" << multiPart;
 		emit finished(QSharedPointer<QNetworkReply>());
 		_reply.reset();
-		if(_autodestroy) deleteLater();
-		return;
+		return false;
 	}
 
-	_reply.reset(networkAccessManager()->post(QNetworkRequest(_url), multiPart));
+	qDebug() << "CHECKPOINT MIKE" << multiPart << networkAccessManager();
+	_reply.reset(networkAccessManager()->post(QNetworkRequest(url), multiPart));
+	qDebug() << "CHECKPOINT NOVEMBER";
 	multiPart->setParent(_reply.data());
-	qDebug() << "NetworkSender transmitted to " << _url << "reply.isRunnung()=" << _reply->isRunning();
+	qDebug() << "\tNetworkSender: transmitted to " << url << "reply.isRunnung()=" << _reply->isRunning();
 	connect(_reply.data(), &QNetworkReply::finished, this, &NetworkSender::onFinished);
 	_timer.start(timeout, this);
-
-
+	return _reply->isRunning();
 }
 
 void NetworkSender::onFinished() {
@@ -71,15 +59,18 @@ void NetworkSender::onFinished() {
 //		 qDebug() << "DATA:\n" << _reply->readAll();
 		qDebug() << "DATA SIZE:" << _reply->bytesAvailable();
 		emit finished(_reply);
-		if(_autodestroy) deleteLater();;
 	}
 }
 
 void NetworkSender::timerEvent(QTimerEvent *) {
-   qDebug() << "URL" << _url.url() << "SENDING TIMEOUT - ABORTING !!!";
+	if(!_reply->isRunning()) {
+		_timer.stop();
+		return;
+	}
+
+   qDebug() << "NetworkSender: URL" << _reply->url() << "SENDING TIMEOUT - ABORTING !!!";
    _reply->abort();
    emit finished(QSharedPointer<QNetworkReply>());
-   if(_autodestroy) deleteLater();;
 }
 
 QSharedPointer<QNetworkReply> NetworkSender::reply() const

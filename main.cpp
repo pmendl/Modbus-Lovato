@@ -40,12 +40,14 @@ void postFile(void) {
 	part.setBodyDevice(demoFile);
 	multipart->append(part);
 
-/* OLD VERSION
+// OLD VERSION
 	QNetworkReply *reply = NetworkAccessBase::networkAccessManager()->
-						   post(QNetworkRequest(QUrl("http://www.contes.cz/mendl/import.php")), multipart);
-*/
-// NEW VERSION
-	NetworkSender *ns(new NetworkSender("http://www.contes.cz/mendl/import.php", multipart, true));
+						   post(QNetworkRequest(QUrl("http://www.contes.cz/mendl/import.php")),
+								multipart);
+/**/
+/* NEW VERSION
+	NetworkSender *ns;
+	ns->send("http://www.contes.cz/mendl/import.php", multipart);
 	QNetworkReply *reply = ns->reply().data();
 /**/
 	reply->setParent(QCoreApplication::instance());
@@ -106,7 +108,7 @@ int main(int argc, char *argv[])
 										"Gr.*_.?"
 										)
 						  );
-			lr->start();
+//			lr->start();
 
 			qDebug() << "Leaving 'L' command...";
 			break;

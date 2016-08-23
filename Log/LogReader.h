@@ -8,6 +8,8 @@
 #include <QBuffer>
 #include <QSharedPointer>
 
+#include "Network/NetworkSender.h"
+
 
 class LogReader : public QThread
 {
@@ -22,6 +24,9 @@ public:
 	bool isValid();
 	virtual void run();
 
+protected slots:
+	void onFinished();
+
 private:
 	QString _url;
 	QFile _logFile;
@@ -30,7 +35,8 @@ private:
 	QDateTime _from, _to;
 	QString _group, _id;
 	QBuffer *_logBuffer;
-	QSharedPointer<class NetworkSender> _sender;
+	NetworkSender _sender;
+
 
 	void httpTransmit(void);
 };
