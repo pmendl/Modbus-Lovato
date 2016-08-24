@@ -27,6 +27,8 @@
 #include "Log/LogReader.h"
 
 void postFile(void) {
+/* FILE POST
+
 	QBuffer *demoFile = new QBuffer();
 	demoFile->setData(QStringLiteral("Testovací log:\nŘádek 1\nŘádek 2\n").toUtf8());
 	demoFile->open(QIODevice::ReadOnly);
@@ -39,11 +41,28 @@ void postFile(void) {
 //	part.setRawHeader("Expires", QDateTime::currentDateTimeUtc().toString().toUtf8());
 	part.setBodyDevice(demoFile);
 	multipart->append(part);
+*/
+
+	// Adapted from http://doc.qt.io/qt-5/qhttpmultipart.html#details
+	QHttpMultiPart *multiPart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
+
+	QHttpPart textPart;
+	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
+					   QStringLiteral("form-data; name=rpiTest"));
+//	textPart.setBody(rm->groupName().toUtf8());
+	textPart.setBody("test");
+	multiPart->append(textPart);
+	// Adapted code end
 
 // OLD VERSION
 	QNetworkReply *reply = NetworkAccessBase::networkAccessManager()->
-						   post(QNetworkRequest(QUrl("http://www.contes.cz/mendl/import.php")),
-								multipart);
+
+
+						   post(QNetworkRequest(QUrl("http://mirtes.wz.cz/import.php")),
+//						   post(QNetworkRequest(QUrl("http://www.centrum.cz/mendl/import.php")),
+//						   post(QNetworkRequest(QUrl("http://46.28.105.149/mendl/import.php")),
+								multiPart);
+
 /**/
 /* NEW VERSION
 	NetworkSender *ns;
@@ -51,8 +70,8 @@ void postFile(void) {
 	QNetworkReply *reply = ns->reply().data();
 /**/
 	reply->setParent(QCoreApplication::instance());
-	multipart->setParent(reply);
-	demoFile->setParent(reply);
+	multiPart->setParent(reply);
+//	demoFile->setParent(reply);
 
 	QObject::connect(reply, &QNetworkReply::finished, [reply](){
 		qDebug() << "POST finished with result" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
@@ -65,6 +84,12 @@ void postFile(void) {
 		reply->deleteLater();
 	});
 
+/*
+	forever {
+		qDebug() << reply->isRunning() << reply->errorString();
+		sleep(1);
+	}
+*/
 	qDebug() << "Leaving postFile()...";
 }
 
