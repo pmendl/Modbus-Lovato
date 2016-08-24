@@ -20,6 +20,7 @@ PostParsingProcessor::PostParsingProcessor(QSettings *settings, QString group, q
 	setObjectName(ProcessingManager::objectNameFromGroup(POST_PARSING_PROCESSOR_PREFIX, group));
 	setOccurance(settings);
 	qDebug() << "\t\tParsingProcessor will post to" << _url.url();
+	connect(&_sender, &NetworkSender::finished, this, &PostParsingProcessor::onFinished);
 }
 
 bool PostParsingProcessor::isValid() const
@@ -89,18 +90,19 @@ void PostParsingProcessor::process(RequestManager *rm)
 		multiPart->append(textPart);
 	}
 
-	_sender.send(_url, multiPart, true);
-	connect(&_sender, &NetworkSender::finished, this, &PostParsingProcessor::onFinished);
+	_sender.send(_url, multiPart);
 }
 
  void PostParsingProcessor::onFinished(QSharedPointer<class QNetworkReply> reply) {
 	 if(!(reply.isNull()) && (reply->error() == 0)) {
-		 qDebug() << "HEADERS:";
+/*
+		 qDebug() << "PostParsingProcessor HEADERS:";
 		 foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs()) {
 			 qDebug() << "\t" << header.first << "=" << header.second;
 		 }
 //		 qDebug() << "DATA:\n" << _reply->readAll();
 		 qDebug() << "DATA SIZE:" << reply->bytesAvailable();
+*/
 
 		 _inProcess = false;
 		 _priority = nullRequestPriority;

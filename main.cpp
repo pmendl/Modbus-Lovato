@@ -26,23 +26,26 @@
 #include "Network/NetworkSender.h"
 #include "Log/LogReader.h"
 
+NetworkSender ns;
+
 void postFile(void) {
 /* FILE POST
-
+*/
 	QBuffer *demoFile = new QBuffer();
 	demoFile->setData(QStringLiteral("Testovací log:\nŘádek 1\nŘádek 2\n").toUtf8());
 	demoFile->open(QIODevice::ReadOnly);
 
-	QHttpMultiPart *multipart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+	QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 	QHttpPart part;
 	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain"));
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 				   QVariant("form-data; name=\"logFile\"; filename=\"Test.log\""));
 //	part.setRawHeader("Expires", QDateTime::currentDateTimeUtc().toString().toUtf8());
 	part.setBodyDevice(demoFile);
-	multipart->append(part);
-*/
+	multiPart->append(part);
+/**/
 
+/*
 	// Adapted from http://doc.qt.io/qt-5/qhttpmultipart.html#details
 	QHttpMultiPart *multiPart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 
@@ -53,8 +56,8 @@ void postFile(void) {
 	textPart.setBody("test");
 	multiPart->append(textPart);
 	// Adapted code end
-
-// OLD VERSION
+*/
+/*/ OLD VERSION
 	QNetworkReply *reply = NetworkAccessBase::networkAccessManager()->
 
 
@@ -64,18 +67,17 @@ void postFile(void) {
 								multiPart);
 
 /**/
-/* NEW VERSION
-	NetworkSender *ns;
-	ns->send("http://www.contes.cz/mendl/import.php", multipart);
-	QNetworkReply *reply = ns->reply().data();
+// NEW VERSION
+	ns.send("http://mirtes.wz.cz/import.php", multiPart);
+	QNetworkReply *reply = ns.reply().data();
 /**/
 	reply->setParent(QCoreApplication::instance());
 	multiPart->setParent(reply);
-//	demoFile->setParent(reply);
+	demoFile->setParent(reply);
 
 	QObject::connect(reply, &QNetworkReply::finished, [reply](){
 		qDebug() << "POST finished with result" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-		qDebug() << "HEADERS:";
+		qDebug() << "main HEADERS:";
 		foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs()) {
 			qDebug() << "\t" << header.first << "=" << header.second;
 		}
@@ -84,12 +86,6 @@ void postFile(void) {
 		reply->deleteLater();
 	});
 
-/*
-	forever {
-		qDebug() << reply->isRunning() << reply->errorString();
-		sleep(1);
-	}
-*/
 	qDebug() << "Leaving postFile()...";
 }
 

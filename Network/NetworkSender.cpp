@@ -39,6 +39,7 @@ bool NetworkSender::send(QUrl url, QHttpMultiPart *multiPart, quint64 timeout) {
 	qDebug() << "CHECKPOINT NOVEMBER";
 	multiPart->setParent(_reply.data());
 	qDebug() << "\tNetworkSender: transmitted to " << url << "reply.isRunnung()=" << _reply->isRunning();
+//	connect(_reply.data(), &QNetworkReply::finished, this, &NetworkSender::onFinished, Qt::UniqueConnection);
 	connect(_reply.data(), &QNetworkReply::finished, this, &NetworkSender::onFinished);
 	_timer.start(timeout, this);
 	return _reply->isRunning();
@@ -52,7 +53,7 @@ void NetworkSender::onFinished() {
 		qDebug() << "URL" << _reply->url() << "SENT WITH RESULT" << _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
 /// @todo Consider more sophisticated processing above - even signalling uplink
 
-		qDebug() << "HEADERS:";
+		qDebug() << "NetworkSender HEADERS:";
 		foreach (QNetworkReply::RawHeaderPair header, _reply->rawHeaderPairs()) {
 			qDebug() << "\t" << header.first << "=" << header.second;
 		}
