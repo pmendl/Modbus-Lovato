@@ -9,6 +9,7 @@
 #include <QHttpMultiPart>
 #include <QDateTime>
 #include <QNetworkReply>
+#include <QSharedPointer>
 
 #include <iostream>
 #include <cctype>
@@ -28,7 +29,7 @@
 
 NetworkSender ns;
 
-void postFile(void) {
+void postFile(NetworkSender * sender) {
 /* FILE POST
 */
 	QBuffer *demoFile = new QBuffer();
@@ -43,6 +44,7 @@ void postFile(void) {
 //	part.setRawHeader("Expires", QDateTime::currentDateTimeUtc().toString().toUtf8());
 	part.setBodyDevice(demoFile);
 	multiPart->append(part);
+	qDebug() << "CHECKPOINT ZULU";
 /**/
 
 /*
@@ -68,10 +70,14 @@ void postFile(void) {
 
 /**/
 // NEW VERSION
-	ns.send("http://mirtes.wz.cz/import.php", multiPart);
-	QNetworkReply *reply = ns.reply().data();
+	qDebug() << sender->reply().isNull();
+	qDebug() << "\tPre-wait...";
+//	sender.wait();
+	sender->test();
+	qDebug() << "\tPost-wait...";
+	sender->send("http://mirtes.wz.cz/import.php", multiPart);
+	QNetworkReply *reply = sender->reply().data();
 /**/
-	reply->setParent(QCoreApplication::instance());
 	multiPart->setParent(reply);
 	demoFile->setParent(reply);
 
@@ -83,7 +89,6 @@ void postFile(void) {
 		}
 //		qDebug() << "DATA:\n" << reply->readAll();
 		qDebug() << "DATA SIZE:" << reply->bytesAvailable();
-		reply->deleteLater();
 	});
 
 	qDebug() << "Leaving postFile()...";
@@ -116,12 +121,14 @@ int main(int argc, char *argv[])
 			break;
 
 		case 'P': // Post file test
-			postFile();
+			postFile(&ns);
 			break;
 
 		case 'L': // Log reader test
 		{
-			LogReader *lr(new LogReader("http://www.contes.cz/mendl/import.php",
+//			LogReader *lr(new LogReader("http://www.contes.cz/mendl/import.php",
+			LogReader *lr(new LogReader("http://mirtes.wz.cz/import.php",
+
 										processingManager.logServer()->pathname("Common.log"),
 										QDateTime::fromString("Sun Jul 31 12:00:00 2016 GMT"),
 //										QDateTime::fromString(""),

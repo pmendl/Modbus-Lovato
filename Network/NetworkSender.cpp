@@ -11,6 +11,12 @@
 //#include <limits>
 #include <unistd.h>
 
+
+NetworkSender::NetworkSender()
+{
+	_reply.clear();
+}
+
 QUrl NetworkSender::parseUrl(QString url) {
 	QUrl resultUrl(url);
 	if(!resultUrl.isValid())
@@ -81,6 +87,7 @@ QSharedPointer<QNetworkReply> NetworkSender::reply() const
 
 QSharedPointer<QNetworkReply> NetworkSender::wait() {
 
+	qDebug() << "CHECKPOINT X-RAY" << _reply.data();
 	if((!_reply.isNull()) && _reply->isRunning()) {
 		qDebug() << "CHECKPOINT ALPHA";
 		QEventLoop loop;
@@ -91,7 +98,7 @@ QSharedPointer<QNetworkReply> NetworkSender::wait() {
 		qDebug() << "CHECKPOINT DELTA";
 
 	};
-
+	qDebug() << "CHECKPOINT YANKEE";
 	return _reply;
 }
 
@@ -101,9 +108,11 @@ void NetworkSender::test()
 	QEventLoop loop;
 	loop.exec();
 */
-
+/*
+	if(reply().isNull()) return;
 	while(_reply->isRunning()) {
 		std::cout << ".";
 		sleep(1);
 	}
+*/
 }

@@ -7,7 +7,7 @@
  * or testing only.
  * SHOULD BE COMMENTED-OUT ALL TIMES in the production environment !!!
  */
-//#define NO_AUTOMATIC_PROCESSING
+#define NO_AUTOMATIC_PROCESSING
 
 // === Log related settings ===
 #define LOG_RECORD_VALUES "VALUES "

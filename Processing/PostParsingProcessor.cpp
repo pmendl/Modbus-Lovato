@@ -95,15 +95,6 @@ void PostParsingProcessor::process(RequestManager *rm)
 
  void PostParsingProcessor::onFinished(QSharedPointer<class QNetworkReply> reply) {
 	 if(!(reply.isNull()) && (reply->error() == 0)) {
-/*
-		 qDebug() << "PostParsingProcessor HEADERS:";
-		 foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs()) {
-			 qDebug() << "\t" << header.first << "=" << header.second;
-		 }
-//		 qDebug() << "DATA:\n" << _reply->readAll();
-		 qDebug() << "DATA SIZE:" << reply->bytesAvailable();
-*/
-
 		 _inProcess = false;
 		 _priority = nullRequestPriority;
 		 _delayedCount = 0;

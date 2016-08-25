@@ -14,6 +14,7 @@ class NetworkSender : public QObject, public NetworkAccessBase
 	Q_OBJECT
 
 public:
+	NetworkSender();
 	virtual ~NetworkSender() {}
 	static QUrl parseUrl(QString url);
 

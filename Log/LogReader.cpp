@@ -8,6 +8,9 @@
 
 #include "Globals.h"
 
+extern void postFile(NetworkSender *sender);
+extern NetworkSender ns;
+
 LogReader::LogReader(QString url, QString pathname, QDateTime from, QDateTime to,
 					 QString group, QObject *parent) :
 	LogReader( url,  pathname,  POST_ELEMENT_LOG_NO_ID_VALUE,  from,  to,  group,  parent)
@@ -87,7 +90,8 @@ void LogReader::run() {
 
 void LogReader::onFinished() {
 	if(!_logBuffer->bytesToWrite() > 0) {
-		httpTransmit();
+		//httpTransmit();
+		postFile(&ns);
 	}
 
 	if(_startIndex >= 0) {
@@ -103,21 +107,11 @@ void LogReader::onFinished() {
 
 void LogReader::httpTransmit()
 {
-	qDebug() << "LogReader waiting for last HTTP transmit to end..."
-//			 << _sender
-//			 << "->" << !_sender.reply().isNull()
-;
-		_sender.wait();
-//	_sender->test();
-
-
 	qDebug() << "LogReader starts HTTP transmit ...";
 /*
 	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 
 	QHttpPart part;
-*/
-/*
 	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain"));
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 				   QVariant(
@@ -158,8 +152,6 @@ void LogReader::httpTransmit()
 		part = QHttpPart();
 
 	}
-*/
-/*
 
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QString(QStringLiteral("form-data; name=%1"))
@@ -174,12 +166,11 @@ void LogReader::httpTransmit()
 					   .arg(POST_ELEMENT_LOG_END_INDEX_NAME));
 	part.setBody(QString(QStringLiteral("%1")).arg(_endIndex).toUtf8());
 	multipart->append(part);
-*/
-/*
-	if(!_sender.isNull()) qDebug() << "\tCalling _sender->wait()";
-	if(!_sender.isNull()) _sender->wait();
-*/
 
+	qDebug() << "LogReader waiting for last HTTP transmit to end...";
+	_sender.wait();
+
+*/
 
 	QBuffer *demoFile = new QBuffer(this);
 	demoFile->setData(QStringLiteral("Testovací log:\nŘádek 1\nŘádek 2\n").toUtf8());
@@ -195,8 +186,7 @@ void LogReader::httpTransmit()
 	multipart->append(part);
 
 
-
-	qDebug() << "\t_sender.reset(new NetworkSender(...)";
+	qDebug() << "\t_sender.send(_url, multipart)";
 	_sender.send(_url, multipart);
 	multipart->setParent(_sender.reply().data());
 	_logBuffer->setParent(_sender.reply().data());
