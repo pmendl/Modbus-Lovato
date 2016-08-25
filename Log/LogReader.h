@@ -8,17 +8,22 @@
 #include <QSharedPointer>
 
 #include "Network/NetworkSender.h"
+#include "Log/LogFragment.h"
 
 
 class LogReader : public QThread
 {
 public:
-	LogReader(QString url, QString pathname, QString id,
+	LogReader(QString url, QString pathname,
+			  QString id,
 			  QDateTime from = QDateTime(), QDateTime to = QDateTime(),
 			  QString group = QString(), QObject *parent = 0);
 	LogReader(QString url, QString pathname,
 			  QDateTime from = QDateTime(), QDateTime to = QDateTime(),
 			  QString group = QString(), QObject *parent = 0);
+	LogReader(QString url, QString pathname,
+			  QString id,
+			  QString group, QObject *parent = 0);
 	virtual ~LogReader();
 	bool isValid();
 	virtual void run();
@@ -29,15 +34,12 @@ protected slots:
 private:
 	QString _url;
 	QFile _logFile;
-	bool _opened;
-	qint64 _startIndex, _endIndex;
-	QDateTime _from, _to;
-	QString _group, _id;
-	class QBuffer *_logBuffer;
-	NetworkSender *_sender;
+	LogFragment _logFragment;
+
+	NetworkSender _sender;
 
 
-	void httpTransmit(void);
+	void httpTransmit(LogFragment *fragment);
 };
 
 #endif // LOGREADER_H

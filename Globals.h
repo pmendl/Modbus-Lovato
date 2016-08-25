@@ -84,7 +84,7 @@
 
 // === Other POST elements ===
 #define POST_ELEMENT_LOG_FILE_NAME "logFile"
-#define POST_ELEMENT_LOG_NO_ID_VALUE "unidentified"
+//#define POST_ELEMENT_LOG_NO_ID_VALUE "unidentified"
 #define POST_ELEMENT_LOG_ID_NAME "id"
 #define POST_ELEMENT_LOG_FROM_NAME "from"
 #define POST_ELEMENT_LOG_TO_NAME "to"
