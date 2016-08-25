@@ -35,7 +35,7 @@ private:
 	QDateTime _from, _to;
 	QString _group, _id;
 	QBuffer *_logBuffer;
-	NetworkSender _sender;
+	NetworkSender *_sender;
 
 
 	void httpTransmit(void);

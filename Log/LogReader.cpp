@@ -29,7 +29,8 @@ LogReader::LogReader(QString url, QString pathname, QString id, QDateTime from, 
 	_to(to),
 	_group(group),
 	_id(id),
-	_logBuffer(new QBuffer(this))
+	_logBuffer(new QBuffer(this)),
+	_sender(new NetworkSender(this))
 {
 	qDebug() << "LogReader" << pathname << "isValid() = " << _opened;
 	connect(this, &QThread::finished, this, &LogReader::onFinished);
@@ -91,7 +92,7 @@ void LogReader::run() {
 void LogReader::onFinished() {
 	if(!_logBuffer->bytesToWrite() > 0) {
 		//httpTransmit();
-		postFile(&ns);
+		postFile(_sender);
 	}
 
 	if(_startIndex >= 0) {
@@ -101,7 +102,8 @@ void LogReader::onFinished() {
 	}
 
 	qDebug() << "LogReader completed.";
-	deleteLater();
+#warning TESTING/DEBUG ONLY COMMENTED NEXT LINE
+//	deleteLater();
 }
 
 
@@ -187,9 +189,9 @@ void LogReader::httpTransmit()
 
 
 	qDebug() << "\t_sender.send(_url, multipart)";
-	_sender.send(_url, multipart);
-	multipart->setParent(_sender.reply().data());
-	_logBuffer->setParent(_sender.reply().data());
+	_sender->send(_url, multipart);
+	multipart->setParent(_sender->reply().data());
+	_logBuffer->setParent(_sender->reply().data());
 	_logBuffer = new QBuffer(this);
 
 	qDebug() << "LogReader finished HTTP transmit ...";

@@ -12,7 +12,8 @@
 #include <unistd.h>
 
 
-NetworkSender::NetworkSender()
+NetworkSender::NetworkSender(QObject *parent) :
+	QObject(parent)
 {
 	_reply.clear();
 }
@@ -40,7 +41,7 @@ bool NetworkSender::send(QUrl url, QHttpMultiPart *multiPart, quint64 timeout) {
 		return false;
 	}
 
-	qDebug() << "CHECKPOINT MIKE" << multiPart << networkAccessManager();
+	qDebug() << "CHECKPOINT MIKE" << thread() << multiPart << networkAccessManager();
 	_reply.reset(networkAccessManager()->post(QNetworkRequest(url), multiPart));
 	qDebug() << "CHECKPOINT NOVEMBER";
 	multiPart->setParent(_reply.data());
