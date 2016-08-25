@@ -5,6 +5,8 @@
 #include <QHttpMultiPart>
 #include <QRegularExpression>
 #include <QNetworkReply>
+#include <QBuffer>
+
 
 #include "Globals.h"
 
@@ -64,7 +66,7 @@ void LogReader::run() {
 		QRegularExpressionMatch match(recordRegexp.match(record));
 //		qDebug() << "Matches:" << match.capturedTexts();
 		if(match.hasMatch()) {
-			qDebug() << match.captured(1) << match.captured(2);
+//			qDebug() << match.captured(1) << match.captured(2);
 			if(_from.isValid() && (QDateTime::fromString(match.captured(1)) < _from))
 				continue;
 			if(_to.isValid() && (QDateTime::fromString(match.captured(1)) > _to))
@@ -91,8 +93,8 @@ void LogReader::run() {
 
 void LogReader::onFinished() {
 	if(!_logBuffer->bytesToWrite() > 0) {
-		//httpTransmit();
-		postFile(_sender);
+		httpTransmit();
+//		postFile(_sender);
 	}
 
 	if(_startIndex >= 0) {
@@ -102,15 +104,13 @@ void LogReader::onFinished() {
 	}
 
 	qDebug() << "LogReader completed.";
-#warning TESTING/DEBUG ONLY COMMENTED NEXT LINE
-//	deleteLater();
 }
 
 
 void LogReader::httpTransmit()
 {
 	qDebug() << "LogReader starts HTTP transmit ...";
-/*
+
 	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 
 	QHttpPart part;
@@ -122,6 +122,7 @@ void LogReader::httpTransmit()
 					   .arg(_logFile.fileName())
 					   )
 				   );
+	_logBuffer->open(QIODevice::ReadOnly);
 	part.setBodyDevice(_logBuffer);
 	multipart->append(part);
 	part = QHttpPart();
@@ -170,10 +171,11 @@ void LogReader::httpTransmit()
 	multipart->append(part);
 
 	qDebug() << "LogReader waiting for last HTTP transmit to end...";
-	_sender.wait();
+	_sender->wait();
 
-*/
 
+
+/*
 	QBuffer *demoFile = new QBuffer(this);
 	demoFile->setData(QStringLiteral("Testovací log:\nŘádek 1\nŘádek 2\n").toUtf8());
 	demoFile->open(QIODevice::ReadOnly);
@@ -186,7 +188,7 @@ void LogReader::httpTransmit()
 //	part.setRawHeader("Expires", QDateTime::currentDateTimeUtc().toString().toUtf8());
 	part.setBodyDevice(demoFile);
 	multipart->append(part);
-
+*/
 
 	qDebug() << "\t_sender.send(_url, multipart)";
 	_sender->send(_url, multipart);

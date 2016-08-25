@@ -5,7 +5,6 @@
 #include <QDateTime>
 #include <QFile>
 #include <QByteArray>
-#include <QBuffer>
 #include <QSharedPointer>
 
 #include "Network/NetworkSender.h"
@@ -34,7 +33,7 @@ private:
 	qint64 _startIndex, _endIndex;
 	QDateTime _from, _to;
 	QString _group, _id;
-	QBuffer *_logBuffer;
+	class QBuffer *_logBuffer;
 	NetworkSender *_sender;
 
 
