@@ -1,5 +1,7 @@
 #include "LogFragment.h"
 
+#include <QDebug>
+
 LogFragment::LogFragment(
 		QDateTime from, QDateTime to,
 						 QString group, QObject *parent) :

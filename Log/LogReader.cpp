@@ -35,6 +35,7 @@ LogReader::LogReader(QString url, QString pathname, QString id, QDateTime from, 
 {
 	_logFile.open(QIODevice::ReadOnly);
 	qDebug() << "LogReader" << pathname << "isValid() = " << _logFile.isOpen();
+
 	connect(this, &QThread::finished, this, &LogReader::onFinished);
 	start();
 }
@@ -60,12 +61,14 @@ void LogReader::run() {
 	_logFile.seek(_logFragment.startIndex);
 	do {
 		_logFragment.endIndex = _logFile.pos();
+		qDebug() << "@@@> " << _logFragment.endIndex;
+
 		record = _logFile.readLine(LOG_MAX_BUFFER_SIZE);
 //		qDebug() << _logFile.pos() << record;
 		QRegularExpressionMatch match(recordRegexp.match(record));
 //		qDebug() << "Matches:" << match.capturedTexts();
 		if(match.hasMatch()) {
-			qDebug() << match.captured(1) << match.captured(2);
+//***/			qDebug() << match.captured(1) << match.captured(2);
 			if(_logFragment.from().isValid() && (QDateTime::fromString(match.captured(1)) < _logFragment.from()))
 				continue;
 			if(_logFragment.to().isValid() && (QDateTime::fromString(match.captured(1)) > _logFragment.to()))
@@ -78,6 +81,7 @@ void LogReader::run() {
 			if((_logFragment.size() + record.size()) < LOG_MAX_BUFFER_SIZE) {
 				qDebug() << record;
 				_logFragment.buffer().append(record);
+				qDebug() << "\t_logFragment.size()=" << _logFragment.size();
 				continue;
 			}
 			else {
@@ -93,7 +97,7 @@ void LogReader::run() {
 }
 
 void LogReader::onFinished() {
-	if(_logFragment.bytesToWrite() > 0) {
+	if(_logFragment.size() > 0) {
 		httpTransmit(&_logFragment);
 //		postFile(_sender);
 	}
