@@ -38,7 +38,7 @@ void postFile(NetworkSender * sender) {
 
 	QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 	QHttpPart part;
-	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain"));
+	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain; charset=utf-8"));
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 				   QVariant("form-data; name=\"logFile\"; filename=\"Test.log\""));
 //	part.setRawHeader("Expires", QDateTime::currentDateTimeUtc().toString().toUtf8());
@@ -125,19 +125,30 @@ int main(int argc, char *argv[])
 
 		case 'L': // Log reader test
 		{
-//			LogReader *lr(new LogReader("http://www.contes.cz/mendl/import.php",
-			LogReader *lr(new LogReader("http://mirtes.wz.cz/import.php",
-
-										processingManager.logServer()->pathname("Common.log"),
-										QDateTime::fromString("Sun Jul 31 12:00:00 2016 GMT"),
-//										QDateTime::fromString(""),
-										QDateTime::fromString("Sun Jul 31 15:30:00 2016 GMT"),
-										"Gr.*_.?"
-										)
+			new LogReader("http://mirtes.wz.cz/import.php",
+						  processingManager.logServer()->pathname("Common.log"), true,
+						  QDateTime::fromString("Sun Jul 31 12:00:00 2016 GMT"),
+						  //										QDateTime::fromString(""),
+						  QDateTime::fromString("Sun Jul 31 15:30:00 2016 GMT"),
+						  "Gr.*_.?"
 						  );
-//			lr->start();
 
 			qDebug() << "Leaving 'L' command...";
+			break;
+		}
+
+		case 'H': // Log "headers" test
+		{
+			new LogReader("http://mirtes.wz.cz/import.php",
+						  processingManager.logServer()->pathname("Common.log"), false,
+						  "Posílání pouhých hlaviček",
+						  QDateTime::fromString("Sun Jul 31 12:00:00 2016 GMT"),
+						  //										QDateTime::fromString(""),
+						  QDateTime::fromString("Sun Jul 31 15:30:00 2016 GMT"),
+						  "Gr.*_.?"
+						  );
+
+			qDebug() << "Leaving 'H' command...";
 			break;
 		}
 

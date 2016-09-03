@@ -19,16 +19,16 @@ signals:
 	void fragmentFailed(LogFragment *);
 
 public:
-	LogFragment(QSharedPointer<QFile> logfile, QString id,
+	LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QString id,
 				QDateTime from = QDateTime(), QDateTime to = QDateTime(),
 				QString group = QString(), QObject *parent = 0, QThread *workingThread = 0);
 
-	LogFragment(QSharedPointer<QFile> logfile,
+	LogFragment(QSharedPointer<QFile> logfile, bool postFileContent,
 			QDateTime from = QDateTime(), QDateTime to = QDateTime(),
 			QString group = QString(), QObject *parent = 0, QThread *workingThread = 0);
 
 
-	LogFragment(QSharedPointer<QFile> logfile,
+	LogFragment(QSharedPointer<QFile> logfile, bool postFileContent,
 			QString id,
 			QString group, QObject *parent = 0, QThread *workingThread = 0);
 
@@ -51,6 +51,7 @@ public:
 
 private:
 	QSharedPointer<QFile> _logFile;
+	bool _postFileContent;
 	QDateTime _from, _to;
 	QString _group, _id;
 	qint64 _startIndex, _endIndex, _firstFound, _lastFound, _recordCnt;

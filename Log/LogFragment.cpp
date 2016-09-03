@@ -6,23 +6,24 @@
 
 #include "Globals.h"
 
-LogFragment::LogFragment(QSharedPointer<QFile> logfile,
+LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent,
 		QDateTime from, QDateTime to,
 						 QString group, QObject *parent, QThread *workingThread) :
-	LogFragment(logfile, QString(), from, to, group, parent, workingThread)
+	LogFragment(logfile, postFileContent, QString(), from, to, group, parent, workingThread)
 {}
 
-LogFragment::LogFragment(QSharedPointer<QFile> logfile,
+LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent,
 		QString id,
 		QString group, QObject *parent, QThread *workingThread) :
-	LogFragment(logfile, id, QDateTime(), QDateTime(), group, parent, workingThread)
+	LogFragment(logfile, postFileContent, id, QDateTime(), QDateTime(), group, parent, workingThread)
 {}
 
-LogFragment::LogFragment(QSharedPointer<QFile> logfile, QString id,
+LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QString id,
 						 QDateTime from, QDateTime to,
 						 QString group, QObject *parent, QThread *workingThread) :
 	QBuffer(parent),
 	_logFile(logfile),
+	_postFileContent(postFileContent),
 	_from(from),
 	_to(to),
 	_group(group),
@@ -116,6 +117,7 @@ LogFragment *LogFragment::nextFragment(QThread *workingThread) {
 
 	LogFragment *fragment(
 				new LogFragment(_logFile,
+								_postFileContent,
 								_id,
 								_from,
 								_to,

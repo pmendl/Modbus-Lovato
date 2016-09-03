@@ -15,38 +15,30 @@ class LogReader : public QThread
 {
 	Q_OBJECT
 
-public slots:
-	void onFragmentReady(LogFragment *fragment);
-
 public:
-	LogReader(QString url, QString pathname,
+	LogReader(QString url, QString pathname, bool postFileContent,
 			  QString id,
 			  QDateTime from = QDateTime(), QDateTime to = QDateTime(),
 			  QString group = QString(), QObject *parent = 0);
-	LogReader(QString url, QString pathname,
+	LogReader(QString url, QString pathname, bool postFileContent = true,
 			  QDateTime from = QDateTime(), QDateTime to = QDateTime(),
 			  QString group = QString(), QObject *parent = 0);
-	LogReader(QString url, QString pathname,
+	LogReader(QString url, QString pathname, bool postFileContent,
 			  QString id,
 			  QString group, QObject *parent = 0);
 	virtual ~LogReader();
-//	bool isValid();
-//	virtual void run();
 
-/*
+	bool postFileContent() const;
+
 protected slots:
-	void onFinished();
-*/
+	void onFragmentReady(LogFragment *fragment);
 
 protected:
 	void processFragment(LogFragment *fragment);
 
 private:
-//	QString _url;
-//	QFile _logFile;
-//	LogFragment *_logFragment;
-
 	NetworkSender _sender;
+	bool _postFileContent;
 };
 
 #endif // LOGREADER_H

@@ -12,32 +12,30 @@
 
 #include "Globals.h"
 
-extern void postFile(NetworkSender *sender);
-//extern NetworkSender ns;
+//	extern void postFile(NetworkSender *sender);
 
-LogReader::LogReader(QString url, QString pathname, QDateTime from, QDateTime to,
+LogReader::LogReader(QString url, QString pathname,  bool postFileContent,
+					 QDateTime from, QDateTime to,
 					 QString group, QObject *parent) :
-	LogReader( url,  pathname,  QString(),  from,  to,  group,  parent)
+	LogReader( url,  pathname,  postFileContent, QString(),  from,  to,  group,  parent)
 {}
 
-LogReader::LogReader(QString url, QString pathname,
+LogReader::LogReader(QString url, QString pathname, bool postFileContent,
 		  QString id,
 		  QString group, QObject *parent) :
-	LogReader( url,  pathname,  id,  QDateTime(),  QDateTime(),  group,  parent)
+	LogReader( url,  pathname,  postFileContent,  id,  QDateTime(),  QDateTime(),  group,  parent)
 {}
 
 
-LogReader::LogReader(QString url, QString pathname, QString id, QDateTime from, QDateTime to,
+LogReader::LogReader(QString url, QString pathname, bool postFileContent, QString id, QDateTime from, QDateTime to,
 					 QString group, QObject *parent) :
 	QThread(parent),
-//	_logFile(pathname),
-//	_logFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), id, from, to, group, this)),
-	_sender(this, url)
+	_sender(this, url),
+	_postFileContent(postFileContent)
 {
-//	connect(this, &QThread::finished, this, &LogReader::onFinished);
 	start();
 
-	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), id, from, to, group, 0, this));
+	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), postFileContent, id, from, to, group, 0, this));
 	qDebug() << "LogReader" << pathname << "constructed." << url;
 }
 
@@ -56,6 +54,11 @@ void LogReader::processFragment(LogFragment *fragment) {
 				) ? "\tLogReader::processFragment succeeded" : "\tLogReader::processFragment failed")
 				;
 */
+}
+
+bool LogReader::postFileContent() const
+{
+	return _postFileContent;
 }
 
 LogReader::~LogReader() {
@@ -109,17 +112,19 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 	fragment->setParent(multipart);
 
 	QHttpPart part;
-	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain"));
-	part.setHeader(QNetworkRequest::ContentDispositionHeader,
-				   QVariant(
-					   QString(QStringLiteral("form-data; name=\"%1\"; filename=\"%2\""))
-					   .arg(POST_ELEMENT_LOG_FILE_NAME)
-					   .arg(fragment->logfile()->fileName())
-					   )
-				   );
-	part.setBodyDevice(fragment);
-	multipart->append(part);
-	part = QHttpPart();
+	if(_postFileContent) {
+		part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain; charset=utf-8"));
+		part.setHeader(QNetworkRequest::ContentDispositionHeader,
+					   QVariant(
+						   QString(QStringLiteral("form-data; name=\"%1\"; filename=\"%2\""))
+						   .arg(POST_ELEMENT_LOG_FILE_NAME)
+						   .arg(fragment->logfile()->fileName())
+						   )
+					   );
+		part.setBodyDevice(fragment);
+		multipart->append(part);
+		part = QHttpPart();
+	}
 
 	if(!fragment->id().isEmpty()) {
 		part.setHeader(QNetworkRequest::ContentDispositionHeader,
@@ -130,6 +135,7 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 		part = QHttpPart();
 
 	}
+
 	if(fragment->from().isValid()) {
 		part.setHeader(QNetworkRequest::ContentDispositionHeader,
 						   QString(QStringLiteral("form-data; name=%1"))
