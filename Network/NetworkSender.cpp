@@ -27,6 +27,15 @@ QUrl NetworkSender::parseUrl(QString url) {
 	return resultUrl;
 }
 
+void NetworkSender::sendUrl(QUrl url, QHttpMultiPart *multiPart, quint64 timeout) {
+	send(url, multiPart, timeout);
+}
+
+void NetworkSender::sendString(QString url, QHttpMultiPart *multiPart, quint64 timeout) {
+	send(url, multiPart, timeout);
+}
+
+
 bool NetworkSender::send(QString url, QHttpMultiPart *multiPart, quint64 timeout) {
 	return send(parseUrl(url), multiPart, timeout);
 }
@@ -101,19 +110,4 @@ QSharedPointer<QNetworkReply> NetworkSender::wait() {
 	};
 	qDebug() << "CHECKPOINT YANKEE";
 	return _reply;
-}
-
-void NetworkSender::test()
-{
-/*
-	QEventLoop loop;
-	loop.exec();
-*/
-/*
-	if(reply().isNull()) return;
-	while(_reply->isRunning()) {
-		std::cout << ".";
-		sleep(1);
-	}
-*/
 }

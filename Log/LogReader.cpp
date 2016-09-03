@@ -7,6 +7,7 @@
 #include <QNetworkReply>
 #include <QBuffer>
 
+#include "Network/NetworkSender.h"
 
 #include "Globals.h"
 
@@ -34,8 +35,9 @@ LogReader::LogReader(QString url, QString pathname, QString id, QDateTime from, 
 	_sender(new NetworkSender(this))
 {
 	_logFile.open(QIODevice::ReadOnly);
-	qDebug() << "LogReader" << pathname << "isValid() = " << _logFile.isOpen();
+	qDebug() << "LogReader" << pathname << "isOpen() = " << _logFile.isOpen();
 
+	connect(this, &LogReader::testsig, &_sender, &NetworkSender::sendUrl);
 	connect(this, &QThread::finished, this, &LogReader::onFinished);
 	start();
 }

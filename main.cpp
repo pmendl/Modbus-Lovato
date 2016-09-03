@@ -72,8 +72,7 @@ void postFile(NetworkSender * sender) {
 // NEW VERSION
 	qDebug() << sender->reply().isNull();
 	qDebug() << "\tPre-wait...";
-//	sender.wait();
-	sender->test();
+	sender->wait();
 	qDebug() << "\tPost-wait...";
 	sender->send("http://mirtes.wz.cz/import.php", multiPart);
 	QNetworkReply *reply = sender->reply().data();

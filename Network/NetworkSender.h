@@ -13,6 +13,10 @@ class NetworkSender : public QObject, public NetworkAccessBase
 {
 	Q_OBJECT
 
+public slots:
+	void sendUrl(QUrl url, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
+	void sendString(QString url, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
+
 public:
 	NetworkSender(QObject * parent = 0);
 	virtual ~NetworkSender() {}
@@ -23,8 +27,6 @@ public:
 
 	QSharedPointer<QNetworkReply> reply() const;
 	QSharedPointer<QNetworkReply> wait();
-
-	void test();
 
 signals:
 	void finished(QSharedPointer<class QNetworkReply> reply);

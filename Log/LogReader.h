@@ -13,6 +13,8 @@
 
 class LogReader : public QThread
 {
+	Q_OBJECT
+
 public:
 	LogReader(QString url, QString pathname,
 			  QString id,
@@ -30,6 +32,10 @@ public:
 
 protected slots:
 	void onFinished();
+
+signals:
+	void testsig(QUrl url, QHttpMultiPart *multiPart, quint64 timeout);
+
 
 private:
 	QString _url;
