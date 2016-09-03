@@ -21,18 +21,18 @@ signals:
 public:
 	LogFragment(QSharedPointer<QFile> logfile, QString id,
 				QDateTime from = QDateTime(), QDateTime to = QDateTime(),
-				QString group = QString(), QObject *parent = 0);
+				QString group = QString(), QObject *parent = 0, QThread *workingThread = 0);
 
 	LogFragment(QSharedPointer<QFile> logfile,
 			QDateTime from = QDateTime(), QDateTime to = QDateTime(),
-			QString group = QString(), QObject *parent = 0);
+			QString group = QString(), QObject *parent = 0, QThread *workingThread = 0);
 
 
 	LogFragment(QSharedPointer<QFile> logfile,
 			QString id,
-			QString group, QObject *parent = 0);
+			QString group, QObject *parent = 0, QThread *workingThread = 0);
 
-	LogFragment *nextFragment();
+	LogFragment *nextFragment(QThread *workingThread = 0);
 //	QBuffer *pullBuffer();
 
 /* Getters */
@@ -53,6 +53,7 @@ private:
 	QString _group, _id;
 	qint64 _startIndex, _endIndex, _firstFound, _lastFound, _recordCnt;
 	bool _lastFragment;
+	QThread *_parentThread, *_workingThread;
 
 
 

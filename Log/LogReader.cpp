@@ -37,13 +37,12 @@ LogReader::LogReader(QString url, QString pathname, QString id, QDateTime from, 
 //	connect(this, &QThread::finished, this, &LogReader::onFinished);
 	start();
 
-	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), id, from, to, group));
+	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), id, from, to, group, 0, this));
 	qDebug() << "LogReader" << pathname << "constructed.";
 }
 
 void LogReader::processFragment(LogFragment *fragment) {
 	if(!fragment) return;
-	fragment->moveToThread(this);
 	setParent(this);
 	connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
 	connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
@@ -51,10 +50,12 @@ void LogReader::processFragment(LogFragment *fragment) {
 		_sender.wait();
 		deleteLater();
 	});
+/*
 	qDebug() << ((
 					QMetaObject::invokeMethod(fragment, "fillFragment")
 				) ? "\tLogReader::processFragment succeeded" : "\tLogReader::processFragment failed")
 				;
+*/
 }
 
 LogReader::~LogReader() {
@@ -103,8 +104,6 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 		fragment->deleteLater();
 		return;
 	}
-
-	fragment->moveToThread(thread());
 
 	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 	fragment->setParent(multipart);

@@ -8,34 +8,19 @@
 
 LogFragment::LogFragment(QSharedPointer<QFile> logfile,
 		QDateTime from, QDateTime to,
-						 QString group, QObject *parent) :
-	LogFragment(logfile, QString(), from, to, group, parent)
+						 QString group, QObject *parent, QThread *workingThread) :
+	LogFragment(logfile, QString(), from, to, group, parent, workingThread)
 {}
 
 LogFragment::LogFragment(QSharedPointer<QFile> logfile,
 		QString id,
-		QString group, QObject *parent) :
-	LogFragment(logfile, id, QDateTime(), QDateTime(), group, parent)
+		QString group, QObject *parent, QThread *workingThread) :
+	LogFragment(logfile, id, QDateTime(), QDateTime(), group, parent, workingThread)
 {}
-
-bool LogFragment::lastFragment() const
-{
-	return _lastFragment;
-}
-
-qint64 LogFragment::endIndex() const
-{
-	return _endIndex;
-}
-
-qint64 LogFragment::startIndex() const
-{
-	return _startIndex;
-}
 
 LogFragment::LogFragment(QSharedPointer<QFile> logfile, QString id,
 						 QDateTime from, QDateTime to,
-						 QString group, QObject *parent) :
+						 QString group, QObject *parent, QThread *workingThread) :
 	QBuffer(parent),
 	_logFile(logfile),
 	_from(from),
@@ -46,30 +31,33 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, QString id,
 	_endIndex(0),
 	_firstFound(-1),
 	_lastFound(-1),
-	_lastFragment(false)
+	_lastFragment(false),
+	_parentThread(thread()),
+	_workingThread(workingThread)
 
 {
 	if(!_logFile->isReadable())
 		_logFile->open(QIODevice::ReadOnly);
-}
-/*
-_logFile.open(QIODevice::ReadOnly);
-qDebug() << "LogReader" << pathname << "isOpen() = " << _logFile.isOpen();
 
 
-	_logFile.close();
-	qDebug() << "LogReader destroyed.";
-
-*/
-
-void LogFragment::fillFragment(void)
-{
-	qDebug() << "LogFragment starts filling up...";
 	if(!_logFile->isOpen()) {
 		qDebug() << "LogFragment aborted as log file could not get opened...";
 		emit fragmentFailed(this);
 		return;
 	}
+
+	if(_workingThread != 0) {
+		qDebug() << "LogFragment moving to thread" << _workingThread;
+		moveToThread(_workingThread);
+	}
+
+//	fillFragment();
+	QMetaObject::invokeMethod(this, "fillFragment");
+}
+
+void LogFragment::fillFragment(void)
+{
+	qDebug() << "LogFragment starts filling up..." << thread();
 
 	const QRegularExpression recordRegexp(QStringLiteral("(.*?)\\|VALUES (.*?)\\|(.*)"));
 	QString record;
@@ -101,7 +89,8 @@ void LogFragment::fillFragment(void)
 				continue;
 			}
 			else {
-				qDebug() << "LogFragment completed partial fill up ...";
+				qDebug() << "LogFragment completed partial fill up. Moving back to thread" << _parentThread;
+				moveToThread(_parentThread);
 				emit fragmentReady(this);
 				return;
 			}
@@ -109,33 +98,26 @@ void LogFragment::fillFragment(void)
 
 	} while (!record.isEmpty());
 	_lastFragment = true;
+	qDebug() << "LogFragment finished filling up. Moving back to thread" << _parentThread;
+	moveToThread(_parentThread);
 	emit fragmentReady(this);
-	qDebug() << "LogFragment finished filling up...";
 	return;
 }
 
-/*
-QBuffer *LogFragment::pullBuffer() {
-	if(lastFragment)
-		return 0;
-
-	QBuffer *result = new QBuffer(&buffer());
-	startIndex=endIndex;
-	buffer().clear();
-	return result;
-}
-*/
-LogFragment *LogFragment::nextFragment() {
+LogFragment *LogFragment::nextFragment(QThread *workingThread) {
 	if(_lastFragment)
 		return 0;
 
-	LogFragment *fragment( new LogFragment(_logFile,
-						  _id,
-						  _from,
-						  _to,
-						  _group,
-						  this
-						  ));
+	LogFragment *fragment(
+				new LogFragment(_logFile,
+								_id,
+								_from,
+								_to,
+								_group,
+								parent(),
+								((workingThread != 0) ? workingThread : _workingThread)
+								)
+				);
 	fragment->_endIndex = fragment->_startIndex = _endIndex;
 	return fragment;
 }
@@ -175,3 +157,17 @@ QString LogFragment::id() const
 	return _id;
 }
 
+bool LogFragment::lastFragment() const
+{
+	return _lastFragment;
+}
+
+qint64 LogFragment::endIndex() const
+{
+	return _endIndex;
+}
+
+qint64 LogFragment::startIndex() const
+{
+	return _startIndex;
+}
