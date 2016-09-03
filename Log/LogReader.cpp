@@ -6,13 +6,14 @@
 #include <QRegularExpression>
 #include <QNetworkReply>
 #include <QBuffer>
+//#include<QMetaObject>
 
 #include "Network/NetworkSender.h"
 
 #include "Globals.h"
 
 extern void postFile(NetworkSender *sender);
-extern NetworkSender ns;
+//extern NetworkSender ns;
 
 LogReader::LogReader(QString url, QString pathname, QDateTime from, QDateTime to,
 					 QString group, QObject *parent) :
@@ -29,74 +30,49 @@ LogReader::LogReader(QString url, QString pathname,
 LogReader::LogReader(QString url, QString pathname, QString id, QDateTime from, QDateTime to,
 					 QString group, QObject *parent) :
 	QThread(parent),
-	_url(url),
-	_logFile(pathname),
-	_logFragment(id, from, to, group, parent),
-	_sender(new NetworkSender(this))
+//	_logFile(pathname),
+//	_logFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), id, from, to, group, this)),
+	_sender(new NetworkSender(this, url))
 {
-	_logFile.open(QIODevice::ReadOnly);
-	qDebug() << "LogReader" << pathname << "isOpen() = " << _logFile.isOpen();
-
-	connect(this, &QThread::finished, this, &LogReader::onFinished);
+//	connect(this, &QThread::finished, this, &LogReader::onFinished);
 	start();
+
+	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), id, from, to, group, this));
+	qDebug() << "LogReader" << pathname << "constructed.";
+}
+
+void LogReader::processFragment(LogFragment *fragment) {
+	if(!fragment) return;
+	fragment->moveToThread(this);
+	connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
+	connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
+		qDebug() << "LogReader detected fragmentFailed on" << fragment;
+		_sender.wait();
+		deleteLater();
+	});
+	qDebug() << ((
+					QMetaObject::invokeMethod(fragment, "fillFragment")
+				) ? "\tLogReader::processFragment succeeded" : "\tLogReader::processFragment failed")
+				;
 }
 
 LogReader::~LogReader() {
-	_logFile.close();
 	qDebug() << "LogReader destroyed.";
 }
 
+/*
 bool LogReader::isValid() {
-	return _logFile.isOpen();
+	return _logFragment->logfile()->isOpen();
 }
-
-void LogReader::run() {
-	qDebug() << "LogReader thread runs...";
-	if(!isValid()) {
-		qDebug() << "LogReader aborted as log file could not get opened...";
-		return;
-	}
-
-	const QRegularExpression recordRegexp(QStringLiteral("(.*?)\\|VALUES (.*?)\\|(.*)"));
-	QString record;
-	_logFile.seek(_logFragment.startIndex);
-	do {
-		_logFragment.endIndex = _logFile.pos();
-		qDebug() << "@@@> " << _logFragment.endIndex;
-
-		record = _logFile.readLine(LOG_MAX_BUFFER_SIZE);
-//		qDebug() << _logFile.pos() << record;
-		QRegularExpressionMatch match(recordRegexp.match(record));
-//		qDebug() << "Matches:" << match.capturedTexts();
-		if(match.hasMatch()) {
-//***/			qDebug() << match.captured(1) << match.captured(2);
-			if(_logFragment.from().isValid() && (QDateTime::fromString(match.captured(1)) < _logFragment.from()))
-				continue;
-			if(_logFragment.to().isValid() && (QDateTime::fromString(match.captured(1)) > _logFragment.to()))
-				continue;
-			if((!_logFragment.group().isEmpty()) &&
-					(!QRegularExpression(_logFragment.group()).match(match.captured(2)).hasMatch())
-					)
-				continue;
-
-			if((_logFragment.size() + record.size()) < LOG_MAX_BUFFER_SIZE) {
-				qDebug() << record;
-				_logFragment.buffer().append(record);
-				qDebug() << "\t_logFragment.size()=" << _logFragment.size();
-				continue;
-			}
-			else {
-//				_startIndex = _endIndex;
-				return;
-			}
-		}
-
-	} while (!record.isEmpty());
-//	_startIndex = -1;
-	_logFragment.lastFragment = true;
-	return;
+*/
+/*
+QString LogReader::url() const
+{
+	return _url;
 }
+*/
 
+/*
 void LogReader::onFinished() {
 	if(_logFragment.size() > 0) {
 		httpTransmit(&_logFragment);
@@ -111,13 +87,25 @@ void LogReader::onFinished() {
 
 	qDebug() << "LogReader completed.";
 }
+*/
 
-
-void LogReader::httpTransmit(LogFragment *fragment)
+void LogReader::onFragmentReady(LogFragment *fragment)
 {
-	qDebug() << "LogReader starts HTTP transmit ...";
+	qDebug() << "LogReader::onFragmentReady starts HTTP transmit ...";
+	if(fragment == 0) {
+		qDebug() << "LogReader::onFragmentReady called with zero pointer! ERROR!";
+		return;
+	}
+
+
+	if(!fragment->open(QIODevice::ReadOnly)) {
+		qDebug() << "LogReader::onFragmentReady aborts as it can not open fragment for reading...";
+		fragment->deleteLater();
+		return;
+	}
 
 	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
+	fragment->setParent(multipart);
 
 	QHttpPart part;
 	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain"));
@@ -125,11 +113,10 @@ void LogReader::httpTransmit(LogFragment *fragment)
 				   QVariant(
 					   QString(QStringLiteral("form-data; name=\"%1\"; filename=\"%2\""))
 					   .arg(POST_ELEMENT_LOG_FILE_NAME)
-					   .arg(_logFile.fileName())
+					   .arg(fragment->logfile()->fileName())
 					   )
 				   );
-	_logFragment.open(QIODevice::ReadOnly);
-	part.setBodyDevice(_logFragment.pullBuffer());
+	part.setBodyDevice(fragment);
 	multipart->append(part);
 	part = QHttpPart();
 
@@ -165,7 +152,7 @@ void LogReader::httpTransmit(LogFragment *fragment)
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QString(QStringLiteral("form-data; name=%1"))
 					   .arg(POST_ELEMENT_LOG_START_INDEX_NAME));
-	part.setBody(QString(QStringLiteral("%1")).arg(fragment->startIndex).toUtf8());
+	part.setBody(QString(QStringLiteral("%1")).arg(fragment->startIndex()).toUtf8());
 	multipart->append(part);
 	part = QHttpPart();
 
@@ -173,16 +160,22 @@ void LogReader::httpTransmit(LogFragment *fragment)
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QString(QStringLiteral("form-data; name=%1"))
 					   .arg(POST_ELEMENT_LOG_END_INDEX_NAME));
-	part.setBody(QString(QStringLiteral("%1")).arg(fragment->endIndex).toUtf8());
+	part.setBody(QString(QStringLiteral("%1")).arg(fragment->endIndex()).toUtf8());
 	multipart->append(part);
 
 	qDebug() << "\tWaiting for last HTTP transmit to end...";
 	_sender.wait();
 
-	qDebug() << "\tSending new HTTP multipart...";
-	_sender.send(_url, multipart);
-	multipart->setParent(_sender.reply().data());
-	_logFragment.setParent(_sender.reply().data());
+	qDebug() << "\tPosting new HTTP multipart send signal...";
+	qDebug() << ((
+					QMetaObject::invokeMethod(&_sender, "sendMultipart", Q_ARG(QHttpMultiPart *,multipart))
+				) ? "\tSucceeded" : "\tFailed")
+				;
+
+	qDebug() << "\tStarting processing of new fragment...";
+
+	processFragment((fragment->nextFragment()));
+
 
 	qDebug() << "LogReader finished HTTP transmit ...";
 

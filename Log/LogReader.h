@@ -15,6 +15,9 @@ class LogReader : public QThread
 {
 	Q_OBJECT
 
+public slots:
+	void onFragmentReady(LogFragment *fragment);
+
 public:
 	LogReader(QString url, QString pathname,
 			  QString id,
@@ -27,21 +30,23 @@ public:
 			  QString id,
 			  QString group, QObject *parent = 0);
 	virtual ~LogReader();
-	bool isValid();
-	virtual void run();
+//	bool isValid();
+//	virtual void run();
 
+/*
 protected slots:
 	void onFinished();
+*/
+
+protected:
+	void processFragment(LogFragment *fragment);
 
 private:
-	QString _url;
-	QFile _logFile;
-	LogFragment _logFragment;
+//	QString _url;
+//	QFile _logFile;
+//	LogFragment *_logFragment;
 
 	NetworkSender _sender;
-
-
-	void httpTransmit(LogFragment *fragment);
 };
 
 #endif // LOGREADER_H

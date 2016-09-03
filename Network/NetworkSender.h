@@ -13,6 +13,9 @@ class NetworkSender : public QObject, public NetworkAccessBase
 {
 	Q_OBJECT
 
+signals:
+	void finished(QSharedPointer<class QNetworkReply> reply);
+
 public slots:
 	void sendMultipart(QHttpMultiPart *multiPart);
 	void sendMultipartWithTimeout(QHttpMultiPart *multiPart, quint64 timeout);
@@ -49,9 +52,6 @@ public:
 	QUrl defaultSlotUrl() const;
 	void setDefaultSlotUrl(const QString &defaultSlotUrl);
 	void setDefaultSlotUrl(const QUrl &defaultSlotUrl);
-
-signals:
-	void finished(QSharedPointer<class QNetworkReply> reply);
 
 protected slots:
 	void onFinished();

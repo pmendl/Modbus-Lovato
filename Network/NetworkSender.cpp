@@ -122,7 +122,6 @@ bool NetworkSender::send(QNetworkRequest request, QHttpMultiPart *multiPart, qui
 	if((!request.url().isValid()) || (multiPart == 0)) {
 		qDebug() << "\tNetworkSender: invalid request (URL=" << request.url() << ", multipart=" << multiPart;
 		emit finished(QSharedPointer<QNetworkReply>());
-		_reply.reset();
 		return false;
 	}
 
@@ -152,6 +151,7 @@ void NetworkSender::onFinished() {
 //		 qDebug() << "DATA:\n" << _reply->readAll();
 		qDebug() << "DATA SIZE:" << _reply->bytesAvailable();
 		emit finished(_reply);
+		_reply.reset();
 	}
 }
 
