@@ -28,7 +28,12 @@ public slots:
 	void sendToUrlWithObjectAndTimeout(QUrl url, QHttpMultiPart *multiPart, QObject *originatingObject, quint64 timeout);
 
 public:
-	NetworkSender(QObject * parent = 0);
+	explicit NetworkSender(QObject * parent, QString defaultSlotUrl, quint64 defaultSlotTimeout = NETWORK_DEFAULT_TIMEOUT);
+	explicit NetworkSender(QObject * parent = 0, QUrl defaultSlotUrl = QUrl(), quint64 defaultSlotTimeout = NETWORK_DEFAULT_TIMEOUT);
+	explicit NetworkSender(QObject * parent, quint64 defaultSlotTimeout);
+	explicit NetworkSender(QString defaultSlotUrl, quint64 defaultSlotTimeout = NETWORK_DEFAULT_TIMEOUT);
+	explicit NetworkSender(QUrl defaultSlotUrl, quint64 defaultSlotTimeout = NETWORK_DEFAULT_TIMEOUT);
+	explicit NetworkSender(quint64 defaultSlotTimeout);
 	virtual ~NetworkSender() {}
 	static QUrl parseUrl(QString url);
 
@@ -42,6 +47,7 @@ public:
 	quint64 defaultSlotTimeout() const;
 	void setDefaultSlotTimeout(const quint64 &defaultSlotTimeout);
 	QUrl defaultSlotUrl() const;
+	void setDefaultSlotUrl(const QString &defaultSlotUrl);
 	void setDefaultSlotUrl(const QUrl &defaultSlotUrl);
 
 signals:
@@ -54,11 +60,10 @@ protected:
 	void timerEvent(QTimerEvent *);
 
 private:
-	QSharedPointer<class QNetworkReply> _reply;
-	QBasicTimer _timer;
 	quint64 _defaultSlotTimeout;
 	QUrl _defaultSlotUrl;
-
+	QSharedPointer<class QNetworkReply> _reply;
+	QBasicTimer _timer;
 };
 
 #endif // NETWORKSENDER_H

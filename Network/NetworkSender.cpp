@@ -11,14 +11,6 @@
 //#include <limits>
 #include <unistd.h>
 
-
-NetworkSender::NetworkSender(QObject *parent) :
-	QObject(parent),
-	_defaultSlotTimeout(NETWORK_DEFAULT_TIMEOUT)
-{
-	_reply.clear();
-}
-
 QUrl NetworkSender::parseUrl(QString url) {
 	QUrl resultUrl(url);
 	if(!resultUrl.isValid())
@@ -27,6 +19,37 @@ QUrl NetworkSender::parseUrl(QString url) {
 		qDebug() << "URL" << url << "IS INVALID (unparsable) !";
 	return resultUrl;
 }
+
+NetworkSender::NetworkSender(QObject * parent, QString defaultSlotUrl, quint64 defaultSlotTimeout) :
+	QObject(parent),
+	_defaultSlotTimeout(defaultSlotTimeout),
+	_defaultSlotUrl(parseUrl(defaultSlotUrl))
+{}
+
+NetworkSender::NetworkSender(QObject * parent, QUrl defaultSlotUrl, quint64 defaultSlotTimeout) :
+	QObject(parent),
+	_defaultSlotTimeout(defaultSlotTimeout),
+	_defaultSlotUrl(defaultSlotUrl)
+{}
+
+NetworkSender::NetworkSender(QObject * parent, quint64 defaultSlotTimeout) :
+	QObject(parent),
+	_defaultSlotTimeout(defaultSlotTimeout)
+{}
+
+NetworkSender::NetworkSender(QString defaultSlotUrl, quint64 defaultSlotTimeout)  :
+	_defaultSlotTimeout(defaultSlotTimeout),
+	_defaultSlotUrl(defaultSlotUrl)
+{}
+
+NetworkSender::NetworkSender(QUrl defaultSlotUrl, quint64 defaultSlotTimeout)  :
+	_defaultSlotTimeout(defaultSlotTimeout),
+	_defaultSlotUrl(defaultSlotUrl)
+{}
+
+NetworkSender::NetworkSender(quint64 defaultSlotTimeout) :
+	_defaultSlotTimeout(defaultSlotTimeout)
+{}
 
 void NetworkSender::sendMultipart(QHttpMultiPart *multiPart) {
 	sendToUrl(_defaultSlotUrl, multiPart);
@@ -146,6 +169,10 @@ void NetworkSender::timerEvent(QTimerEvent *) {
 QUrl NetworkSender::defaultSlotUrl() const
 {
 	return _defaultSlotUrl;
+}
+
+void NetworkSender::setDefaultSlotUrl(const QString &defaultSlotUrl) {
+	setDefaultSlotUrl(parseUrl(defaultSlotUrl));
 }
 
 void NetworkSender::setDefaultSlotUrl(const QUrl &defaultSlotUrl)
