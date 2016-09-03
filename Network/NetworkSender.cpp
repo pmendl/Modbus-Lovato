@@ -17,6 +17,7 @@ QUrl NetworkSender::parseUrl(QString url) {
 		resultUrl=QUrl::fromUserInput(url);
 	if(!resultUrl.isValid())
 		qDebug() << "URL" << url << "IS INVALID (unparsable) !";
+	qDebug() << "@@@ >>" << url << "->" << resultUrl.url();
 	return resultUrl;
 }
 
@@ -24,18 +25,25 @@ NetworkSender::NetworkSender(QObject * parent, QString defaultSlotUrl, quint64 d
 	QObject(parent),
 	_defaultSlotTimeout(defaultSlotTimeout),
 	_defaultSlotUrl(parseUrl(defaultSlotUrl))
-{}
+{
+	qDebug() << "@@@ 1>" << _defaultSlotUrl.url();
+}
 
 NetworkSender::NetworkSender(QObject * parent, QUrl defaultSlotUrl, quint64 defaultSlotTimeout) :
 	QObject(parent),
 	_defaultSlotTimeout(defaultSlotTimeout),
 	_defaultSlotUrl(defaultSlotUrl)
-{}
+{
+	qDebug() << "@@@ 2>" << _defaultSlotUrl.url();
+}
 
 NetworkSender::NetworkSender(QObject * parent, quint64 defaultSlotTimeout) :
 	QObject(parent),
 	_defaultSlotTimeout(defaultSlotTimeout)
-{}
+{
+	qDebug() << "@@@ 3>" << _defaultSlotUrl.url();
+}
+
 
 NetworkSender::NetworkSender(QString defaultSlotUrl, quint64 defaultSlotTimeout)  :
 	_defaultSlotTimeout(defaultSlotTimeout),

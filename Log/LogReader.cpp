@@ -32,13 +32,13 @@ LogReader::LogReader(QString url, QString pathname, QString id, QDateTime from, 
 	QThread(parent),
 //	_logFile(pathname),
 //	_logFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), id, from, to, group, this)),
-	_sender(new NetworkSender(this, url))
+	_sender(this, url)
 {
 //	connect(this, &QThread::finished, this, &LogReader::onFinished);
 	start();
 
 	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), id, from, to, group, 0, this));
-	qDebug() << "LogReader" << pathname << "constructed.";
+	qDebug() << "LogReader" << pathname << "constructed." << url;
 }
 
 void LogReader::processFragment(LogFragment *fragment) {
