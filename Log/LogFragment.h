@@ -45,7 +45,9 @@ public:
 	qint64 endIndex() const;
 	qint64 firstFound() const;
 	qint64 lastFound() const;
+	qint64 recordCnt() const;
 	bool lastFragment() const;
+
 
 private:
 	QSharedPointer<QFile> _logFile;

@@ -164,6 +164,34 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 	part.setBody(QString(QStringLiteral("%1")).arg(fragment->endIndex()).toUtf8());
 	multipart->append(part);
 
+	part.setHeader(QNetworkRequest::ContentDispositionHeader,
+				   QString(QStringLiteral("form-data; name=%1"))
+				   .arg(POST_ELEMENT_LOG_RECORD_COUNT_NAME));
+	part.setBody(QString(QStringLiteral("%1")).arg(fragment->recordCnt()).toUtf8());
+	multipart->append(part);
+	part = QHttpPart();
+
+	if(fragment->firstFound() != fragment->startIndex()) {
+		part.setHeader(QNetworkRequest::ContentDispositionHeader,
+						   QString(QStringLiteral("form-data; name=%1"))
+						   .arg(POST_ELEMENT_LOG_FIRST_FOUND_NAME));
+		part.setBody(QString(QStringLiteral("%1")).arg(fragment->firstFound()).toUtf8());
+		multipart->append(part);
+		part = QHttpPart();
+
+	}
+
+	if(fragment->lastFound() != fragment->endIndex()) {
+		part.setHeader(QNetworkRequest::ContentDispositionHeader,
+						   QString(QStringLiteral("form-data; name=%1"))
+						   .arg(POST_ELEMENT_LOG_LAST_FOUND_NAME));
+		part.setBody(QString(QStringLiteral("%1")).arg(fragment->lastFound()).toUtf8());
+		multipart->append(part);
+		part = QHttpPart();
+
+	}
+
+
 	qDebug() << "\tWaiting for last HTTP transmit to end...";
 	_sender.wait();
 

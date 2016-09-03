@@ -90,6 +90,9 @@
 #define POST_ELEMENT_LOG_TO_NAME "to"
 #define POST_ELEMENT_LOG_START_INDEX_NAME "startIndex"
 #define POST_ELEMENT_LOG_END_INDEX_NAME "endIndex"
+#define POST_ELEMENT_LOG_FIRST_FOUND_NAME "firstFound"
+#define POST_ELEMENT_LOG_LAST_FOUND_NAME "lastFound"
+#define POST_ELEMENT_LOG_RECORD_COUNT_NAME "recordCount"
 
 // === Global datatypes ===
 #include <QSharedPointer>

@@ -31,6 +31,7 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, QString id,
 	_endIndex(0),
 	_firstFound(-1),
 	_lastFound(-1),
+	_recordCnt(0),
 	_lastFragment(false),
 	_parentThread(thread()),
 	_workingThread(workingThread)
@@ -85,6 +86,11 @@ void LogFragment::fillFragment(void)
 //				qDebug() << record;
 				buffer().append(record);
 				++_recordCnt;
+				if(_firstFound < 0)
+					_firstFound = _endIndex;
+				if(_lastFound < 0)
+					_lastFound = _endIndex + record.size();
+
 				qDebug() << "\tLogFragment recordCnt=" << _recordCnt << ", size=" << size();
 				continue;
 			}
@@ -120,6 +126,11 @@ LogFragment *LogFragment::nextFragment(QThread *workingThread) {
 				);
 	fragment->_endIndex = fragment->_startIndex = _endIndex;
 	return fragment;
+}
+
+qint64 LogFragment::recordCnt() const
+{
+	return _recordCnt;
 }
 
 qint64 LogFragment::lastFound() const
