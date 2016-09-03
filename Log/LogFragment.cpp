@@ -49,7 +49,8 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, QString id,
 	_lastFragment(false)
 
 {
-	_logFile->open(QIODevice::ReadOnly);
+	if(!_logFile->isReadable())
+		_logFile->open(QIODevice::ReadOnly);
 }
 /*
 _logFile.open(QIODevice::ReadOnly);
@@ -93,13 +94,14 @@ void LogFragment::fillFragment(void)
 				continue;
 
 			if((size() + record.size()) < LOG_MAX_BUFFER_SIZE) {
-				qDebug() << record;
+//				qDebug() << record;
 				buffer().append(record);
 				++_recordCnt;
 				qDebug() << "\tLogFragment recordCnt=" << _recordCnt << ", size=" << size();
 				continue;
 			}
 			else {
+				qDebug() << "LogFragment completed partial fill up ...";
 				emit fragmentReady(this);
 				return;
 			}
@@ -108,6 +110,7 @@ void LogFragment::fillFragment(void)
 	} while (!record.isEmpty());
 	_lastFragment = true;
 	emit fragmentReady(this);
+	qDebug() << "LogFragment finished filling up...";
 	return;
 }
 
@@ -123,6 +126,9 @@ QBuffer *LogFragment::pullBuffer() {
 }
 */
 LogFragment *LogFragment::nextFragment() {
+	if(_lastFragment)
+		return 0;
+
 	LogFragment *fragment( new LogFragment(_logFile,
 						  _id,
 						  _from,

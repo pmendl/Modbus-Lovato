@@ -37,13 +37,14 @@ LogReader::LogReader(QString url, QString pathname, QString id, QDateTime from, 
 //	connect(this, &QThread::finished, this, &LogReader::onFinished);
 	start();
 
-	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), id, from, to, group, this));
+	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), id, from, to, group));
 	qDebug() << "LogReader" << pathname << "constructed.";
 }
 
 void LogReader::processFragment(LogFragment *fragment) {
 	if(!fragment) return;
 	fragment->moveToThread(this);
+	setParent(this);
 	connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
 	connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
 		qDebug() << "LogReader detected fragmentFailed on" << fragment;
@@ -97,12 +98,13 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 		return;
 	}
 
-
 	if(!fragment->open(QIODevice::ReadOnly)) {
 		qDebug() << "LogReader::onFragmentReady aborts as it can not open fragment for reading...";
 		fragment->deleteLater();
 		return;
 	}
+
+	fragment->moveToThread(thread());
 
 	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 	fragment->setParent(multipart);
