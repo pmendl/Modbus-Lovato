@@ -33,10 +33,6 @@ public:
 protected slots:
 	void onFinished();
 
-signals:
-	void testsig(QUrl url, QHttpMultiPart *multiPart, quint64 timeout);
-
-
 private:
 	QString _url;
 	QFile _logFile;

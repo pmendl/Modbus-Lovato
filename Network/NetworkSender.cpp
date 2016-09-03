@@ -13,7 +13,8 @@
 
 
 NetworkSender::NetworkSender(QObject *parent) :
-	QObject(parent)
+	QObject(parent),
+	_defaultSlotTimeout(NETWORK_DEFAULT_TIMEOUT)
 {
 	_reply.clear();
 }
@@ -27,12 +28,58 @@ QUrl NetworkSender::parseUrl(QString url) {
 	return resultUrl;
 }
 
-void NetworkSender::sendUrl(QUrl url, QHttpMultiPart *multiPart, quint64 timeout) {
-	send(url, multiPart, timeout);
+void NetworkSender::sendMultipart(QHttpMultiPart *multiPart) {
+	sendToUrl(_defaultSlotUrl, multiPart);
 }
 
-void NetworkSender::sendString(QString url, QHttpMultiPart *multiPart, quint64 timeout) {
-	send(url, multiPart, timeout);
+void NetworkSender::sendMultipartWithTimeout(QHttpMultiPart *multiPart, quint64 timeout) {
+	sendToUrlWithTimeout(_defaultSlotUrl, multiPart, timeout);
+}
+
+void NetworkSender::sendMultipartWithObject(QHttpMultiPart *multiPart, QObject *originatingObject) {
+	sendToUrlWithObject(_defaultSlotUrl, multiPart, originatingObject);
+}
+
+void NetworkSender::sendMultipartWithObjectAndTimeout(QHttpMultiPart *multiPart, QObject *originatingObject, quint64 timeout) {
+	sendToUrlWithObjectAndTimeout(_defaultSlotUrl, multiPart, originatingObject, timeout);
+}
+
+void NetworkSender::sendToString(QString url, QHttpMultiPart *multiPart) {
+	sendToUrlWithObjectAndTimeout(parseUrl(url), multiPart, sender(), _defaultSlotTimeout);
+}
+
+void NetworkSender::sendToUrl(QUrl url, QHttpMultiPart *multiPart) {
+	sendToUrlWithObjectAndTimeout(url, multiPart, sender(), _defaultSlotTimeout);
+}
+
+
+void NetworkSender::sendToStringWithTimeout(QString url, QHttpMultiPart *multiPart, quint64 timeout) {
+	sendToUrlWithObjectAndTimeout(parseUrl(url), multiPart, sender(), timeout);
+}
+
+void NetworkSender::sendToUrlWithTimeout(QUrl url, QHttpMultiPart *multiPart, quint64 timeout) {
+	sendToUrlWithObjectAndTimeout(url, multiPart, sender(), timeout);
+}
+
+
+void NetworkSender::sendToStringWithObject(QString url, QHttpMultiPart *multiPart, QObject *originatingObject) {
+	sendToUrlWithObjectAndTimeout(parseUrl(url), multiPart, originatingObject, _defaultSlotTimeout);
+}
+
+void NetworkSender::sendToUrlWithObject(QUrl url, QHttpMultiPart *multiPart, QObject *originatingObject) {
+	sendToUrlWithObjectAndTimeout(url, multiPart, originatingObject, _defaultSlotTimeout);
+
+}
+
+
+void NetworkSender::sendToStringWithObjectAndTimeout(QString url, QHttpMultiPart *multiPart, QObject *originatingObject, quint64 timeout) {
+	sendToUrlWithObjectAndTimeout(parseUrl(url), multiPart, originatingObject, timeout);
+}
+
+void NetworkSender::sendToUrlWithObjectAndTimeout(QUrl url, QHttpMultiPart *multiPart, QObject *originatingObject, quint64 timeout) {
+	QNetworkRequest req(url);
+	req.setOriginatingObject(originatingObject);
+	send(req, multiPart, timeout);
 }
 
 
@@ -41,20 +88,26 @@ bool NetworkSender::send(QString url, QHttpMultiPart *multiPart, quint64 timeout
 }
 
 bool NetworkSender::send(QUrl url, QHttpMultiPart *multiPart, quint64 timeout) {
-	qDebug() << "\tNetworkSender::send(" << url.url() << ")";
+	return send(QNetworkRequest(url), multiPart, timeout);
+}
 
-	if((!url.isValid()) || (multiPart == 0)) {
-		qDebug() << "\tNetworkSender: invalid request (URL=" << url.url() << ", multipart=" << multiPart;
+
+bool NetworkSender::send(QNetworkRequest request, QHttpMultiPart *multiPart, quint64 timeout) {
+
+	qDebug() << "\tNetworkSender::send(" << request.url() << ")";
+
+	if((!request.url().isValid()) || (multiPart == 0)) {
+		qDebug() << "\tNetworkSender: invalid request (URL=" << request.url() << ", multipart=" << multiPart;
 		emit finished(QSharedPointer<QNetworkReply>());
 		_reply.reset();
 		return false;
 	}
 
 	qDebug() << "CHECKPOINT MIKE" << thread() << multiPart << networkAccessManager();
-	_reply.reset(networkAccessManager()->post(QNetworkRequest(url), multiPart));
+	_reply.reset(networkAccessManager()->post(request, multiPart));
 	qDebug() << "CHECKPOINT NOVEMBER";
 	multiPart->setParent(_reply.data());
-	qDebug() << "\tNetworkSender: transmitted to " << url << "reply.isRunnung()=" << _reply->isRunning();
+	qDebug() << "\tNetworkSender: transmitted to " << request.url() << "reply.isRunnung()=" << _reply->isRunning();
 //	connect(_reply.data(), &QNetworkReply::finished, this, &NetworkSender::onFinished, Qt::UniqueConnection);
 	connect(_reply.data(), &QNetworkReply::finished, this, &NetworkSender::onFinished);
 	_timer.start(timeout, this);
@@ -88,6 +141,26 @@ void NetworkSender::timerEvent(QTimerEvent *) {
    qDebug() << "NetworkSender: URL" << _reply->url() << "SENDING TIMEOUT - ABORTING !!!";
    _reply->abort();
    emit finished(QSharedPointer<QNetworkReply>());
+}
+
+QUrl NetworkSender::defaultSlotUrl() const
+{
+	return _defaultSlotUrl;
+}
+
+void NetworkSender::setDefaultSlotUrl(const QUrl &defaultSlotUrl)
+{
+	_defaultSlotUrl = defaultSlotUrl;
+}
+
+quint64 NetworkSender::defaultSlotTimeout() const
+{
+	return _defaultSlotTimeout;
+}
+
+void NetworkSender::setDefaultSlotTimeout(const quint64 &defaultSlotTimeout)
+{
+	_defaultSlotTimeout = defaultSlotTimeout;
 }
 
 QSharedPointer<QNetworkReply> NetworkSender::reply() const
