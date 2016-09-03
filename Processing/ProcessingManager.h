@@ -22,7 +22,6 @@ public slots:
 	void onQueryRequest();
 
 private:
-//	static QSharedPointer<class ModbusSerialMaster> _serialMaster;
 	ModbusSerialMaster _serialMaster;
 	QSharedPointer<LogServer> _logServer;
 };

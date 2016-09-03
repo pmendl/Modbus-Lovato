@@ -22,9 +22,7 @@ LogParsingProcessor::LogParsingProcessor(QSettings *settings, QString group, QSh
 }
 
 bool LogParsingProcessor::isValid() const {
-#warning TESTING ONLY
-// Should employ some _logServer->test(_logName);
-	return true;
+	return _logServer->isValid();
 }
 
 void LogParsingProcessor::process(RequestManager *rm){

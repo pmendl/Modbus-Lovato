@@ -43,7 +43,6 @@ ADUSharedPtr_t ModbusSerialMaster::process(ADUSharedPtr_t request)
 			timeout=settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_CONSEQUENTREADTIMEOUT_KEY), MODBUS_CONSEQUENTREADTIMEOUT_DEFAULT).toInt();
 			response->append(read(256));
 			if(response->isValid()) {
-//				qDebug() << "Collected" << response->size() << "bytes: " << response->toHex();
 				return response;
 			}
 		}

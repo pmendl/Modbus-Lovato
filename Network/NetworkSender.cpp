@@ -6,18 +6,12 @@
 #include <QEventLoop>
 #include <QHttpMultiPart>
 
-#include <iostream>
-//#include <cctype>
-//#include <limits>
-#include <unistd.h>
-
 QUrl NetworkSender::parseUrl(QString url) {
 	QUrl resultUrl(url);
 	if(!resultUrl.isValid())
 		resultUrl=QUrl::fromUserInput(url);
 	if(!resultUrl.isValid())
 		qDebug() << "URL" << url << "IS INVALID (unparsable) !";
-	qDebug() << "@@@ >>" << url << "->" << resultUrl.url();
 	return resultUrl;
 }
 
@@ -25,24 +19,18 @@ NetworkSender::NetworkSender(QObject * parent, QString defaultSlotUrl, quint64 d
 	QObject(parent),
 	_defaultSlotTimeout(defaultSlotTimeout),
 	_defaultSlotUrl(parseUrl(defaultSlotUrl))
-{
-	qDebug() << "@@@ 1>" << _defaultSlotUrl.url();
-}
+{}
 
 NetworkSender::NetworkSender(QObject * parent, QUrl defaultSlotUrl, quint64 defaultSlotTimeout) :
 	QObject(parent),
 	_defaultSlotTimeout(defaultSlotTimeout),
 	_defaultSlotUrl(defaultSlotUrl)
-{
-	qDebug() << "@@@ 2>" << _defaultSlotUrl.url();
-}
+{}
 
 NetworkSender::NetworkSender(QObject * parent, quint64 defaultSlotTimeout) :
 	QObject(parent),
 	_defaultSlotTimeout(defaultSlotTimeout)
-{
-	qDebug() << "@@@ 3>" << _defaultSlotUrl.url();
-}
+{}
 
 
 NetworkSender::NetworkSender(QString defaultSlotUrl, quint64 defaultSlotTimeout)  :
@@ -133,9 +121,7 @@ bool NetworkSender::send(QNetworkRequest request, QHttpMultiPart *multiPart, qui
 		return false;
 	}
 
-	qDebug() << "CHECKPOINT MIKE" << thread() << multiPart << networkAccessManager();
 	_reply.reset(networkAccessManager()->post(request, multiPart));
-	qDebug() << "CHECKPOINT NOVEMBER";
 	multiPart->setParent(_reply.data());
 	qDebug() << "\tNetworkSender: transmitted to " << request.url() << "reply.isRunnung()=" << _reply->isRunning();
 //	connect(_reply.data(), &QNetworkReply::finished, this, &NetworkSender::onFinished, Qt::UniqueConnection);
@@ -205,17 +191,11 @@ QSharedPointer<QNetworkReply> NetworkSender::reply() const
 
 QSharedPointer<QNetworkReply> NetworkSender::wait() {
 
-	qDebug() << "CHECKPOINT X-RAY" << _reply.data();
 	if((!_reply.isNull()) && _reply->isRunning()) {
-		qDebug() << "CHECKPOINT ALPHA";
 		QEventLoop loop;
-		qDebug() << "CHECKPOINT BRAVO";
 		connect(_reply.data(), &QNetworkReply::finished, &loop, &QEventLoop::quit);
-		qDebug() << "CHECKPOINT CHARLIE";
 		loop.exec();
-		qDebug() << "CHECKPOINT DELTA";
 
 	};
-	qDebug() << "CHECKPOINT YANKEE";
 	return _reply;
 }

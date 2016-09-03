@@ -6,13 +6,9 @@
 #include <QRegularExpression>
 #include <QNetworkReply>
 #include <QBuffer>
-//#include<QMetaObject>
-
-#include "Network/NetworkSender.h"
 
 #include "Globals.h"
-
-//	extern void postFile(NetworkSender *sender);
+#include "Network/NetworkSender.h"
 
 LogReader::LogReader(QString url, QString pathname,  bool postFileContent,
 					 QDateTime from, QDateTime to,
@@ -48,12 +44,6 @@ void LogReader::processFragment(LogFragment *fragment) {
 		_sender.wait();
 		deleteLater();
 	});
-/*
-	qDebug() << ((
-					QMetaObject::invokeMethod(fragment, "fillFragment")
-				) ? "\tLogReader::processFragment succeeded" : "\tLogReader::processFragment failed")
-				;
-*/
 }
 
 bool LogReader::postFileContent() const
@@ -64,35 +54,6 @@ bool LogReader::postFileContent() const
 LogReader::~LogReader() {
 	qDebug() << "LogReader destroyed.";
 }
-
-/*
-bool LogReader::isValid() {
-	return _logFragment->logfile()->isOpen();
-}
-*/
-/*
-QString LogReader::url() const
-{
-	return _url;
-}
-*/
-
-/*
-void LogReader::onFinished() {
-	if(_logFragment.size() > 0) {
-		httpTransmit(&_logFragment);
-//		postFile(_sender);
-	}
-
-	if(!_logFragment.lastFragment) {
-		start();
-		qDebug() << "LogReader started next iteration.";
-		return;
-	}
-
-	qDebug() << "LogReader completed.";
-}
-*/
 
 void LogReader::onFragmentReady(LogFragment *fragment)
 {

@@ -71,11 +71,10 @@ void LogWritter::run() {
 					+ QStringLiteral(LOG_SEPARATOR_RECORD)).toUtf8());
 		file.close();
 		file.flush();
-		qDebug() << "WRITTEN" << _pathname;
+		qDebug() << "Log WRITTEN:" << _pathname;
 	}
 	else
 		qDebug() << _pathname << file.errorString();
-//	deleteLater();
 }
 
 #include "LogServer.moc"

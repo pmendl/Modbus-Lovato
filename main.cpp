@@ -27,85 +27,15 @@
 #include "Network/NetworkSender.h"
 #include "Log/LogReader.h"
 
-NetworkSender ns;
-
-void postFile(NetworkSender * sender) {
-/* FILE POST
-*/
-	QBuffer *demoFile = new QBuffer();
-	demoFile->setData(QStringLiteral("Testovací log:\nŘádek 1\nŘádek 2\n").toUtf8());
-	demoFile->open(QIODevice::ReadOnly);
-
-	QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-	QHttpPart part;
-	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain; charset=utf-8"));
-	part.setHeader(QNetworkRequest::ContentDispositionHeader,
-				   QVariant("form-data; name=\"logFile\"; filename=\"Test.log\""));
-//	part.setRawHeader("Expires", QDateTime::currentDateTimeUtc().toString().toUtf8());
-	part.setBodyDevice(demoFile);
-	multiPart->append(part);
-	qDebug() << "CHECKPOINT ZULU";
-/**/
-
-/*
-	// Adapted from http://doc.qt.io/qt-5/qhttpmultipart.html#details
-	QHttpMultiPart *multiPart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
-
-	QHttpPart textPart;
-	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
-					   QStringLiteral("form-data; name=rpiTest"));
-//	textPart.setBody(rm->groupName().toUtf8());
-	textPart.setBody("test");
-	multiPart->append(textPart);
-	// Adapted code end
-*/
-/*/ OLD VERSION
-	QNetworkReply *reply = NetworkAccessBase::networkAccessManager()->
-
-
-						   post(QNetworkRequest(QUrl("http://mirtes.wz.cz/import.php")),
-//						   post(QNetworkRequest(QUrl("http://www.centrum.cz/mendl/import.php")),
-//						   post(QNetworkRequest(QUrl("http://46.28.105.149/mendl/import.php")),
-								multiPart);
-
-/**/
-// NEW VERSION
-	qDebug() << sender->reply().isNull();
-	qDebug() << "\tPre-wait...";
-	sender->wait();
-	qDebug() << "\tPost-wait...";
-	sender->send("http://mirtes.wz.cz/import.php", multiPart);
-	QNetworkReply *reply = sender->reply().data();
-/**/
-	multiPart->setParent(reply);
-	demoFile->setParent(reply);
-
-	QObject::connect(reply, &QNetworkReply::finished, [reply](){
-		qDebug() << "POST finished with result" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-		qDebug() << "main HEADERS:";
-		foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs()) {
-			qDebug() << "\t" << header.first << "=" << header.second;
-		}
-//		qDebug() << "DATA:\n" << reply->readAll();
-		qDebug() << "DATA SIZE:" << reply->bytesAvailable();
-	});
-
-	qDebug() << "Leaving postFile()...";
-}
 
 int main(int argc, char *argv[])
 {
-//	ProtocolDataUnit u({1,2,3});
-
 	/// @warning The code assumes Linux OS to be used, as QSettings::setDefaultFormat(...INI...)
 	/// does not behave properly - at least it reads no groups/values on construction.
 	QCoreApplication a(argc, argv);
 	QCoreApplication::setOrganizationName("PMCS");
 	QCoreApplication::setOrganizationDomain("mendl.info");
 	QCoreApplication::setApplicationName("LovatoModbus");
-
-	// Make relative paths start in the application folder
-//	QDir::setCurrent(QCoreApplication::applicationDirPath());
 
 	std::cout << "\nConstructing ProcessingManager object...\n";
 	ProcessingManager processingManager;
@@ -117,10 +47,6 @@ int main(int argc, char *argv[])
 		case 'Q':
 			std::cout << "Quitting...\n";
 			ks.finish();
-			break;
-
-		case 'P': // Post file test
-			postFile(&ns);
 			break;
 
 		case 'L': // Log reader test
@@ -155,15 +81,9 @@ int main(int argc, char *argv[])
 		case 'E': // Test event loop
 		{
 			qDebug() << "Entering QEventLoop test...";
-//*
 			QEventLoop loop;
 			QObject::connect(&ks, &KeyboardScanner::KeyPressed, &loop, &QEventLoop::quit);
 			loop.exec();
-//*/
-/*
-			NetworkSender sender(":::", QSharedPointer<QHttpMultiPart>());
-			sender.test();
-*/
 			qDebug() << "Exiting QEventLoop test...";
 			break;
 		}
@@ -178,7 +98,6 @@ int main(int argc, char *argv[])
 
 		case 'W': // Write INI
 		{
-//			QSettings settings(QSettings::SystemScope,"PMCS", "LovatoModbus");
 			QSettings settings;
 			QTextStream in(stdin);
 			QString str, value;

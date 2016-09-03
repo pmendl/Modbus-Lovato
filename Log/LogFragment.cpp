@@ -53,27 +53,23 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QS
 		moveToThread(_workingThread);
 	}
 
-//	fillFragment();
 	QMetaObject::invokeMethod(this, "fillFragment");
 }
 
 void LogFragment::fillFragment(void)
 {
-	qDebug() << "LogFragment starts filling up..." << thread();
+	qDebug() << "LogFragment starts filling up...";
 
 	const QRegularExpression recordRegexp(QStringLiteral("(.*?)\\|VALUES (.*?)\\|(.*)"));
 	QString record;
 	_logFile->seek(_startIndex);
 	do {
 		_endIndex = _logFile->pos();
-//		qDebug() << "@@@> " << _logFragment.endIndex;
 
 		record = _logFile->readLine(LOG_MAX_BUFFER_SIZE);
-//		qDebug() << _logFile.pos() << record;
 		QRegularExpressionMatch match(recordRegexp.match(record));
-//		qDebug() << "Matches:" << match.capturedTexts();
 		if(match.hasMatch()) {
-//***/			qDebug() << match.captured(1) << match.captured(2);
+//			qDebug() << match.captured(1) << match.captured(2);
 			if(_from.isValid() && (QDateTime::fromString(match.captured(1)) < _from))
 				continue;
 			if(_to.isValid() && (QDateTime::fromString(match.captured(1)) > _to))

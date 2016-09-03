@@ -33,7 +33,6 @@ public:
 			QString group, QObject *parent = 0, QThread *workingThread = 0);
 
 	LogFragment *nextFragment(QThread *workingThread = 0);
-//	QBuffer *pullBuffer();
 
 /* Getters */
 	QDateTime from() const;

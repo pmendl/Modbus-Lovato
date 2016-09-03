@@ -16,7 +16,7 @@ ProcessingManager::ProcessingManager(QObject *parent) :
 	_logServer(new LogServer(REQUEST_PARSING_LOG_PATH_DEFAULT))
 {
 #ifdef NO_AUTOMATIC_PROCESSING
-	#warning TESTING ONLY
+	#warning TESTING ONLY - managed by setting NO_AUTOMATIC_PROCESSING in Globals.h
 	return;
 #endif
 

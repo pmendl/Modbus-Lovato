@@ -3,9 +3,6 @@
 
 #include <QtNetwork/QNetworkAccessManager>
 
-//#include <memory>
-
-
 /// Pure virtual base implementing global QNetworkAccessManager.
 /// @note Based on modern C++ publications singleton was avoided
 /// by using static QNetworkAccessManager object.
