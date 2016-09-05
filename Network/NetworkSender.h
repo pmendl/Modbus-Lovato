@@ -8,6 +8,7 @@
 
 #include "Globals.h"
 #include "Network/NetworkAccessBase.h"
+#include "Network/CommandsDistributor.h"
 
 class NetworkSender : public QObject, public NetworkAccessBase
 {
@@ -53,6 +54,8 @@ public:
 	void setDefaultSlotUrl(const QString &defaultSlotUrl);
 	void setDefaultSlotUrl(const QUrl &defaultSlotUrl);
 
+	static const CommandsDistributor *commandsDistributor();
+
 protected slots:
 	void onFinished();
 
@@ -64,6 +67,7 @@ private:
 	QUrl _defaultSlotUrl;
 	QSharedPointer<class QNetworkReply> _reply;
 	QBasicTimer _timer;
+	static CommandsDistributor _commandsDistributor;
 };
 
 #endif // NETWORKSENDER_H

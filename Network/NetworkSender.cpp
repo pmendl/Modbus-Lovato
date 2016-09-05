@@ -132,21 +132,9 @@ bool NetworkSender::send(QNetworkRequest request, QHttpMultiPart *multiPart, qui
 
 void NetworkSender::onFinished() {
 	_timer.stop();
-	if(_reply->error() != 0)
-		qDebug() << "URL" << _reply->url() << "SENDING ERROR: " << _reply->errorString();
-   else {
-		qDebug() << "URL" << _reply->url() << "SENT WITH RESULT" << _reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
-/// @todo Consider more sophisticated processing above - even signalling uplink
-
-		qDebug() << "NetworkSender HEADERS:";
-		foreach (QNetworkReply::RawHeaderPair header, _reply->rawHeaderPairs()) {
-			qDebug() << "\t" << header.first << "=" << header.second;
-		}
-//		 qDebug() << "DATA:\n" << _reply->readAll();
-		qDebug() << "DATA SIZE:" << _reply->bytesAvailable();
-		emit finished(_reply);
-		_reply.reset();
-	}
+	_commandsDistributor.emitCommandReply(_reply);
+	emit finished(_reply);
+	_reply.reset();
 }
 
 void NetworkSender::timerEvent(QTimerEvent *) {
@@ -158,6 +146,11 @@ void NetworkSender::timerEvent(QTimerEvent *) {
    qDebug() << "NetworkSender: URL" << _reply->url() << "SENDING TIMEOUT - ABORTING !!!";
    _reply->abort();
    emit finished(QSharedPointer<QNetworkReply>());
+}
+
+const CommandsDistributor *NetworkSender::commandsDistributor()
+{
+	return &_commandsDistributor;
 }
 
 QUrl NetworkSender::defaultSlotUrl() const
@@ -199,3 +192,5 @@ QSharedPointer<QNetworkReply> NetworkSender::wait() {
 	};
 	return _reply;
 }
+
+CommandsDistributor NetworkSender::_commandsDistributor;

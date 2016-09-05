@@ -37,6 +37,7 @@ LogReader::LogReader(QString url, QString pathname, bool postFileContent, QStrin
 
 void LogReader::processFragment(LogFragment *fragment) {
 	if(!fragment) return;
+	qDebug() << "\tStarting processing of new fragment...";
 	setParent(this);
 	connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
 	connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
@@ -167,8 +168,6 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 					QMetaObject::invokeMethod(&_sender, "sendMultipart", Q_ARG(QHttpMultiPart *,multipart))
 				) ? "\tSucceeded" : "\tFailed")
 				;
-
-	qDebug() << "\tStarting processing of new fragment...";
 
 	processFragment((fragment->nextFragment()));
 
