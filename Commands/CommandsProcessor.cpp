@@ -5,7 +5,7 @@
 #include <QRegularExpression>
 #include <QFileInfo>
 
-#include "Commands/CommandsParser.h"
+#include "Commands/CommandsDescriptor.h"
 
 CommandsProcessor::CommandsProcessor()
 {}
@@ -26,8 +26,8 @@ void CommandsProcessor::processHttpReply(QSharedPointer<class QNetworkReply> rep
 		if(fi.completeSuffix().toUpper() == QStringLiteral("CONF")) {
 			qDebug() << "\tCONF extension detected.";
 
-			CommandsParser parser(reply.data());
-			(void)parser;
+			CommandsDescriptor descriptor(reply.data());
+			(void)descriptor;
 		}
 
 	}

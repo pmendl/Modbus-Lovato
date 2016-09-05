@@ -37,7 +37,7 @@ SOURCES += main.cpp \
     Log/LogFragment.cpp \
     Network/CommandsDistributor.cpp \
     Commands/CommandsProcessor.cpp \
-    Commands/CommandsParser.cpp
+    Commands/CommandsDescriptor.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \
@@ -58,7 +58,7 @@ HEADERS += \
     Log/LogFragment.h \
     Network/CommandsDistributor.h \
     Commands/CommandsProcessor.h \
-    Commands/CommandsParser.h
+    Commands/CommandsDescriptor.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \
