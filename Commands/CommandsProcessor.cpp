@@ -5,7 +5,7 @@
 #include <QRegularExpression>
 #include <QFileInfo>
 
-#include "Commands/CommandsDescriptor.h"
+#include "Commands/CommandsList.h"
 
 CommandsProcessor::CommandsProcessor()
 {}
@@ -26,14 +26,20 @@ void CommandsProcessor::processHttpReply(QSharedPointer<class QNetworkReply> rep
 		if(fi.completeSuffix().toUpper() == QStringLiteral("CONF")) {
 			qDebug() << "\tCONF extension detected.";
 
-			CommandsDescriptor descriptor(reply.data());
-			(void)descriptor;
+			CommandsList commands(reply.data());
+		}
+		else {
+				qDebug() << "\tNo Content-Disposition filename found! ERROR";
 		}
 
 	}
-	else {
-		qDebug() << "\tNo Content-Disposition filename found! ERROR";
-	}
 
 	qDebug() << "CommandsProcessor finished" << reply.data();
+
+}
+
+void CommandsProcessor::processCommandDevice(class QIODevice *device) {
+	for (CommandDescriptor descr : CommandsList(device)) {
+		qDebug() << "\tSingle command:"<< descr;
+	}
 }

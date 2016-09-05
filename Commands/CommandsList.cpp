@@ -1,10 +1,10 @@
-#include "CommandsDescriptor.h"
+#include "CommandsList.h"
 
 #include <QDebug>
 #include <QIODevice>
 #include <QRegularExpression>
 
-CommandsDescriptor::CommandsDescriptor(QIODevice *device, QObject *parent) : QObject(parent)
+CommandsList::CommandsList(QIODevice *device, QObject *parent) : QObject(parent)
 {
 	qDebug() << "CommandsDescriptor starts filling up...";
 	QRegularExpression commandExpr(QStringLiteral("^\\s*(\\w+)\\s*$"));
@@ -38,5 +38,5 @@ CommandsDescriptor::CommandsDescriptor(QIODevice *device, QObject *parent) : QOb
 	if(currentCommand.size() > 0) {
 		append(currentCommand);
 	}
-	qDebug() << "CommandsDescriptor fill-up finished...\n-->" << *this;
+	qDebug() << "CommandsList fill-up finished...\n-->" << *this;
 }

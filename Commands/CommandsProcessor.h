@@ -12,6 +12,8 @@ public:
 
 public slots:
 	void processHttpReply(QSharedPointer<class QNetworkReply> reply);
+	// Separated mainly for testing purposes
+	void processCommandDevice(class QIODevice *device);
 };
 
-#endif // COMMANDSPROCESSOR_H
+#endif // COMMANDSLIST_H
