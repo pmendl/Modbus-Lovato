@@ -33,9 +33,10 @@ ProcessingManager *processingManager;
 KeyboardScanner keyboardScanner;
 CommandsProcessor commandsProcessor;
 
-// Early declaration of various signal receiver functions, defined below main()
-void processKey(char c);
+// Early declaration of various signal-processing functions, defined below main()
+void onKeypress(char c);
 void onHTTPreply(QSharedPointer<QNetworkReply> reply);
+void onCommandReceived(CommandDescriptor descriptor);
 
 int main(int argc, char *argv[])
 {
@@ -48,12 +49,14 @@ int main(int argc, char *argv[])
 
 	processingManager = new ProcessingManager(&a);
 
-	QObject::connect(&keyboardScanner, &KeyboardScanner::KeyPressed, &a, &processKey);
+	QObject::connect(&keyboardScanner, &KeyboardScanner::KeyPressed, &a, &onKeypress);
+	QObject::connect(&keyboardScanner, &KeyboardScanner::finished, &a, &QCoreApplication::quit);
 	QObject::connect(NetworkSender::commandsDistributor(), &CommandsDistributor::commandReplyReceived,
 					 &onHTTPreply);
 	QObject::connect(NetworkSender::commandsDistributor(), &CommandsDistributor::commandReplyReceived,
 					 &commandsProcessor, &CommandsProcessor::processHttpReply);
-	QObject::connect(&keyboardScanner, &KeyboardScanner::finished, &a, &QCoreApplication::quit);
+	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
+					 &onCommandReceived);
 
 	if(Q_BYTE_ORDER == Q_BIG_ENDIAN)
 		qDebug() << "Host uses big endianness.";
@@ -93,7 +96,11 @@ void onHTTPreply(QSharedPointer<QNetworkReply> reply) {
 
 }
 
-void processKey(char c)
+void onCommandReceived(CommandDescriptor descriptor) {
+	qDebug() << "\tProcessing command:"<< descriptor;
+}
+
+void onKeypress(char c)
 {
 	qDebug() << "\n--------------- COMMAND:" << c << "---------------";
 	switch (toupper(c)) {
@@ -207,11 +214,6 @@ right=\"Quoted parameter\"\n\
 			qDebug() << "Error opening buffer!";
 			break;
 		}
-/*
-		for (CommandDescriptor descr : CommandsList(&buff)) {
-			qDebug() << "\tSingle command:"<< descr;
-		}
-*/
 
 		commandsProcessor.processCommandDevice(&buff);
 	}

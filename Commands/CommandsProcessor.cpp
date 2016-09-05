@@ -39,7 +39,6 @@ void CommandsProcessor::processHttpReply(QSharedPointer<class QNetworkReply> rep
 }
 
 void CommandsProcessor::processCommandDevice(class QIODevice *device) {
-	for (CommandDescriptor descr : CommandsList(device)) {
-		qDebug() << "\tSingle command:"<< descr;
-	}
+	for (CommandDescriptor descr : CommandsList(device))
+		emit commandReceived(descr);
 }
