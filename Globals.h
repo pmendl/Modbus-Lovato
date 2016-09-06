@@ -94,6 +94,19 @@
 #define POST_ELEMENT_LOG_LAST_FOUND_NAME "lastFound"
 #define POST_ELEMENT_LOG_RECORD_COUNT_NAME "recordCount"
 
+// === Commands and parameter names ===
+#define COMMAND_NAME "COMMAND"
+
+#define COMMAND_LOG_VALUE "LOG"
+
+#define COMMAND_LOG_PARAMETER_PAHNAME_NAME "PATHNAME"
+#define COMMAND_LOG_PARAMETER_POSTCONTENT_NAME "POSTCONTENT"
+#define COMMAND_LOG_PARAMETER_ID_NAME "ID"
+#define COMMAND_LOG_PARAMETER_FROM_NAME "FROM"
+#define COMMAND_LOG_PARAMETER_TO_NAME "TO"
+#define COMMAND_LOG_PARAMETER_GROUP_NAME "GROUP"
+
+
 // === Global datatypes ===
 #include <QSharedPointer>
 typedef QSharedPointer<class ProtocolDataUnit> PDUSharedPtr_t;

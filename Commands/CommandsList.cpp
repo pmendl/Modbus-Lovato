@@ -4,13 +4,15 @@
 #include <QIODevice>
 #include <QRegularExpression>
 
-CommandsList::CommandsList(QIODevice *device, QObject *parent) : QObject(parent)
+class QUrl;
+
+CommandsList::CommandsList(QString originatorUrl, QIODevice *device, QObject *parent) : QObject(parent)
 {
 	qDebug() << "CommandsDescriptor starts filling up...";
 	QRegularExpression commandExpr(QStringLiteral("^\\s*(\\w+)\\s*$"));
 	QRegularExpression parameterExpr(QStringLiteral("^\\s*(\\w+)\\s*=\\s*(\"[^\"\\n]*\"|[^=\\n]*)\\s*$"));
 
-	QHash<QString,QString> currentCommand;
+	CommandDescriptor currentCommand(originatorUrl);
 	do {
 		QRegularExpressionMatch match;
 		QString line(device->readLine());

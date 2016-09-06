@@ -37,7 +37,8 @@ SOURCES += main.cpp \
     Log/LogFragment.cpp \
     Network/CommandsDistributor.cpp \
     Commands/CommandsProcessor.cpp \
-    Commands/CommandsList.cpp
+    Commands/CommandsList.cpp \
+    Commands/CommandDescriptor.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \

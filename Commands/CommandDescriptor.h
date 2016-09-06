@@ -2,9 +2,15 @@
 #define COMMANDDESCRIPTOR_H
 
 #include <QHash>
-#include <QString>
 
-// So far CommandDescriptor is only alias for QHash object
-#define CommandDescriptor QHash<QString,QString>
+class QNetworkReply;
+
+class CommandDescriptor : public QHash<QString, QString>
+{
+public:
+	CommandDescriptor(const QString originatorUrl);
+
+	const QString originatorUrl;
+};
 
 #endif // COMMANDDESCRIPTOR_H

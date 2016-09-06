@@ -7,6 +7,7 @@
 
 #include "Commands/CommandsList.h"
 
+
 CommandsProcessor::CommandsProcessor()
 {}
 
@@ -26,19 +27,18 @@ void CommandsProcessor::processHttpReply(QSharedPointer<class QNetworkReply> rep
 		if(fi.completeSuffix().toUpper() == QStringLiteral("CONF")) {
 			qDebug() << "\tCONF extension detected.";
 
-			CommandsList commands(reply.data());
+			CommandsList commands(reply->url().url(), reply.data());
 		}
 		else {
 				qDebug() << "\tNo Content-Disposition filename found! ERROR";
 		}
-
 	}
 
 	qDebug() << "CommandsProcessor finished" << reply.data();
 
 }
 
-void CommandsProcessor::processCommandDevice(class QIODevice *device) {
-	for (CommandDescriptor descr : CommandsList(device))
+void CommandsProcessor::processCommandsList(CommandsList *commandsList) {
+	for (CommandDescriptor descr : *commandsList)
 		emit commandReceived(descr);
 }

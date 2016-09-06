@@ -13,7 +13,7 @@ class CommandsList : public QObject, public QList<CommandDescriptor>
 
 public:
 
-	explicit CommandsList(class QIODevice *device, QObject *parent = 0);
+	explicit CommandsList(QString originatorUrl, class QIODevice *device, QObject *parent = 0);
 
 signals:
 

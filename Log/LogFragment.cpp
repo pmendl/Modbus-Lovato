@@ -44,6 +44,7 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QS
 
 	if(!_logFile->isOpen()) {
 		qDebug() << "LogFragment aborted as log file could not get opened...";
+		qDebug() << "@@@>" << logfile.data() << logfile->fileName();
 		emit fragmentFailed(this);
 		return;
 	}
