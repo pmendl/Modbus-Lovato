@@ -95,17 +95,25 @@
 #define POST_ELEMENT_LOG_RECORD_COUNT_NAME "recordCount"
 
 // === Commands and parameter names ===
+// --- Common definitions ---
 #define COMMAND_NAME "COMMAND"
 
+#define COMMAND_FILTER_PARAMETER_FROM_NAME "FROM"
+#define COMMAND_FILTER_PARAMETER_TO_NAME "TO"
+#define COMMAND_FILTER_PARAMETER_GROUP_NAME "GROUP"
+
+// --- Log command related ---
 #define COMMAND_LOG_VALUE "LOG"
 
 #define COMMAND_LOG_PARAMETER_PAHNAME_NAME "PATHNAME"
 #define COMMAND_LOG_PARAMETER_POSTCONTENT_NAME "POSTCONTENT"
 #define COMMAND_LOG_PARAMETER_ID_NAME "ID"
-#define COMMAND_LOG_PARAMETER_FROM_NAME "FROM"
-#define COMMAND_LOG_PARAMETER_TO_NAME "TO"
-#define COMMAND_LOG_PARAMETER_GROUP_NAME "GROUP"
 
+// --- Copy command related ---
+#define COMMAND_COPY_VALUE "COPY"
+
+#define COMMAND_COPY_SOURCE_FILE_NAME "SOURCE"
+#define COMMAND_COPY_TARGET_FILE_NAME "TARGET"
 
 // === Global datatypes ===
 #include <QSharedPointer>

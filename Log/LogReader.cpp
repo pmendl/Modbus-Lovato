@@ -27,6 +27,7 @@ LogReader::LogReader(QString url, QString pathname, bool postFileContent, QStrin
 					 QString group, QObject *parent) :
 	QThread(parent),
 	_sender(this, url),
+
 	_postFileContent(postFileContent)
 {
 	start();
@@ -36,9 +37,11 @@ LogReader::LogReader(QString url, QString pathname, bool postFileContent, QStrin
 }
 
 void LogReader::processFragment(LogFragment *fragment) {
-	if(!fragment) return;
+	if(!fragment) {
+		deleteLater();
+		return;
+	}
 	qDebug() << "\tStarting processing of new fragment...";
-	setParent(this);
 	connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
 	connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
 		qDebug() << "LogReader detected fragmentFailed on" << fragment;

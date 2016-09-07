@@ -26,6 +26,7 @@
 #include "Network/NetworkAccessBase.h"
 #include "Network/NetworkSender.h"
 #include "Log/LogReader.h"
+#include "Log/LogCopier.h"
 #include "Commands/CommandsProcessor.h"
 #include "Commands/CommandsList.h"
 
@@ -97,10 +98,11 @@ void onHTTPreply(QSharedPointer<QNetworkReply> reply) {
 }
 
 void onCommandReceived(CommandDescriptor descriptor) {
-	qDebug() << "\tProcessing command:"<< descriptor;
+	qDebug() << "\n--------------- COMMAND:" << descriptor.value(QStringLiteral(COMMAND_NAME)).toUpper() << "---------------";
+
+	qDebug() << "\tFull command descriptor:"<< descriptor;
 
 	if(descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_LOG_VALUE)) {
-		qDebug() << "\t\t--> HIT: LOG";
 		bool postFileContent(false);
 		const QSet<QString> trueCandidates = {
 			QStringLiteral("1"),
@@ -115,17 +117,23 @@ void onCommandReceived(CommandDescriptor descriptor) {
 					  processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_LOG_PARAMETER_PAHNAME_NAME))),
 					  postFileContent,
 					  descriptor.value(QStringLiteral(COMMAND_LOG_PARAMETER_ID_NAME)),
-					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_LOG_PARAMETER_FROM_NAME))),
-					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_LOG_PARAMETER_TO_NAME))),
-					  descriptor.value(QStringLiteral(COMMAND_LOG_PARAMETER_GROUP_NAME))
+					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_FILTER_PARAMETER_FROM_NAME))),
+					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_FILTER_PARAMETER_TO_NAME))),
+					  descriptor.value(QStringLiteral(COMMAND_FILTER_PARAMETER_GROUP_NAME))
+					  );
+	} else if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_COPY_VALUE)) {
+		new LogCopier(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_COPY_SOURCE_FILE_NAME))),
+					  processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_COPY_TARGET_FILE_NAME))),
+					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_FILTER_PARAMETER_FROM_NAME))),
+					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_FILTER_PARAMETER_TO_NAME))),
+					  descriptor.value(QStringLiteral(COMMAND_FILTER_PARAMETER_GROUP_NAME))
 					  );
 	}
-
 }
 
 void onKeypress(char c)
 {
-	qDebug() << "\n--------------- COMMAND:" << c << "---------------";
+	qDebug() << "\n--------------- KEYPRESS:" << c << "---------------";
 	switch (toupper(c)) {
 	case 'Q':
 		std::cout << "Quitting...\n";
@@ -134,28 +142,49 @@ void onKeypress(char c)
 
 	case 'L': // Log reader test
 	{
-		new LogReader("http://mirtes.wz.cz/import.php",
-					  processingManager->logServer()->pathname("Common.log"), true,
-					  QDateTime::fromString("Sun Jul 31 12:00:00 2016 GMT"),
-					  //										QDateTime::fromString(""),
-					  QDateTime::fromString("Sun Jul 31 15:30:00 2016 GMT"),
-					  "Gr.*_.?"
-					  );
+		QByteArray cmd("\n\
+					   Log\n\
+					   PATHNAME=\"Common.log\"\n\
+					   POSTCONTENT=true\n\
+					   ID=Keypress L\n\
+					   FROM=\"Sun Jul 31 12:00:00 2016 GMT\"\n\
+					   TO=\"Sun Jul 31 15:30:00 2016 GMT\"\n\
+					   GROUP=\"Gr.*_.?\"\n\
+					   ");
+
+		QBuffer buff(&cmd);
+		if(!buff.open(QIODevice::ReadOnly)) {
+			qDebug() << "Error opening buffer!";
+			break;
+		}
+
+		CommandsList list("http://mirtes.wz.cz/import.php", &buff);
+		commandsProcessor.processCommandsList(&list);
 
 		qDebug() << "Leaving 'L' command...";
 		break;
 	}
 
-	case 'H': // Log "headers" test
+	case 'H': // Log reader "headers" test
 	{
-		new LogReader("http://mirtes.wz.cz/import.php",
-					  processingManager->logServer()->pathname("Common.log"), false,
-					  "Posílání pouhých hlaviček",
-					  QDateTime::fromString("Sun Jul 31 12:00:00 2016 GMT"),
-					  //										QDateTime::fromString(""),
-					  QDateTime::fromString("Sun Jul 31 15:30:00 2016 GMT"),
-					  "Gr.*_.?"
-					  );
+		QByteArray cmd("\n\
+					   Log\n\
+					   PATHNAME=\"Common.log\"\n\
+"/*					   POSTCONTENT=true\n\
+*/"					   ID=Keypress H\n\
+					   FROM=\"Sun Jul 31 12:00:00 2016 GMT\"\n\
+					   TO=\"Sun Jul 31 15:30:00 2016 GMT\"\n\
+					   GROUP=\"Gr.*_.?\"\n\
+					   ");
+
+		QBuffer buff(&cmd);
+		if(!buff.open(QIODevice::ReadOnly)) {
+			qDebug() << "Error opening buffer!";
+			break;
+		}
+
+		CommandsList list("http://mirtes.wz.cz/import.php", &buff);
+		commandsProcessor.processCommandsList(&list);
 
 		qDebug() << "Leaving 'H' command...";
 		break;
@@ -218,38 +247,24 @@ void onKeypress(char c)
 		break;
 	}
 
-	case 'C': // Test commands processing
+	case 'C': //Log copier test
 	{
 		QByteArray cmd("\n\
-					   Log\n\
-					   PATHNAME=\"Common.log\"\n\
-					   POSTCONTENT=false\n\
-					   ID=test ID\n\
-					   FROM=\"Sun Jul 31 12:00:00 2016 GMT\"\n\
-					   TO=\"Sun Jul 31 15:30:00 2016 GMT\"\n\
-					   GROUP=\"Gr.*_.?\"\n\
-					   ");
+COPY\n\
+SOURCE=\"Common.log\"\n\
+TARGET=\"CopyOfCommon.log\"\n\
+FROM=\"Sun Jul 31 12:00:00 2016 GMT\"\n\
+TO=\"Sun Jul 31 15:30:00 2016 GMT\"\n\
+GROUP=\"Gr.*_.?\"\n\
+		");
 
-/*
-Log\n\
-param1=A alpha\n\
-;comment for parameter 2\n\
-param2=B\n\
-command=hackery\n\
-\n\
-;general comment\n\
-copY\n\
-wrong=parameter=with=equals\n\
-right=\"Quoted parameter\"\n\
-");
-*/
 		QBuffer buff(&cmd);
 		if(!buff.open(QIODevice::ReadOnly)) {
 			qDebug() << "Error opening buffer!";
 			break;
 		}
 
-		CommandsList list("http://mirtes.wz.cz/import.php", &buff);
+		CommandsList list(&buff);
 		commandsProcessor.processCommandsList(&list);
 	}
 
@@ -285,3 +300,19 @@ right=\"Quoted parameter\"\n\
 
 	}
 }
+
+// Test commands processing
+/*
+Log\n\
+param1=A alpha\n\
+;comment for parameter 2\n\
+param2=B\n\
+command=hackery\n\
+\n\
+;general comment\n\
+copY\n\
+wrong=parameter=with=equals\n\
+right=\"Quoted parameter\"\n\
+");
+*/
+

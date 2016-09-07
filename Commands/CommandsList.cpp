@@ -6,6 +6,10 @@
 
 class QUrl;
 
+CommandsList::CommandsList(class QIODevice *device, QObject *parent) :
+	CommandsList(QString(), device, parent)
+{}
+
 CommandsList::CommandsList(QString originatorUrl, QIODevice *device, QObject *parent) : QObject(parent)
 {
 	qDebug() << "CommandsDescriptor starts filling up...";

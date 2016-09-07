@@ -44,7 +44,6 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QS
 
 	if(!_logFile->isOpen()) {
 		qDebug() << "LogFragment aborted as log file could not get opened...";
-		qDebug() << "@@@>" << logfile.data() << logfile->fileName();
 		emit fragmentFailed(this);
 		return;
 	}
@@ -86,8 +85,7 @@ void LogFragment::fillFragment(void)
 				++_recordCnt;
 				if(_firstFound < 0)
 					_firstFound = _endIndex;
-				if(_lastFound < 0)
-					_lastFound = _endIndex + record.size();
+				_lastFound = _endIndex + record.size();
 
 				qDebug() << "\tLogFragment recordCnt=" << _recordCnt << ", size=" << size();
 				continue;
