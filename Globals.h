@@ -108,13 +108,16 @@
 // --- Log command related ---
 #define COMMAND_LOG_VALUE "LOG"
 
+// Uses TARGET,  optional FROM, optional TO, optional GROUP and the following
 #define COMMAND_LOG_PARAMETER_POSTCONTENT_NAME "POSTCONTENT"
 #define COMMAND_LOG_PARAMETER_ID_NAME "ID"
 
 // --- File orinted commands ---
-// Both uses SOURCE and TARGET
+// Both uses SOURCE, TARGET, optional FROM, optional TO and optional GROUP
 #define COMMAND_COPY_VALUE "COPY"
 #define COMMAND_REPLACE_VALUE "REPLACE"
+// Uses SOURCE
+#define COMMAND_DELETE_VALUE "DELETE"
 
 
 // === Global datatypes ===

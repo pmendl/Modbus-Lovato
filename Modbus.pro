@@ -15,7 +15,8 @@ LIBS += -L/mnt/raspberry-rootfs/usr/local/Qt-5.5.1-raspberry/lib/ -lQt5SerialPor
 
 INSTALLS += target config
 
-target.path = /home/pavel/Modbus
+#target.path = /home/pavel/Modbus
+target.path = /usr/local/bin/Modbus_binaries
 
 config.files = Data/Config/*
 config.path = /home/pavel/.config/PMCS

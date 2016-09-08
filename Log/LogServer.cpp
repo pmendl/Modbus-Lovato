@@ -40,6 +40,8 @@ LogServer::LogServer(QString defaultLogPath, QObject *parent) : QObject(parent)
 }
 
 void LogServer::log(QString filename, QString record) {
+	LogMaintenanceLocker locker(this);
+
 	LogWritter *writter = new LogWritter(pathname(filename), record, this);
 	writter->start();
 }
@@ -76,5 +78,36 @@ void LogWritter::run() {
 	else
 		qDebug() << _pathname << file.errorString();
 }
+
+LogMaintenanceLocker::LogMaintenanceLocker(LogServer *logServer):
+	_logServer(logServer)
+{
+	_logServer->lockForMaintenance(+1);
+}
+
+LogMaintenanceLocker::~LogMaintenanceLocker() {
+	_logServer->lockForMaintenance(-1);
+}
+void LogServer::lockForMaintenance(int locksCountChange) {
+	QMutexLocker lock(&_fileLockMutex);
+
+	if(_lockedForFileMaintenanceCount + locksCountChange > 0)
+		_lockedForFileMaintenanceCount += locksCountChange;
+	else
+		_lockedForFileMaintenanceCount = 0;
+}
+
+bool LogServer::isLockedForMaintenance() const {
+	QMutexLocker lock(&_fileLockMutex);
+	return _lockedForFileMaintenanceCount > 0;
+}
+
+QSharedPointer<LogMaintenanceLocker> LogServer::fileMaintenanceLocker() {
+	return QSharedPointer<LogMaintenanceLocker>(new LogMaintenanceLocker(this));
+}
+
+QMutex LogServer::_fileLockMutex;
+int LogServer::_lockedForFileMaintenanceCount;
+
 
 #include "LogServer.moc"

@@ -135,6 +135,8 @@ void onCommandReceived(CommandDescriptor descriptor) {
 					  );
 	} else if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_COPY_VALUE)) {
 		// --- COPY COMMAND ---
+		QSharedPointer<LogMaintenanceLocker> lock(processingManager->logServer()->fileMaintenanceLocker());
+
 		new LogCopier(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))),
 					  processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TARGET_FILE_NAME))),
 					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_PARAMETER_FROM_NAME))),
@@ -147,7 +149,12 @@ void onCommandReceived(CommandDescriptor descriptor) {
 				target(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TARGET_FILE_NAME)))),
 				temp(target.section(QChar('.'),0,-2)+QStringLiteral(".old"));
 
-#warning Log locking must get here !!!
+		if((source.isEmpty() || target.isEmpty())) {
+			qDebug() << "\tSource and/or target parameter missing or invalid:" << source << "->" << target << "\n\tAborting...";
+			return;
+		}
+
+		QSharedPointer<LogMaintenanceLocker> lock(processingManager->logServer()->fileMaintenanceLocker());
 
 		if(QFile::remove(temp))
 			qDebug() << "\tRemoved temporary:" << temp;
@@ -156,7 +163,7 @@ void onCommandReceived(CommandDescriptor descriptor) {
 			if(QFile::rename(target, temp))
 				qDebug() << "\tRenamed" << target << "->" << temp;
 			else {
-				qDebug() << "\tRenaming" << target << "->" << temp << "FAILED!\t\nAborting...";
+				qDebug() << "\tRenaming" << target << "->" << temp << "FAILED!\n\tAborting...";
 				return;
 			}
 		}
@@ -164,20 +171,35 @@ void onCommandReceived(CommandDescriptor descriptor) {
 		if(QFile::rename(source,target))
 			qDebug() << "\tRenamed" << source << "->" << target;
 		else {
-			qDebug() << "\tRenaming" << source << "->" << target << "FAILED!\t\nAborting...";
+			qDebug() << "\tRenaming" << source << "->" << target << "FAILED!\n\tAborting...";
 			return;
 		}
 
 		if(QFile::remove(temp))
 			qDebug() << "\tRemoved temporary:" << temp;
 		else
-			qDebug() << "\tFAILED temporary removal!!! File remains on disk:" << temp;
+			qDebug() << "\tFAILED temporary removal!!! File may remain on disk:" << temp;
+	} else if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_DELETE_VALUE)) {
+		// --- DELETE COMMAND ---
+		QString source(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))));
+
+		if(source.isEmpty()) {
+			qDebug() << "\tSource parameter missing or invalid:" << source << "\n\tAborting...";
+			return;
+		}
+
+		QSharedPointer<LogMaintenanceLocker> lock(processingManager->logServer()->fileMaintenanceLocker());
+
+		if(QFile::remove(source))
+			qDebug() << "\tRemoved:" << source;
+		else
+			qDebug() << "\tRemoval FAILED !!! File may remain on disk:" << source;
 	}
 }
 
 void onKeypress(char c)
 {
-	qDebug() << "\n--------------- KEYPRESS:" << c << "---------------";
+	qDebug() << "\n--------------- KEYPRESS:" << QChar::toUpper(c) << "---------------";
 	switch (toupper(c)) {
 	case 'Q':
 		std::cout << "Quitting...\n";
@@ -312,6 +334,24 @@ TARGET=\"Common.log\"\n\
 		break;
 	}
 */
+
+	case 'D': // Command Delete
+	{
+		QByteArray cmd("\n\
+DELETE\n\
+SOURCE=\"Test.log\"\n\
+		");
+
+		QBuffer buff(&cmd);
+		if(!buff.open(QIODevice::ReadOnly)) {
+			qDebug() << "Error opening buffer!";
+			break;
+		}
+
+		CommandsList list(&buff);
+		commandsProcessor.processCommandsList(&list);
+		break;
+	}
 
 	case 'C': //Log copier test
 	{
