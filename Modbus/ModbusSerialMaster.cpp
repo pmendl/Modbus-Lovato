@@ -15,7 +15,7 @@ ModbusSerialMaster::ModbusSerialMaster(QString device, QObject *parent, qint32 b
 {
 	setBaudRate(baudRate);
 	if(QSerialPort::open(QIODevice::ReadWrite)) {
-		qDebug() << "\tModbusSerialMaster" << device << "opened at speed=" << baudRate;
+		qDebug() << "\tModbusSerialMaster" << device << "opened at speed" << baudRate << "Bd";
 	}
 	else {
 		qDebug() << "\tModbusSerialMaster " << device << "open failed ! (error=" << errorString() << ")";

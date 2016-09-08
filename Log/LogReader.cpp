@@ -56,6 +56,8 @@ bool LogReader::postFileContent() const
 }
 
 LogReader::~LogReader() {
+	quit();
+	wait();
 	qDebug() << "LogReader destroyed.";
 }
 

@@ -1,5 +1,7 @@
 #include <QCoreApplication>
 
+#include <QStorageInfo>
+
 #include <QDebug>
 #include <QSettings>
 #include <QDir>
@@ -41,6 +43,8 @@ void onCommandReceived(CommandDescriptor descriptor);
 
 int main(int argc, char *argv[])
 {
+	qDebug() << "Modbus application initializing:";
+
 	/// @warning The code assumes Linux OS to be used, as QSettings::setDefaultFormat(...INI...)
 	/// does not behave properly - at least it reads no groups/values on construction.
 	QCoreApplication a(argc, argv);
@@ -60,17 +64,24 @@ int main(int argc, char *argv[])
 					 &onCommandReceived);
 
 	if(Q_BYTE_ORDER == Q_BIG_ENDIAN)
-		qDebug() << "Host uses big endianness.";
+		qDebug() << "\tHost uses big endianness.";
 	else
-		qDebug() << "Host uses little endianness.";
+		qDebug() << "\tHost uses little endianness.";
 
 	if(std::numeric_limits<float>::is_iec559)
-		qDebug() << "Host complies to IEEE 754.";
+		qDebug() << "\tHost complies to IEEE 754.";
 	else
-		qDebug() << "Host does not comply to IEEE 754.";
+		qDebug() << "\tHost does not comply to IEEE 754.";
+
+	qDebug() << "\nMounted filesystems:";
+	foreach (QStorageInfo storageInfo, QStorageInfo::mountedVolumes()) {
+		qDebug() << "\tStorage" << storageInfo.displayName() << "(" << storageInfo.fileSystemType() << ")";
+		qDebug() << "\tFree space: " << storageInfo.bytesAvailable() << "bytes\n";
+	}
+
 
 	keyboardScanner.start();
-	qDebug() << "\nModbus application started...";
+	qDebug() << "Modbus application started...";
 	int result = a.exec();
 	qDebug() << "Modbus application quited...\n";
 	return result;
@@ -103,6 +114,7 @@ void onCommandReceived(CommandDescriptor descriptor) {
 	qDebug() << "\tFull command descriptor:"<< descriptor;
 
 	if(descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_LOG_VALUE)) {
+		// --- LOG COMMAND ---
 		bool postFileContent(false);
 		const QSet<QString> trueCandidates = {
 			QStringLiteral("1"),
@@ -114,20 +126,52 @@ void onCommandReceived(CommandDescriptor descriptor) {
 		}
 
 		new LogReader(descriptor.originatorUrl,
-					  processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_LOG_PARAMETER_PAHNAME_NAME))),
+					  processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))),
 					  postFileContent,
 					  descriptor.value(QStringLiteral(COMMAND_LOG_PARAMETER_ID_NAME)),
-					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_FILTER_PARAMETER_FROM_NAME))),
-					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_FILTER_PARAMETER_TO_NAME))),
-					  descriptor.value(QStringLiteral(COMMAND_FILTER_PARAMETER_GROUP_NAME))
+					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_PARAMETER_FROM_NAME))),
+					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TO_NAME))),
+					  descriptor.value(QStringLiteral(COMMAND_PARAMETER_GROUP_NAME))
 					  );
 	} else if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_COPY_VALUE)) {
-		new LogCopier(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_COPY_SOURCE_FILE_NAME))),
-					  processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_COPY_TARGET_FILE_NAME))),
-					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_FILTER_PARAMETER_FROM_NAME))),
-					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_FILTER_PARAMETER_TO_NAME))),
-					  descriptor.value(QStringLiteral(COMMAND_FILTER_PARAMETER_GROUP_NAME))
+		// --- COPY COMMAND ---
+		new LogCopier(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))),
+					  processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TARGET_FILE_NAME))),
+					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_PARAMETER_FROM_NAME))),
+					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TO_NAME))),
+					  descriptor.value(QStringLiteral(COMMAND_PARAMETER_GROUP_NAME))
 					  );
+	} else if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_REPLACE_VALUE)) {
+		// --- REPLACE COMMAND ---
+		QString source(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME)))),
+				target(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TARGET_FILE_NAME)))),
+				temp(target.section(QChar('.'),0,-2)+QStringLiteral(".old"));
+
+#warning Log locking must get here !!!
+
+		if(QFile::remove(temp))
+			qDebug() << "\tRemoved temporary:" << temp;
+
+		if(QFile::exists(target)) {
+			if(QFile::rename(target, temp))
+				qDebug() << "\tRenamed" << target << "->" << temp;
+			else {
+				qDebug() << "\tRenaming" << target << "->" << temp << "FAILED!\t\nAborting...";
+				return;
+			}
+		}
+
+		if(QFile::rename(source,target))
+			qDebug() << "\tRenamed" << source << "->" << target;
+		else {
+			qDebug() << "\tRenaming" << source << "->" << target << "FAILED!\t\nAborting...";
+			return;
+		}
+
+		if(QFile::remove(temp))
+			qDebug() << "\tRemoved temporary:" << temp;
+		else
+			qDebug() << "\tFAILED temporary removal!!! File remains on disk:" << temp;
 	}
 }
 
@@ -144,7 +188,7 @@ void onKeypress(char c)
 	{
 		QByteArray cmd("\n\
 					   Log\n\
-					   PATHNAME=\"Common.log\"\n\
+					   SOURCE=\"Common.log\"\n\
 					   POSTCONTENT=true\n\
 					   ID=Keypress L\n\
 					   FROM=\"Sun Jul 31 12:00:00 2016 GMT\"\n\
@@ -169,7 +213,7 @@ void onKeypress(char c)
 	{
 		QByteArray cmd("\n\
 					   Log\n\
-					   PATHNAME=\"Common.log\"\n\
+					   SOURCE=\"Common.log\"\n\
 "/*					   POSTCONTENT=true\n\
 */"					   ID=Keypress H\n\
 					   FROM=\"Sun Jul 31 12:00:00 2016 GMT\"\n\
@@ -233,6 +277,27 @@ void onKeypress(char c)
 		break;
 	}
 
+
+	case 'R': // Command Replace
+	{
+		QByteArray cmd("\n\
+REPLACE\n\
+SOURCE=\"Test.log\"\n\
+TARGET=\"Common.log\"\n\
+		");
+
+		QBuffer buff(&cmd);
+		if(!buff.open(QIODevice::ReadOnly)) {
+			qDebug() << "Error opening buffer!";
+			break;
+		}
+
+		CommandsList list(&buff);
+		commandsProcessor.processCommandsList(&list);
+		break;
+	}
+
+/*
 	case 'R': // Read INI
 	{
 		QSettings settings;
@@ -246,6 +311,7 @@ void onKeypress(char c)
 		keyboardScanner.setDetection(true);
 		break;
 	}
+*/
 
 	case 'C': //Log copier test
 	{
@@ -266,6 +332,7 @@ GROUP=\"Gr.*_.?\"\n\
 
 		CommandsList list(&buff);
 		commandsProcessor.processCommandsList(&list);
+		break;
 	}
 
 	// Check the ~/.config/PMCS/LovatoModbus.conf generated by this command
