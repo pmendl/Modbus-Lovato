@@ -199,7 +199,7 @@ void onCommandReceived(CommandDescriptor descriptor) {
 
 void onKeypress(char c)
 {
-	qDebug() << "\n--------------- KEYPRESS:" << QChar::toUpper(c) << "---------------";
+	qDebug() << "\n--------------- KEYPRESS:" << static_cast<char>(QChar::toUpper(c)) << "---------------";
 	switch (toupper(c)) {
 	case 'Q':
 		std::cout << "Quitting...\n";
