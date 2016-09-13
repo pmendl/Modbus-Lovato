@@ -1,24 +1,47 @@
 #ifndef KEYBOARDSCANNER_H
 #define KEYBOARDSCANNER_H
 
-#include <QThread>
+#include <QTimer>
 
-class KeyboardScanner : public QThread
+class KeyboardScanner : public QObject
 {
 	Q_OBJECT
-signals:
-	void KeyPressed(char ch);
-public slots:
-	void setDetection(bool detect);
-	void finish();
 
 public:
-   KeyboardScanner();
+	typedef enum {
+		silentMode = 0,
+		emitChar = 0x01,
+		emitLine = 0x02,
+		echoMode = 0x04
+	} mode_t;
+
+signals:
+	void KeyPressed(char ch);
+	void LineCollected(QString line);
+
+public slots:
+	void setMode(mode_t mode);
+
+public:
+   KeyboardScanner(mode_t mode  = emitChar);
    ~KeyboardScanner();
+/*
+   char waitKey(bool echo);
+   QString waitLine(bool echoMode = true);
+*/
+   mode_t mode() const;
+   void startTimer();
+
+
 protected:
-   void run();
+   void timerEvent(QTimerEvent *);
+
 private:
-   bool _doRun, _doDetect;
+   mode_t _mode, _oldmode;
+   volatile int _key;
+   QString _line;
+   volatile bool _completeLine;
+   QBasicTimer _timer;
 };
 
 #endif // KEYBOARDSCANNER_H

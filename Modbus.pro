@@ -13,13 +13,16 @@ INCLUDEPATH += /mnt/raspberry-rootfs/usr/include
 INCLUDEPATH += /home/pavel/local_work-Pavel/Qt/Raspberry/Compile_from_source/raspberry/qt-everywhere-opensource-src-5.5.1/qtserialport/include
 LIBS += -L/mnt/raspberry-rootfs/usr/local/Qt-5.5.1-raspberry/lib/ -lQt5SerialPort
 
-INSTALLS += target config
+INSTALLS += target config test
 
 #target.path = /home/pavel/Modbus
 target.path = /usr/local/bin/Modbus_binaries
 
 config.files = Data/Config/*
 config.path = /home/pavel/.config/PMCS
+
+test.files = Data/Test/*
+test.path = /usr/local/bin/Modbus_binaries/Test
 
 SOURCES += main.cpp \
     Network/NetworkAccessBase.cpp \
@@ -68,4 +71,5 @@ HEADERS += \
 DISTFILES += \
     Data/Config/LovatoModbus.conf \
     Doxygen/MainPage.dox \
-    Doxygen/IniFormat.dox
+    Doxygen/IniFormat.dox \
+    Data/Test/Headers.cmd

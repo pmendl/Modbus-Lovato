@@ -36,10 +36,16 @@ ProcessingManager *processingManager;
 KeyboardScanner keyboardScanner;
 CommandsProcessor commandsProcessor;
 
+
 // Early declaration of various signal-processing functions, defined below main()
 void onKeypress(char c);
 void onHTTPreply(QSharedPointer<QNetworkReply> reply);
 void onCommandReceived(CommandDescriptor descriptor);
+
+// Keypress distribution stuff
+#warning Continue implementation of this concept
+using keypressReceiverFn = std::function<void(char)>;
+keypressReceiverFn const defaultReceiver(onKeypress);
 
 int main(int argc, char *argv[])
 {
@@ -55,7 +61,6 @@ int main(int argc, char *argv[])
 	processingManager = new ProcessingManager(&a);
 
 	QObject::connect(&keyboardScanner, &KeyboardScanner::KeyPressed, &a, &onKeypress);
-	QObject::connect(&keyboardScanner, &KeyboardScanner::finished, &a, &QCoreApplication::quit);
 	QObject::connect(NetworkSender::commandsDistributor(), &CommandsDistributor::commandReplyReceived,
 					 &onHTTPreply);
 	QObject::connect(NetworkSender::commandsDistributor(), &CommandsDistributor::commandReplyReceived,
@@ -79,8 +84,8 @@ int main(int argc, char *argv[])
 		qDebug() << "\tFree space: " << storageInfo.bytesAvailable() << "bytes\n";
 	}
 
+	keyboardScanner.startTimer();
 
-	keyboardScanner.start();
 	qDebug() << "Modbus application started...";
 	int result = a.exec();
 	qDebug() << "Modbus application quited...\n";
@@ -203,7 +208,7 @@ void onKeypress(char c)
 	switch (toupper(c)) {
 	case 'Q':
 		std::cout << "Quitting...\n";
-		keyboardScanner.finish();
+		QCoreApplication::instance()->quit();
 		break;
 
 	case 'L': // Log reader test
@@ -277,25 +282,27 @@ void onKeypress(char c)
 	case 'W': // Write INI
 	{
 		QSettings settings;
-		QTextStream in(stdin);
-		QString str, value;
+//		QTextStream in(stdin);
+//		QString str, value;
+		QString line;
 
-		keyboardScanner.setDetection(false);
+//		keyboardScanner.setMode(KeyboardScanner::echo);
 		const QRegularExpression pattern("(.*)=(.*)");
 		QRegularExpressionMatch match;
 		forever {
 			qDebug() << "Enter KEY=VALUE:";
-			str=in.readLine();
-			if(str.isEmpty())
+//			str=in.readLine();
+			line=keyboardScanner.waitLine();
+			if(line.isEmpty())
 			break;
 
-			if((match=pattern.match(str)).hasMatch()) {
+			if((match=pattern.match(line)).hasMatch()) {
 
 				settings.setValue(match.captured(1), match.captured(2));
 				qDebug().noquote() << "\twritten: " << match.captured(1) << "=" << settings.value(match.captured(1));
 			}
 		}
-		keyboardScanner.setDetection(true);
+//		keyboardScanner.setMode(true);
 		break;
 	}
 
@@ -399,6 +406,32 @@ GROUP=\"Gr.*_.?\"\n\
 		}
 		active.endGroup();
 
+	}
+		break;
+
+
+	case 'F': // Send demo response FILE
+	{
+		qDebug() << keyboardScanner.waitKey(true);
+/*
+		QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
+		fragment->setParent(multipart);
+
+		QHttpPart part;
+		if(_postFileContent) {
+			part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain; charset=utf-8"));
+			part.setHeader(QNetworkRequest::ContentDispositionHeader,
+						   QVariant(
+							   QString(QStringLiteral("form-data; name=\"%1\"; filename=\"%2\""))
+							   .arg(POST_ELEMENT_LOG_FILE_NAME)
+							   .arg(fragment->logfile()->fileName())
+							   )
+						   );
+			part.setBodyDevice(fragment);
+			multipart->append(part);
+*/
+
+//		keyboardScanner.setDetection(true);
 	}
 		break;
 
