@@ -23,6 +23,7 @@ void setTermios(bool echo) {
 /* Initialize new terminal i/o settings */
 void initTermios(bool echo) {
   tcgetattr(0, &oldSettings); /* grab old terminal i/o settings */
+  oldSettings.c_lflag |= ECHO;
   setTermios(echo);
 }
 
@@ -82,11 +83,11 @@ void KeyboardScanner::timerEvent(QTimerEvent *) {
 
 	char c(getchar());
 	if(c != static_cast<char>(EOF)) { // 255 = EOF casted to char
-		qDebug() << "*** KEY:" << c;
+//		qDebug() << "*** KEY:" << c;
 		_key = c;
 		if(_mode & emitChar)
 			emit KeyPressed(c);
-
+/*
 		if((c != '\n') && c != '\r')
 			_line.append(QChar(c));
 		else {
@@ -94,6 +95,7 @@ void KeyboardScanner::timerEvent(QTimerEvent *) {
 			if (_mode & emitLine)
 				emit LineCollected(_line);
 		}
+*/
 	}
 }
 

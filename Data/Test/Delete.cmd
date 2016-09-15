@@ -1,0 +1,2 @@
+DELETE
+SOURCE=\"Test.log\" 

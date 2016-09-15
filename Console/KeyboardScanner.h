@@ -17,7 +17,7 @@ public:
 
 signals:
 	void KeyPressed(char ch);
-	void LineCollected(QString line);
+//	void LineCollected(QString line);
 
 public slots:
 	void setMode(mode_t mode);
@@ -39,8 +39,10 @@ protected:
 private:
    mode_t _mode, _oldmode;
    volatile int _key;
+/*
    QString _line;
    volatile bool _completeLine;
+*/
    QBasicTimer _timer;
 };
 

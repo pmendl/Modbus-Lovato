@@ -32,6 +32,9 @@
 #include "Commands/CommandsProcessor.h"
 #include "Commands/CommandsList.h"
 
+#define STR(X) #X
+#define XSTR(X) STR(X)
+
 ProcessingManager *processingManager;
 KeyboardScanner keyboardScanner;
 CommandsProcessor commandsProcessor;
@@ -41,11 +44,21 @@ CommandsProcessor commandsProcessor;
 void onKeypress(char c);
 void onHTTPreply(QSharedPointer<QNetworkReply> reply);
 void onCommandReceived(CommandDescriptor descriptor);
+void defaultKeypressFunction(char c);
+
 
 // Keypress distribution stuff
 #warning Continue implementation of this concept
 using keypressReceiverFn = std::function<void(char)>;
-keypressReceiverFn const defaultReceiver(onKeypress);
+// keypressReceiverFn const defaultKeypressReceiver(userKeypressFunction);
+keypressReceiverFn actualKeypressReceiver(defaultKeypressFunction);
+char fKeypressEscapeStatus;
+void fKeypressFunction(char c);
+void testFileQueryActual();
+
+// Test files selection stuff
+QFileInfoList testFilesList;
+int testFilesIndex;
 
 int main(int argc, char *argv[])
 {
@@ -83,6 +96,8 @@ int main(int argc, char *argv[])
 		qDebug() << "\tStorage" << storageInfo.displayName() << "(" << storageInfo.fileSystemType() << ")";
 		qDebug() << "\tFree space: " << storageInfo.bytesAvailable() << "bytes\n";
 	}
+
+	qDebug() << "TEST_PATH =" XSTR(TEST_COMMAND_FILES_PATH);
 
 	keyboardScanner.startTimer();
 
@@ -202,9 +217,14 @@ void onCommandReceived(CommandDescriptor descriptor) {
 	}
 }
 
-void onKeypress(char c)
+void onKeypress(char c) {
+	actualKeypressReceiver(c);
+}
+
+void defaultKeypressFunction(char c)
 {
 	qDebug() << "\n--------------- KEYPRESS:" << static_cast<char>(QChar::toUpper(c)) << "---------------";
+
 	switch (toupper(c)) {
 	case 'Q':
 		std::cout << "Quitting...\n";
@@ -282,17 +302,17 @@ void onKeypress(char c)
 	case 'W': // Write INI
 	{
 		QSettings settings;
-//		QTextStream in(stdin);
+		QTextStream in(stdin);
 //		QString str, value;
 		QString line;
 
-//		keyboardScanner.setMode(KeyboardScanner::echo);
+		keyboardScanner.setMode(KeyboardScanner::echoMode);
 		const QRegularExpression pattern("(.*)=(.*)");
 		QRegularExpressionMatch match;
 		forever {
 			qDebug() << "Enter KEY=VALUE:";
-//			str=in.readLine();
-			line=keyboardScanner.waitLine();
+			line=in.readLine();
+//			line=keyboardScanner.waitLine();
 			if(line.isEmpty())
 			break;
 
@@ -412,7 +432,20 @@ GROUP=\"Gr.*_.?\"\n\
 
 	case 'F': // Send demo response FILE
 	{
-		qDebug() << keyboardScanner.waitKey(true);
+		qDebug() << "--- F keypress processing inited ---";
+
+		QDir dir(XSTR(TEST_COMMAND_FILES_PATH));
+		qDebug() << "\t" << dir.entryList(QDir::Files, QDir::Name);
+		testFilesList = dir.entryInfoList(QDir::Files, QDir::Name);
+		testFilesIndex = 0;
+//		qDebug() << "\t" << dir.entryInfoList();
+
+		fKeypressEscapeStatus = 0;
+		actualKeypressReceiver = fKeypressFunction;
+
+		testFileQueryActual();
+
+
 /*
 		QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
 		fragment->setParent(multipart);
@@ -437,6 +470,73 @@ GROUP=\"Gr.*_.?\"\n\
 
 
 //----------------------------------
+
+	}
+}
+
+void testFileQueryActual() {
+	qDebug() << "\tSend test file:" << testFilesList.at(testFilesIndex).fileName() << "?";
+}
+
+void fKeypressFunction(char c) {
+//	qDebug() << "*** fKeypressFunction received:" << c << (int)c;
+
+	switch(fKeypressEscapeStatus) {
+	case 0:	// NO ESCAPE INITED
+		switch(c) {
+		case 27: // INITIAL ESC
+			fKeypressEscapeStatus = 27;
+			break;
+
+		case '\n':
+		case 'q':
+		case 'Q':
+			actualKeypressReceiver = defaultKeypressFunction;
+			break;
+		}
+		break;
+
+	case 27: // After initial ESC
+		switch(c) {
+		case '[':
+			fKeypressEscapeStatus = '[';
+			break;
+		}
+		break;
+
+	case '[':
+		fKeypressEscapeStatus=0;
+		switch(c) {
+		case 'A':
+			qDebug() << "UP ARROW";
+			if(++testFilesIndex == testFilesList.size())
+				--testFilesIndex;
+			testFileQueryActual();
+			break;
+
+		case 'B':
+			qDebug() << "DOWN ARROW";
+			if(testFilesIndex > 0)
+				--testFilesIndex;
+			testFileQueryActual();
+			break;
+
+		case 'C':
+			qDebug() << "RIGHT ARROW";
+			break;
+
+		case 'D':
+			qDebug() << "LEFT ARROW";
+			break;
+
+		case 'H':
+			qDebug() << "HOME";
+			break;
+
+		case 'F':
+			qDebug() << "END";
+			break;
+		}
 
 	}
 }

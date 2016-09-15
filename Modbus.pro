@@ -22,7 +22,9 @@ config.files = Data/Config/*
 config.path = /home/pavel/.config/PMCS
 
 test.files = Data/Test/*
-test.path = /usr/local/bin/Modbus_binaries/Test
+TEST_COMMAND_FILES_PATH = /usr/local/bin/Modbus_binaries/Test
+test.path = $$TEST_COMMAND_FILES_PATH
+DEFINES += TEST_COMMAND_FILES_PATH=$$TEST_COMMAND_FILES_PATH
 
 SOURCES += main.cpp \
     Network/NetworkAccessBase.cpp \
@@ -72,4 +74,8 @@ DISTFILES += \
     Data/Config/LovatoModbus.conf \
     Doxygen/MainPage.dox \
     Doxygen/IniFormat.dox \
-    Data/Test/Headers.cmd
+    Data/Test/Headers.cmd \
+    Data/Test/Log.cmd \
+    Data/Test/Copy.cmd \
+    Data/Test/Delete.cmd \
+    Data/Test/Replace.cmd
