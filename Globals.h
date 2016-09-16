@@ -9,6 +9,9 @@
  */
 #define NO_AUTOMATIC_PROCESSING
 
+// === Server addresses ===
+#define TEST_SERVER_HTTP "http://mirtes.wz.cz/import.php"
+
 // === Log related settings ===
 #define LOG_RECORD_VALUES "VALUES "
 #define LOG_SEPARATOR_ITEMS "|"
@@ -23,6 +26,9 @@
 #define NETWORK_DEFAULT_TIMEOUT	10*1000
 
 // === Settings keys ===
+// --- Server related ---
+#define TEST_FILE_ITEM_KEY "testFile"
+
 // --- Modbus related ---
 #define MODBUS_GROUP_NAME "Modbus"
 #define MODBUS_MAXRETRIES_KEY "MaxRetries"

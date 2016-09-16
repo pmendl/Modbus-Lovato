@@ -48,6 +48,7 @@ NetworkSender::NetworkSender(quint64 defaultSlotTimeout) :
 {}
 
 void NetworkSender::sendMultipart(QHttpMultiPart *multiPart) {
+	qDebug() << "*** _defaultSlotUrl =" << _defaultSlotUrl.url();
 	sendToUrl(_defaultSlotUrl, multiPart);
 }
 

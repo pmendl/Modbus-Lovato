@@ -32,12 +32,15 @@
 #include "Commands/CommandsProcessor.h"
 #include "Commands/CommandsList.h"
 
+
 #define STR(X) #X
 #define XSTR(X) STR(X)
+
 
 ProcessingManager *processingManager;
 KeyboardScanner keyboardScanner;
 CommandsProcessor commandsProcessor;
+NetworkSender sender(TEST_SERVER_HTTP);
 
 
 // Early declaration of various signal-processing functions, defined below main()
@@ -97,7 +100,8 @@ int main(int argc, char *argv[])
 		qDebug() << "\tFree space: " << storageInfo.bytesAvailable() << "bytes\n";
 	}
 
-	qDebug() << "TEST_PATH =" XSTR(TEST_COMMAND_FILES_PATH);
+	qDebug() << "Test server: " TEST_SERVER_HTTP;
+	qDebug() << "Test files path: " XSTR(TEST_COMMAND_FILES_PATH);
 
 	keyboardScanner.startTimer();
 
@@ -249,7 +253,7 @@ void defaultKeypressFunction(char c)
 			break;
 		}
 
-		CommandsList list("http://mirtes.wz.cz/import.php", &buff);
+		CommandsList list(TEST_SERVER_HTTP, &buff);
 		commandsProcessor.processCommandsList(&list);
 
 		qDebug() << "Leaving 'L' command...";
@@ -274,7 +278,7 @@ void defaultKeypressFunction(char c)
 			break;
 		}
 
-		CommandsList list("http://mirtes.wz.cz/import.php", &buff);
+		CommandsList list(TEST_SERVER_HTTP, &buff);
 		commandsProcessor.processCommandsList(&list);
 
 		qDebug() << "Leaving 'H' command...";
@@ -478,6 +482,31 @@ void testFileQueryActual() {
 	qDebug() << "\tSend test file:" << testFilesList.at(testFilesIndex).fileName() << "?";
 }
 
+void testFileSendActual() {
+	QFile *file(new QFile(testFilesList.at(testFilesIndex).absoluteFilePath()));
+	qDebug() << "\tSending:" << file->fileName();
+
+	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
+	file->setParent(multipart);
+	if(!file->open(QFile::ReadOnly)) {
+		qDebug() << "Opening command file for send FAILED:" << testFilesList.at(testFilesIndex).absoluteFilePath();
+	}
+
+	QHttpPart part;
+	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain; charset=utf-8"));
+	part.setHeader(QNetworkRequest::ContentDispositionHeader,
+				   QVariant(
+					   QString(QStringLiteral("form-data; name=\"%1\"; filename=\"%2\""))
+					   .arg(TEST_FILE_ITEM_KEY)
+					   .arg(file->fileName())
+					   )
+				   );
+	part.setBodyDevice(file);
+	multipart->append(part);
+
+	sender.sendMultipart(multipart);
+}
+
 void fKeypressFunction(char c) {
 //	qDebug() << "*** fKeypressFunction received:" << c << (int)c;
 
@@ -489,8 +518,11 @@ void fKeypressFunction(char c) {
 			break;
 
 		case '\n':
+			testFileSendActual();
+
 		case 'q':
 		case 'Q':
+			qDebug() << "Leaving keypress 'F'...";
 			actualKeypressReceiver = defaultKeypressFunction;
 			break;
 		}
@@ -523,6 +555,7 @@ void fKeypressFunction(char c) {
 
 		case 'C':
 			qDebug() << "RIGHT ARROW";
+			testFileSendActual();
 			break;
 
 		case 'D':

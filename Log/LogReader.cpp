@@ -170,7 +170,7 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 
 	qDebug() << "\tPosting new HTTP multipart send signal...";
 	qDebug() << ((
-					QMetaObject::invokeMethod(&_sender, "sendMultipart", Q_ARG(QHttpMultiPart *,multipart))
+					QMetaObject::invokeMethod(&_sender, "sendMultipart", Q_ARG(QHttpMultiPart *, multipart))
 				) ? "\tSucceeded" : "\tFailed")
 				;
 
