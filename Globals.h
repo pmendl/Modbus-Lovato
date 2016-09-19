@@ -7,10 +7,7 @@
  * or testing only.
  * SHOULD BE COMMENTED-OUT ALL TIMES in the production environment !!!
  */
-#define NO_AUTOMATIC_PROCESSING
-
-// === Server addresses ===
-#define TEST_SERVER_HTTP "http://mirtes.wz.cz/import.php"
+//#define NO_AUTOMATIC_PROCESSING
 
 // === Log related settings ===
 #define LOG_RECORD_VALUES "VALUES "
@@ -26,6 +23,12 @@
 #define NETWORK_DEFAULT_TIMEOUT	10*1000
 
 // === Settings keys ===
+// --- Debugging and testing ---
+#define DEBUG_SERVER_HTTP_DEFAULT "http://mirtes.wz.cz/import.php"
+#define DEBUG_GROUP_KEY "Debug"
+#define DEBUG_SUPPRESS_PERIODICAL_REQUESTING_KEY "SuppressPeriodicalRequesting"
+#define DEBUG_SERVER_HTTP_KEY "HttpServer"
+
 // --- Server related ---
 #define TEST_FILE_ITEM_KEY "testFile"
 

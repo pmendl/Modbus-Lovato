@@ -3,12 +3,18 @@
 #include <QDebug>
 #include <QIODevice>
 #include <QRegularExpression>
+#include <QUrl>
 
 class QUrl;
 
 CommandsList::CommandsList(class QIODevice *device, QObject *parent) :
 	CommandsList(QString(), device, parent)
 {}
+
+CommandsList::CommandsList(QUrl originatorUrl, QIODevice *device, QObject *parent) :
+	CommandsList(originatorUrl.url(), device, parent)
+{}
+
 
 CommandsList::CommandsList(QString originatorUrl, QIODevice *device, QObject *parent) : QObject(parent)
 {

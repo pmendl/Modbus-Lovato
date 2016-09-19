@@ -40,7 +40,8 @@
 ProcessingManager *processingManager;
 KeyboardScanner keyboardScanner;
 CommandsProcessor commandsProcessor;
-NetworkSender sender(TEST_SERVER_HTTP);
+//NetworkSender sender(TEST_SERVER_HTTP);
+NetworkSender sender;
 
 
 // Early declaration of various signal-processing functions, defined below main()
@@ -63,6 +64,14 @@ void testFileQueryActual();
 QFileInfoList testFilesList;
 int testFilesIndex;
 
+// Used for .INI to bool transformations/checking
+const QSet<QString> trueCandidates = {
+	QStringLiteral("1"),
+	QStringLiteral("true"),
+	QStringLiteral("yes")
+};
+
+
 int main(int argc, char *argv[])
 {
 	qDebug() << "Modbus application initializing:";
@@ -74,7 +83,12 @@ int main(int argc, char *argv[])
 	QCoreApplication::setOrganizationDomain("mendl.info");
 	QCoreApplication::setApplicationName("LovatoModbus");
 
+#ifdef NO_AUTOMATIC_PROCESSING
+	#warning TESTING ONLY - managed by setting NO_AUTOMATIC_PROCESSING in Globals.h
+	processingManager = new ProcessingManager(&a, true);
+#else
 	processingManager = new ProcessingManager(&a);
+#endif
 
 	QObject::connect(&keyboardScanner, &KeyboardScanner::KeyPressed, &a, &onKeypress);
 	QObject::connect(NetworkSender::commandsDistributor(), &CommandsDistributor::commandReplyReceived,
@@ -100,12 +114,30 @@ int main(int argc, char *argv[])
 		qDebug() << "\tFree space: " << storageInfo.bytesAvailable() << "bytes\n";
 	}
 
-	qDebug() << "Test server: " TEST_SERVER_HTTP;
+	QSettings settings;
+	QVariant var(settings.value(QStringLiteral(DEBUG_GROUP_KEY "/" DEBUG_SERVER_HTTP_KEY)));
+	if(var.isValid())
+		sender.setDefaultSlotUrl(var.toString());
+	qDebug() << "Test server: " << sender.defaultSlotUrl().url();
 	qDebug() << "Test files path: " XSTR(TEST_COMMAND_FILES_PATH);
+
+	if(trueCandidates.contains(settings.value(QStringLiteral(DEBUG_GROUP_KEY "/" DEBUG_SUPPRESS_PERIODICAL_REQUESTING_KEY)).toString().toLower()))
+			processingManager->setSuppressPeriodicalRequesting(true);
+	// Note can be set elswhere, not only in the line above - so needs to re-read via method
+	if(processingManager->suppressPeriodicalRequesting())
+#ifdef NO_AUTOMATIC_PROCESSING
+		qDebug() << "\nPERIODICAL REQUESTING OF VALUES SUPPRESSED !"
+					"\n(This is debugging tool hardcoded by #define NO_AUTOMATIC_PROCESSING in Globals.h"
+					"\neventually doubled by " DEBUG_GROUP_KEY "/" DEBUG_SUPPRESS_PERIODICAL_REQUESTING_KEY " value in .INI file)";
+#else
+		qDebug() << "\nPERIODICAL REQUESTING OF VALUES SUPPRESSED !"
+					"\n(This is debugging tool activated by " DEBUG_GROUP_KEY "/" DEBUG_SUPPRESS_PERIODICAL_REQUESTING_KEY "=true value in .INI file)";
+#endif
 
 	keyboardScanner.startTimer();
 
-	qDebug() << "Modbus application started...";
+
+	qDebug() << "\nModbus application started...";
 	int result = a.exec();
 	qDebug() << "Modbus application quited...\n";
 	return result;
@@ -140,11 +172,6 @@ void onCommandReceived(CommandDescriptor descriptor) {
 	if(descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_LOG_VALUE)) {
 		// --- LOG COMMAND ---
 		bool postFileContent(false);
-		const QSet<QString> trueCandidates = {
-			QStringLiteral("1"),
-			QStringLiteral("true"),
-			QStringLiteral("yes")
-		};
 		if(trueCandidates.contains(descriptor.value(QStringLiteral(COMMAND_LOG_PARAMETER_POSTCONTENT_NAME)).toLower())) {
 				postFileContent=true;
 		}
@@ -253,7 +280,7 @@ void defaultKeypressFunction(char c)
 			break;
 		}
 
-		CommandsList list(TEST_SERVER_HTTP, &buff);
+		CommandsList list(sender.defaultSlotUrl().url(), &buff);
 		commandsProcessor.processCommandsList(&list);
 
 		qDebug() << "Leaving 'L' command...";
@@ -278,7 +305,7 @@ void defaultKeypressFunction(char c)
 			break;
 		}
 
-		CommandsList list(TEST_SERVER_HTTP, &buff);
+		CommandsList list(sender.defaultSlotUrl().url(), &buff);
 		commandsProcessor.processCommandsList(&list);
 
 		qDebug() << "Leaving 'H' command...";

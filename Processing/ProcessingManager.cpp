@@ -10,15 +10,12 @@
 #include "Processing/AllParsingProcessors.h"
 #include "Modbus/ModbusSerialMaster.h"
 
-ProcessingManager::ProcessingManager(QObject *parent) :
+ProcessingManager::ProcessingManager(QObject *parent, bool suppressPeriodicalRequesting) :
 	QObject(parent),
 	_serialMaster("/dev/ttyRPC0"),
 	_logServer(new LogServer(REQUEST_PARSING_LOG_PATH_DEFAULT))
 {
-#ifdef NO_AUTOMATIC_PROCESSING
-	#warning TESTING ONLY - managed by setting NO_AUTOMATIC_PROCESSING in Globals.h
-	return;
-#endif
+	setSuppressPeriodicalRequesting(suppressPeriodicalRequesting);
 
 	QSettings settings;
 
@@ -34,6 +31,10 @@ ProcessingManager::ProcessingManager(QObject *parent) :
 }
 
 void ProcessingManager::onQueryRequest() {
+	// TESTING ONLY - managed by setting Test\SuppressPeriodicalRequesting=true in .INI file
+	if (_suppressPeriodicalRequesting)
+		return;
+
 	RequestManager *rm(static_cast<RequestManager*>(sender()));
 	qDebug() << "PROCESSING" << rm->objectName() << ":" << rm;
 	ADUSharedPtr_t req(new ApplicationDataUnitSerial(rm->device(), rm->request()));
@@ -48,9 +49,19 @@ void ProcessingManager::onQueryRequest() {
 	rm->onResponse(response);
 }
 
+bool ProcessingManager::suppressPeriodicalRequesting() const
+{
+	return _suppressPeriodicalRequesting;
+}
+
+void ProcessingManager::setSuppressPeriodicalRequesting(bool suppressPeriodicalRequesting)
+{
+	_suppressPeriodicalRequesting = suppressPeriodicalRequesting;
+}
+
 QSharedPointer<LogServer> ProcessingManager::logServer() const
 {
-    return _logServer;
+	return _logServer;
 }
 
 QSharedPointer<ParsingProcessor> ProcessingManager::processor(QSettings *settings, QString group)

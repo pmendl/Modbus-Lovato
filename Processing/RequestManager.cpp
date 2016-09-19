@@ -133,6 +133,7 @@ PDUSharedPtr_t RequestManager::request() {
 
 QVariant RequestManager::responseItemRaw(QSharedPointer<const dataItemDefinition_t> def) const {
 	switch(def->type) {
+#warning Define and implement intType in itemType_t as well
 	case uintType:
 		switch(def->bytesPerItem) {
 		case 1:

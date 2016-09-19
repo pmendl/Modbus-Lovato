@@ -15,6 +15,7 @@ public:
 
 	explicit CommandsList(class QIODevice *device, QObject *parent = 0);
 	explicit CommandsList(QString originatorUrl, class QIODevice *device, QObject *parent = 0);
+	explicit CommandsList(QUrl originatorUrl, class QIODevice *device, QObject *parent = 0);
 
 signals:
 
