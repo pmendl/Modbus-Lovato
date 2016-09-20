@@ -10,6 +10,8 @@
 #include "Globals.h"
 #include "Network/NetworkSender.h"
 
+QHttpMultiPart multix;
+
 LogReader::LogReader(QString url, QString pathname,  bool postFileContent,
 					 QDateTime from, QDateTime to,
 					 QString group, QObject *parent) :
@@ -57,6 +59,9 @@ bool LogReader::postFileContent() const
 
 LogReader::~LogReader() {
 	quit();
+	qDebug() << "LogReader waiting for HTTP sender to finish before destruction.";
+	_sender.wait();
+	qDebug() << "LogReader finished waiting for HTTP sender.";
 	wait();
 	qDebug() << "LogReader destroyed.";
 }
@@ -71,14 +76,16 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 
 	if(!fragment->open(QIODevice::ReadOnly)) {
 		qDebug() << "LogReader::onFragmentReady aborts as it can not open fragment for reading...";
-		fragment->deleteLater();
+#warning DEBUG/RESTORE THE BELOW FUNCTIONALITY (LogReader destruction)
+//		fragment->deleteLater();
 		return;
 	}
 
-	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
-	fragment->setParent(multipart);
+	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType, fragment));
+// PROBABLY INVALID:	fragment->setParent(multipart);
 
 	QHttpPart part;
+/*
 	if(_postFileContent) {
 		part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain; charset=utf-8"));
 		part.setHeader(QNetworkRequest::ContentDispositionHeader,
@@ -163,16 +170,36 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 		part = QHttpPart();
 
 	}
+*/
 
+#warning DEBUG ONLY	CODE !!!
+	part.setHeader(QNetworkRequest::ContentDispositionHeader,
+					   QString(QStringLiteral("form-data; name=debugTest")));
+	part.setBody(QByteArray("OK"));
+	multipart->append(part);
+	part = QHttpPart();
+// DEBUG ONLY CODE  END
 
 	qDebug() << "\tWaiting for last HTTP transmit to end...";
 	_sender.wait();
 
 	qDebug() << "\tPosting new HTTP multipart send signal...";
+
+	_sender.sendMultipart(multipart);
+/*
 	qDebug() << ((
 					QMetaObject::invokeMethod(&_sender, "sendMultipart", Q_ARG(QHttpMultiPart *, multipart))
 				) ? "\tSucceeded" : "\tFailed")
 				;
+*/
+/*
+
+	qDebug() << &multix;
+	qDebug() << ((
+					QMetaObject::invokeMethod(&_sender, "sendMultipart", Q_ARG(QHttpMultiPart *, &multix))
+				) ? "\tSucceeded" : "\tFailed")
+				;
+*/
 
 	processFragment((fragment->nextFragment()));
 
