@@ -2,34 +2,42 @@
 #define NETWORKSENDER_H
 
 #include <QObject>
-#include <QSharedPointer>
+//#include <QSharedPointer>
 #include <QBasicTimer>
 #include <QUrl>
+#include <QSet>
 
 #include "Globals.h"
 #include "Network/NetworkAccessBase.h"
 #include "Network/CommandsDistributor.h"
 
+class QNetworkReply;
+
 class NetworkSender : public QObject, public NetworkAccessBase
 {
 	Q_OBJECT
 
+public:
+	typedef QSet<QNetworkReply*> networkRepliesSet_t;
+
+/*
 signals:
-	void finished(QSharedPointer<class QNetworkReply> reply);
+	void finished(QNetworkReply *reply);
+*/
 
 public slots:
-	QSharedPointer<QNetworkReply> sendMultipart(QHttpMultiPart *multiPart);
-	QSharedPointer<QNetworkReply> sendMultipartWithTimeout(QHttpMultiPart *multiPart, quint64 timeout);
-	QSharedPointer<QNetworkReply> sendMultipartWithObject(QHttpMultiPart *multiPart, QObject *originatingObject);
-	QSharedPointer<QNetworkReply> sendMultipartWithObjectAndTimeout(QHttpMultiPart *multiPart, QObject *originatingObject, quint64 timeout);
-	QSharedPointer<QNetworkReply> sendToString(QString url, QHttpMultiPart *multiPart);
-	QSharedPointer<QNetworkReply> sendToUrl(QUrl url, QHttpMultiPart *multiPart);
-	QSharedPointer<QNetworkReply> sendToStringWithTimeout(QString url, QHttpMultiPart *multiPart, quint64 timeout);
-	QSharedPointer<QNetworkReply> sendToUrlWithTimeout(QUrl url, QHttpMultiPart *multiPart, quint64 timeout);
-	QSharedPointer<QNetworkReply> sendToStringWithObject(QString url, QHttpMultiPart *multiPart, QObject *originatingObject);
-	QSharedPointer<QNetworkReply> sendToUrlWithObject(QUrl url, QHttpMultiPart *multiPart, QObject *originatingObject);
-	QSharedPointer<QNetworkReply> sendToStringWithObjectAndTimeout(QString url, QHttpMultiPart *multiPart, QObject *originatingObject, quint64 timeout);
-	QSharedPointer<QNetworkReply> sendToUrlWithObjectAndTimeout(QUrl url, QHttpMultiPart *multiPart, QObject *originatingObject, quint64 timeout);
+	QNetworkReply *sendMultipart(QHttpMultiPart *multiPart);
+	QNetworkReply *sendWithTimeout(QHttpMultiPart *multiPart, quint64 timeout);
+	QNetworkReply *sendWithObject(QHttpMultiPart *multiPart, QObject *originatingObject);
+	QNetworkReply *sendWithObjectAndTimeout(QHttpMultiPart *multiPart, QObject *originatingObject, quint64 timeout);
+	QNetworkReply *sendToString(QString url, QHttpMultiPart *multiPart);
+	QNetworkReply *sendToUrl(QUrl url, QHttpMultiPart *multiPart);
+	QNetworkReply *sendToStringWithTimeout(QString url, QHttpMultiPart *multiPart, quint64 timeout);
+	QNetworkReply *sendToUrlWithTimeout(QUrl url, QHttpMultiPart *multiPart, quint64 timeout);
+	QNetworkReply *sendToStringWithObject(QString url, QHttpMultiPart *multiPart, QObject *originatingObject);
+	QNetworkReply *sendToUrlWithObject(QUrl url, QHttpMultiPart *multiPart, QObject *originatingObject);
+	QNetworkReply *sendToStringWithObjectAndTimeout(QString url, QHttpMultiPart *multiPart, QObject *originatingObject, quint64 timeout);
+	QNetworkReply *sendToUrlWithObjectAndTimeout(QUrl url, QHttpMultiPart *multiPart, QObject *originatingObject, quint64 timeout);
 
 public:
 	explicit NetworkSender(QObject * parent, QString defaultSlotUrl, quint64 defaultSlotTimeout = NETWORK_DEFAULT_TIMEOUT);
@@ -41,9 +49,10 @@ public:
 	virtual ~NetworkSender() {}
 	static QUrl parseUrl(QString url);
 
-	bool send(QUrl url, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
-	bool send(QString url, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
-	bool send(QNetworkRequest request, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
+
+	QNetworkReply *send(QUrl url, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
+	QNetworkReply *send(QString url, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
+	QNetworkReply *send(QNetworkRequest request, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
 
 //	QSharedPointer<QNetworkReply> reply() const;
 //	QSharedPointer<QNetworkReply> wait();
@@ -57,16 +66,15 @@ public:
 	static const CommandsDistributor *commandsDistributor();
 
 protected slots:
-	void onFinished();
+	void onReplyFinished();
 
 protected:
-	void timerEvent(QTimerEvent *);
+	void timerEvent(QTimerEvent *event);
 
 private:
 	quint64 _defaultSlotTimeout;
 	QUrl _defaultSlotUrl;
-	QSharedPointer<class QNetworkReply> _reply;
-	QBasicTimer _timer;
+	QHash<QNetworkReply *, int> _timerIds;
 	static CommandsDistributor _commandsDistributor;
 };
 

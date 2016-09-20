@@ -32,12 +32,17 @@ public:
 
 protected slots:
 	void onFragmentReady(LogFragment *fragment);
+	void checkSending();
 
 protected:
 	void processFragment(LogFragment *fragment);
+	void sendReadyFragment();
 
 private:
 	NetworkSender _sender;
+	LogFragment *_readyFragment;
+	bool _lastFragment;
+	QSharedPointer<QNetworkReply> _runningReply;
 	bool _postFileContent;
 };
 

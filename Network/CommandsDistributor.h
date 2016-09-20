@@ -1,17 +1,19 @@
 #ifndef COMMANDSDISTRIBUTOR_H
 #define COMMANDSDISTRIBUTOR_H
 
-#include <QSharedPointer>
+#include <QObject>
+
+class QNetworkReply;
 
 class CommandsDistributor : public QObject
 {
 	Q_OBJECT
 public:
 	explicit CommandsDistributor(QObject *parent = 0);
-	void emitCommandReply(QSharedPointer<class QNetworkReply> reply) const;
+	void emitCommandReply(QNetworkReply *reply) const;
 
 signals:
-	void commandReplyReceived(QSharedPointer<class QNetworkReply> reply) const;
+	void commandReplyReceived(QNetworkReply *reply) const;
 
 public slots:
 };

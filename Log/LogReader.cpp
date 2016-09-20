@@ -29,27 +29,15 @@ LogReader::LogReader(QString url, QString pathname, bool postFileContent, QStrin
 					 QString group, QObject *parent) :
 	QThread(parent),
 	_sender(this, url),
-
+	_readyFragment(0),
+	_lastFragment(false),
+	_runningReply(0),
 	_postFileContent(postFileContent)
 {
 	start();
 
 	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), postFileContent, id, from, to, group, 0, this));
 	qDebug() << "LogReader" << pathname << "constructed." << url;
-}
-
-void LogReader::processFragment(LogFragment *fragment) {
-	if(!fragment) {
-		deleteLater();
-		return;
-	}
-	qDebug() << "\tStarting processing of new fragment...";
-	connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
-	connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
-		qDebug() << "LogReader detected fragmentFailed on" << fragment;
-		_sender.wait();
-		deleteLater();
-	});
 }
 
 bool LogReader::postFileContent() const
@@ -59,15 +47,32 @@ bool LogReader::postFileContent() const
 
 LogReader::~LogReader() {
 	quit();
-	qDebug() << "LogReader waiting for HTTP sender to finish before destruction.";
-	_sender.wait();
-	qDebug() << "LogReader finished waiting for HTTP sender.";
 	wait();
 	qDebug() << "LogReader destroyed.";
 }
 
 void LogReader::onFragmentReady(LogFragment *fragment)
 {
+	qDebug() << "LogReader has new fragment" << fragment << "ready for sending ...";
+	_readyFragment = fragment;
+	checkSending();
+}
+
+void LogReader::checkSending()
+{
+	if(_readyFragment != 0) {
+		if(_runningReply.isNull() || (!_runningReply->isRunning()))
+			sendReadyFragment();
+	}
+	else {
+		if(_lastFragment)
+			deleteLater();
+	}
+}
+
+
+
+
 	qDebug() << "LogReader::onFragmentReady starts HTTP transmit ...";
 	if(fragment == 0) {
 		qDebug() << "LogReader::onFragmentReady called with zero pointer! ERROR!";
@@ -207,3 +212,17 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 	qDebug() << "LogReader finished HTTP transmit ...";
 
 }
+
+	void LogReader::processFragment(LogFragment *fragment) {
+		if(!fragment) {
+			deleteLater();
+			return;
+		}
+		qDebug() << "\tStarting processing of new fragment...";
+		connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
+		connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
+			qDebug() << "LogReader detected fragmentFailed on" << fragment;
+			_sender.wait();
+			deleteLater();
+		});
+	}

@@ -3,7 +3,7 @@
 CommandsDistributor::CommandsDistributor(QObject *parent) : QObject(parent)
 {}
 
-void CommandsDistributor::emitCommandReply(QSharedPointer<class QNetworkReply> reply) const
+void CommandsDistributor::emitCommandReply(QNetworkReply *reply) const
 {
 	emit commandReplyReceived(reply);
 }
