@@ -69,7 +69,6 @@ void LogReader::onReplyFinished()
 
 void LogReader::checkSending()
 {
-	qDebug() << "*** checkSending()" << _readyFragment << _lastFragment << _sendPending;
 	if(_sendPending)
 		return;
 
@@ -104,11 +103,9 @@ void LogReader::sendReadyFragment() {
 		return;
 	}
 
-//	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType, _readyFragment));
 	_multipart = new QHttpMultiPart(QHttpMultiPart::FormDataType, _readyFragment);
-
 	QHttpPart part;
-/*
+
 	if(_postFileContent) {
 		part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain; charset=utf-8"));
 		part.setHeader(QNetworkRequest::ContentDispositionHeader,
@@ -119,7 +116,7 @@ void LogReader::sendReadyFragment() {
 						   )
 					   );
 		part.setBodyDevice(_readyFragment);
-		multipart->append(part);
+		_multipart->append(part);
 		part = QHttpPart();
 	}
 
@@ -128,7 +125,7 @@ void LogReader::sendReadyFragment() {
 						   QString(QStringLiteral("form-data; name=%1"))
 						   .arg(POST_ELEMENT_LOG_ID_NAME));
 		part.setBody(_readyFragment->id().toUtf8());
-		multipart->append(part);
+		_multipart->append(part);
 		part = QHttpPart();
 
 	}
@@ -138,7 +135,7 @@ void LogReader::sendReadyFragment() {
 						   QString(QStringLiteral("form-data; name=%1"))
 						   .arg(POST_ELEMENT_LOG_FROM_NAME));
 		part.setBody(_readyFragment->from().toString().toUtf8());
-		multipart->append(part);
+		_multipart->append(part);
 		part = QHttpPart();
 
 	}
@@ -148,7 +145,7 @@ void LogReader::sendReadyFragment() {
 						   QString(QStringLiteral("form-data; name=%1"))
 						   .arg(POST_ELEMENT_LOG_TO_NAME));
 		part.setBody(_readyFragment->to().toString().toUtf8());
-		multipart->append(part);
+		_multipart->append(part);
 		part = QHttpPart();
 
 	}
@@ -157,7 +154,7 @@ void LogReader::sendReadyFragment() {
 					   QString(QStringLiteral("form-data; name=%1"))
 					   .arg(POST_ELEMENT_LOG_START_INDEX_NAME));
 	part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->startIndex()).toUtf8());
-	multipart->append(part);
+	_multipart->append(part);
 	part = QHttpPart();
 
 
@@ -165,13 +162,13 @@ void LogReader::sendReadyFragment() {
 					   QString(QStringLiteral("form-data; name=%1"))
 					   .arg(POST_ELEMENT_LOG_END_INDEX_NAME));
 	part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->endIndex()).toUtf8());
-	multipart->append(part);
+	_multipart->append(part);
 
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 				   QString(QStringLiteral("form-data; name=%1"))
 				   .arg(POST_ELEMENT_LOG_RECORD_COUNT_NAME));
 	part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->recordCnt()).toUtf8());
-	multipart->append(part);
+	_multipart->append(part);
 	part = QHttpPart();
 
 	if(_readyFragment->firstFound() != _readyFragment->startIndex()) {
@@ -179,7 +176,7 @@ void LogReader::sendReadyFragment() {
 						   QString(QStringLiteral("form-data; name=%1"))
 						   .arg(POST_ELEMENT_LOG_FIRST_FOUND_NAME));
 		part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->firstFound()).toUtf8());
-		multipart->append(part);
+		_multipart->append(part);
 		part = QHttpPart();
 
 	}
@@ -189,11 +186,11 @@ void LogReader::sendReadyFragment() {
 						   QString(QStringLiteral("form-data; name=%1"))
 						   .arg(POST_ELEMENT_LOG_LAST_FOUND_NAME));
 		part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->lastFound()).toUtf8());
-		multipart->append(part);
+		_multipart->append(part);
 		part = QHttpPart();
 
 	}
-*/
+/*
 
 #warning DEBUG ONLY	CODE !!!
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
@@ -202,7 +199,7 @@ void LogReader::sendReadyFragment() {
 	_multipart->append(part);
 	part = QHttpPart();
 // DEBUG ONLY CODE  END
-
+*/
 	_sendPending = true;
 	qDebug() << "\tPosting new HTTP multipart send signal...";
 
