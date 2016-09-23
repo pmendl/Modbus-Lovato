@@ -30,6 +30,7 @@ bool PostParsingProcessor::isValid() const
 
 void PostParsingProcessor::process(RequestManager *rm)
 {
+	qDebug() << "*** PostParsingProcessor::process() called; nextOccurance=" << nextOccurance();
 	if(nextOccurance())
 		return;
 
@@ -90,6 +91,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 		multiPart->append(textPart);
 	}
 
+	_multipart = multiPart;
 	_sender.send(_url, multiPart);
 }
 
