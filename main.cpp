@@ -535,8 +535,6 @@ void testFileSendActual() {
 }
 
 void fKeypressFunction(char c) {
-//	qDebug() << "*** fKeypressFunction received:" << c << (int)c;
-
 	switch(fKeypressEscapeStatus) {
 	case 0:	// NO ESCAPE INITED
 		switch(c) {
@@ -600,19 +598,3 @@ void fKeypressFunction(char c) {
 
 	}
 }
-
-// Test commands processing
-/*
-Log\n\
-param1=A alpha\n\
-;comment for parameter 2\n\
-param2=B\n\
-command=hackery\n\
-\n\
-;general comment\n\
-copY\n\
-wrong=parameter=with=equals\n\
-right=\"Quoted parameter\"\n\
-");
-*/
-

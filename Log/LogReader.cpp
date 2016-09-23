@@ -36,9 +36,7 @@ LogReader::LogReader(QString url, QString pathname, bool postFileContent, QStrin
 	_postFileContent(postFileContent)
 {
 	start();
-//	if(false)
 	connect(&_sender, &NetworkSender::multipartSent, this, &LogReader::onMultipartSent);
-	qDebug() << "*** LogReader: NetworkSender::multipartSent connected";
 
 	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), postFileContent, id, from, to, group, this, this));
 	qDebug() << "LogReader" << pathname << "constructed." << url;
@@ -57,14 +55,14 @@ LogReader::~LogReader() {
 
 void LogReader::onFragmentReady(LogFragment *fragment)
 {
-	qDebug() << "*** LogReader has new fragment" << fragment << "ready for sending ...";
+	qDebug() << "LogReader has new fragment" << fragment << "ready for sending ...";
 	_readyFragment = fragment;
 	checkSending();
 }
 
 void LogReader::onReplyFinished()
 {
-	qDebug() << "*** LogReader finished HTTP transmit ...";
+	qDebug() << "LogReader finished HTTP transmit" << static_cast<QNetworkReply*>(sender())->url().url();
 	_sendPending = false;
 	checkSending();
 }
@@ -72,27 +70,23 @@ void LogReader::onReplyFinished()
 void LogReader::checkSending()
 {
 	qDebug() << "*** checkSending()" << _readyFragment << _lastFragment << _sendPending;
+	if(_sendPending)
+		return;
+
 	if(_readyFragment != 0) {
-		if(!_sendPending) {
-			qDebug() << "*** sendReadyFragment()";
-			sendReadyFragment();
-		}
+		sendReadyFragment();
 	}
 	else {
 		if(_lastFragment) {
-			qDebug() << "*** _lastFragment=true ->  deleteLater()";
 			deleteLater();
 		}
 	}
 }
 
 void LogReader::onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply) {
-	qDebug() << "*** onMultipartSent called..." << reply;
-	qDebug() << "*** onMultipartSent:" << multiPart << " ?= "<< _multipart;
 	if(multiPart != _multipart)
 		return;
-	qDebug() << "*** reply" << reply << "connected to checkSending()";
-	connect(reply, &QNetworkReply::finished, this, &LogReader::checkSending);
+	connect(reply, &QNetworkReply::finished, this, &LogReader::onReplyFinished);
 }
 
 void LogReader::sendReadyFragment() {
@@ -209,6 +203,7 @@ void LogReader::sendReadyFragment() {
 	part = QHttpPart();
 // DEBUG ONLY CODE  END
 
+	_sendPending = true;
 	qDebug() << "\tPosting new HTTP multipart send signal...";
 
 	qDebug() << ((
@@ -234,12 +229,8 @@ void LogReader::sendReadyFragment() {
 void LogReader::processFragment(LogFragment *fragment) {
 	_readyFragment = 0;
 	if(!fragment) {
-// IS IT OK TO RELY ON _lastFragment check in checkSending?
-/*
-		qDebug() << "*** fragment=NULL ->  deleteLater()";
-		deleteLater();
-*/
 		_lastFragment = true;
+		checkSending();
 		return;
 	}
 	qDebug() << "\tStarting processing of new fragment...";

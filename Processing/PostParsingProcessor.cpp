@@ -94,7 +94,6 @@ void PostParsingProcessor::process(RequestManager *rm)
 }
 
  void PostParsingProcessor::onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply) {
-	 qDebug() << "*** onMultipartSent:" << multiPart << " ?= "<< _multipart;
 	 if(multiPart != _multipart)
 		 return;
 

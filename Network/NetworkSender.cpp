@@ -125,17 +125,13 @@ QNetworkReply *NetworkSender::send(QNetworkRequest request, QHttpMultiPart *mult
 	reply->setParent(this);
 	multiPart->setParent(reply);
 	qDebug() << "\tNetworkSender: transmitted to " << request.url() << "; reply.isRunnung()=" << reply->isRunning();
-//	connect(_reply.data(), &QNetworkReply::finished, this, &NetworkSender::onFinished, Qt::UniqueConnection);
 	connect(reply, &QNetworkReply::finished, this, &NetworkSender::onReplyFinished);
 	_timerIds.insert(reply, startTimer(timeout));
-	qDebug() << "*** emit multipartSent(multiPart, reply);" << multiPart << reply;
 	emit multipartSent(multiPart, reply);
-	qDebug() << "*** after emit ";
 	return reply;
 }
 
 void NetworkSender::onReplyFinished() {
-	qDebug() << "*** onReplyFinished()" << sender();
 	QNetworkReply *reply(dynamic_cast<QNetworkReply *>(sender()));
 	if(reply != 0) {
 		if(_timerIds.contains(reply)) {
