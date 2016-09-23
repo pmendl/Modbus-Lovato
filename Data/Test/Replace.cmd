@@ -1,4 +1,4 @@
  
 REPLACE
-SOURCE=\"Test.log\"
-TARGET=\"Common.log\"
+SOURCE="Test.log"
+TARGET="Common.log"

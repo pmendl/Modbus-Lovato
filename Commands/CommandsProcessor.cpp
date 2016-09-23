@@ -21,16 +21,20 @@ void CommandsProcessor::processHttpReply(QNetworkReply *reply)
 				);
 	QRegularExpressionMatch match(contentDispositionExpression.match(reply->rawHeader("Content-Disposition")));
 	if(match.hasMatch()) {
-		QFileInfo fi(match.captured(2));
-		qDebug().noquote().nospace() << "\tfilename=" << fi.fileName();
+		QFileInfo fileInfo(match.captured(2));
+		qDebug().noquote().nospace() << "\tfilename=" << fileInfo.fileName();
 
-		if(fi.completeSuffix().toUpper() == QStringLiteral("CONF")) {
-			qDebug() << "\tCONF extension detected.";
+		if(fileInfo.completeSuffix().toUpper() == QStringLiteral("INI")) {
+			qDebug() << "\tINI extension detected.";
+		}
+		else if(fileInfo.completeSuffix().toUpper() == QStringLiteral("CMD")) {
+			qDebug() << "\tCMD extension detected.";
 
 			CommandsList commands(reply->url().url(), reply);
+			processCommandsList(&commands);
 		}
 		else {
-				qDebug() << "\tNo Content-Disposition filename found! ERROR";
+				qDebug() << "\tFilename extension found in Content-Disposition not supported! ERROR";
 		}
 	}
 
@@ -39,6 +43,8 @@ void CommandsProcessor::processHttpReply(QNetworkReply *reply)
 }
 
 void CommandsProcessor::processCommandsList(CommandsList *commandsList) {
-	for (CommandDescriptor descr : *commandsList)
+	for (CommandDescriptor descr : *commandsList) {
+		qDebug() << "*** emited" << descr;
 		emit commandReceived(descr);
+	}
 }

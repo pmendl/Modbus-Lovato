@@ -1,2 +1,2 @@
 DELETE
-SOURCE=\"Test.log\" 
+SOURCE="Test.log"
