@@ -2,7 +2,6 @@
 #define NETWORKSENDER_H
 
 #include <QObject>
-//#include <QSharedPointer>
 #include <QBasicTimer>
 #include <QUrl>
 #include <QSet>
@@ -53,9 +52,6 @@ public:
 	QNetworkReply *send(QUrl url, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
 	QNetworkReply *send(QString url, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
 	QNetworkReply *send(QNetworkRequest request, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
-
-//	QSharedPointer<QNetworkReply> reply() const;
-//	QSharedPointer<QNetworkReply> wait();
 
 	quint64 defaultSlotTimeout() const;
 	void setDefaultSlotTimeout(const quint64 &defaultSlotTimeout);

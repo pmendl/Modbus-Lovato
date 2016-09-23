@@ -49,7 +49,6 @@ NetworkSender::NetworkSender(quint64 defaultSlotTimeout) :
 {}
 
 QNetworkReply *NetworkSender::sendMultipart(QHttpMultiPart *multiPart) {
-	qDebug() << "*** _defaultSlotUrl =" << _defaultSlotUrl.url();
 	return sendToUrl(_defaultSlotUrl, multiPart);
 }
 
@@ -115,7 +114,7 @@ QNetworkReply *NetworkSender::send(QUrl url, QHttpMultiPart *multiPart, quint64 
 
 QNetworkReply *NetworkSender::send(QNetworkRequest request, QHttpMultiPart *multiPart, quint64 timeout) {
 
-	qDebug() << "\tNetworkSender::send(" << request.url() << ")";
+	qDebug() << "\tNetworkSender::send(" << multiPart << request.url() << ")";
 
 	if((!request.url().isValid()) || (multiPart == 0)) {
 		qDebug() << "\tNetworkSender: invalid request (URL=" << request.url() << ", multipart=" << multiPart;
@@ -129,10 +128,14 @@ QNetworkReply *NetworkSender::send(QNetworkRequest request, QHttpMultiPart *mult
 //	connect(_reply.data(), &QNetworkReply::finished, this, &NetworkSender::onFinished, Qt::UniqueConnection);
 	connect(reply, &QNetworkReply::finished, this, &NetworkSender::onReplyFinished);
 	_timerIds.insert(reply, startTimer(timeout));
+	qDebug() << "*** emit multipartSent(multiPart, reply);" << multiPart << reply;
+	emit multipartSent(multiPart, reply);
+	qDebug() << "*** after emit ";
 	return reply;
 }
 
 void NetworkSender::onReplyFinished() {
+	qDebug() << "*** onReplyFinished()" << sender();
 	QNetworkReply *reply(dynamic_cast<QNetworkReply *>(sender()));
 	if(reply != 0) {
 		if(_timerIds.contains(reply)) {
@@ -192,29 +195,5 @@ void NetworkSender::setDefaultSlotTimeout(const quint64 &defaultSlotTimeout)
 {
 	_defaultSlotTimeout = defaultSlotTimeout;
 }
-
-/*
-QSharedPointer<QNetworkReply> NetworkSender::reply() const
-{
-	return _reply;
-}
-
-QSharedPointer<QNetworkReply> NetworkSender::wait() {
-
-	if((!_reply.isNull()) && _reply->isRunning()) {
-		QEventLoop loop;
-		connect(_reply.data(), &QNetworkReply::finished, &loop, &QEventLoop::quit);
-		connect(_reply.data(), &QNetworkReply::finished, [](){
-			qDebug() << "*** REPLY FINISHED CALLED ***";
-		});
-//		loop.exec();
-		qDebug() << "*** REPLY WAITING LOOP CALLED ***";
-		while(_reply->isRunning());
-		qDebug() << "*** REPLY WAITING LOOP EXITED ***";
-
-	};
-	return _reply;
-}
-*/
 
 CommandsDistributor NetworkSender::_commandsDistributor;

@@ -3,7 +3,6 @@
 
 #include "Processing/ParsingProcessor.h"
 
-#include <QSharedPointer>
 #include <QBasicTimer>
 #include <QUrl>
 
