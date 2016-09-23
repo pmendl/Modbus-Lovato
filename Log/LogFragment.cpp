@@ -52,8 +52,6 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QS
 		qDebug() << "LogFragment moving to thread" << _workingThread;
 		moveToThread(_workingThread);
 	}
-
-	QMetaObject::invokeMethod(this, "fillFragment");
 }
 
 void LogFragment::fillFragment(void)

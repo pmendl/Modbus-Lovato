@@ -23,8 +23,10 @@ public:
 	virtual bool isValid() const;
 	virtual void process(class RequestManager *rm);
 
-public slots:
-	void onFinished(QSharedPointer<QNetworkReply> reply);
+protected slots:
+	void onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply);
+	void onReplyFinished();
+
 
 protected:
 	/**
@@ -46,6 +48,7 @@ private:
 	requestPriority_t _priority;
 	quint16 _delayedCount;
 	NetworkSender _sender;
+	QHttpMultiPart *_multipart;
 	QBasicTimer _timer;
 	quint16 _timeout;
 };

@@ -20,7 +20,7 @@ PostParsingProcessor::PostParsingProcessor(QSettings *settings, QString group, q
 	setObjectName(ProcessingManager::objectNameFromGroup(POST_PARSING_PROCESSOR_PREFIX, group));
 	setOccurance(settings);
 	qDebug() << "\t\tParsingProcessor will post to" << _url.url();
-	connect(&_sender, &NetworkSender::finished, this, &PostParsingProcessor::onFinished);
+	connect(&_sender, &NetworkSender::multipartSent, this, &PostParsingProcessor::onMultipartSent);
 }
 
 bool PostParsingProcessor::isValid() const
@@ -93,8 +93,16 @@ void PostParsingProcessor::process(RequestManager *rm)
 	_sender.send(_url, multiPart);
 }
 
- void PostParsingProcessor::onFinished(QSharedPointer<class QNetworkReply> reply) {
-	 if(!(reply.isNull()) && (reply->error() == 0)) {
+ void PostParsingProcessor::onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply) {
+	 if(multiPart != _multipart)
+		 return;
+
+	 connect(reply, &QNetworkReply::finished, this, &PostParsingProcessor::onReplyFinished);
+	 _multipart=0;
+ }
+
+ void PostParsingProcessor::onReplyFinished() {
+	 if(static_cast<QNetworkReply *>(sender())->error() == 0) {
 		 _inProcess = false;
 		 _priority = nullRequestPriority;
 		 _delayedCount = 0;

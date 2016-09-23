@@ -14,7 +14,7 @@ public:
 	CommandsProcessor();
 
 public slots:
-	void processHttpReply(QSharedPointer<class QNetworkReply> reply);
+	void processHttpReply(class QNetworkReply *reply);
 	// Separated mainly for testing purposes
 	void processCommandsList(class CommandsList *commandsList);
 

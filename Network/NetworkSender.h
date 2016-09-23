@@ -20,10 +20,10 @@ class NetworkSender : public QObject, public NetworkAccessBase
 public:
 	typedef QSet<QNetworkReply*> networkRepliesSet_t;
 
-/*
+
 signals:
-	void finished(QNetworkReply *reply);
-*/
+	void multipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply);
+
 
 public slots:
 	QNetworkReply *sendMultipart(QHttpMultiPart *multiPart);

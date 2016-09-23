@@ -32,17 +32,20 @@ public:
 
 protected slots:
 	void onFragmentReady(LogFragment *fragment);
-	void checkSending();
+	void onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply);
+	void onReplyFinished();
 
 protected:
 	void processFragment(LogFragment *fragment);
+	void checkSending();
 	void sendReadyFragment();
 
 private:
 	NetworkSender _sender;
 	LogFragment *_readyFragment;
 	bool _lastFragment;
-	QSharedPointer<QNetworkReply> _runningReply;
+	QHttpMultiPart *_multipart;
+	bool _sendPending;
 	bool _postFileContent;
 };
 

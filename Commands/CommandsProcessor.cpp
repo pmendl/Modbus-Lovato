@@ -11,9 +11,9 @@
 CommandsProcessor::CommandsProcessor()
 {}
 
-void CommandsProcessor::processHttpReply(QSharedPointer<class QNetworkReply> reply)
+void CommandsProcessor::processHttpReply(QNetworkReply *reply)
 {
-	qDebug() << "CommandsProcessor processing" << reply.data();
+	qDebug() << "CommandsProcessor processing" << reply;
 	qDebug() << "\tContent-Disposition=" << reply->rawHeader("Content-Disposition");
 
 	const QRegularExpression contentDispositionExpression(
@@ -27,14 +27,14 @@ void CommandsProcessor::processHttpReply(QSharedPointer<class QNetworkReply> rep
 		if(fi.completeSuffix().toUpper() == QStringLiteral("CONF")) {
 			qDebug() << "\tCONF extension detected.";
 
-			CommandsList commands(reply->url().url(), reply.data());
+			CommandsList commands(reply->url().url(), reply);
 		}
 		else {
 				qDebug() << "\tNo Content-Disposition filename found! ERROR";
 		}
 	}
 
-	qDebug() << "CommandsProcessor finished" << reply.data();
+	qDebug() << "CommandsProcessor finished" << reply;
 
 }
 

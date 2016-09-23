@@ -31,12 +31,12 @@ LogReader::LogReader(QString url, QString pathname, bool postFileContent, QStrin
 	_sender(this, url),
 	_readyFragment(0),
 	_lastFragment(false),
-	_runningReply(0),
+	_sendPending(false),
 	_postFileContent(postFileContent)
 {
 	start();
 
-	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), postFileContent, id, from, to, group, 0, this));
+	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), postFileContent, id, from, to, group, this, this));
 	qDebug() << "LogReader" << pathname << "constructed." << url;
 }
 
@@ -58,10 +58,17 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 	checkSending();
 }
 
+void LogReader::onReplyFinished()
+{
+	qDebug() << "LogReader finished HTTP transmit ...";
+	_sendPending = false;
+	checkSending();
+}
+
 void LogReader::checkSending()
 {
 	if(_readyFragment != 0) {
-		if(_runningReply.isNull() || (!_runningReply->isRunning()))
+		if(!_sendPending)
 			sendReadyFragment();
 	}
 	else {
@@ -70,25 +77,29 @@ void LogReader::checkSending()
 	}
 }
 
+void LogReader::onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply) {
+	if(multiPart != _multipart)
+		return;
 
+	connect(reply, &QNetworkReply::finished, this, &LogReader::checkSending);
+}
 
-
-	qDebug() << "LogReader::onFragmentReady starts HTTP transmit ...";
-	if(fragment == 0) {
-		qDebug() << "LogReader::onFragmentReady called with zero pointer! ERROR!";
+void LogReader::sendReadyFragment() {
+	qDebug() << "LogReader::sendReadyFragment starts HTTP transmit ...";
+	if(_readyFragment == 0) {
+		qDebug() << "LogReader::sendReadyFragment called with zero pointer! ERROR!";
 		return;
 	}
 
-	if(!fragment->open(QIODevice::ReadOnly)) {
-		qDebug() << "LogReader::onFragmentReady aborts as it can not open fragment for reading...";
+	if(!_readyFragment->open(QIODevice::ReadOnly)) {
+		qDebug() << "LogReader::sendReadyFragment aborts as it can not open _readyFragment for reading...";
 #warning DEBUG/RESTORE THE BELOW FUNCTIONALITY (LogReader destruction)
-//		fragment->deleteLater();
+		_readyFragment->deleteLater();
+		_readyFragment=0;
 		return;
 	}
 
-	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType, fragment));
-// PROBABLY INVALID:	fragment->setParent(multipart);
-
+	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType, _readyFragment));
 	QHttpPart part;
 /*
 	if(_postFileContent) {
@@ -97,39 +108,39 @@ void LogReader::checkSending()
 					   QVariant(
 						   QString(QStringLiteral("form-data; name=\"%1\"; filename=\"%2\""))
 						   .arg(POST_ELEMENT_LOG_FILE_NAME)
-						   .arg(fragment->logfile()->fileName())
+						   .arg(_readyFragment->logfile()->fileName())
 						   )
 					   );
-		part.setBodyDevice(fragment);
+		part.setBodyDevice(_readyFragment);
 		multipart->append(part);
 		part = QHttpPart();
 	}
 
-	if(!fragment->id().isEmpty()) {
+	if(!_readyFragment->id().isEmpty()) {
 		part.setHeader(QNetworkRequest::ContentDispositionHeader,
 						   QString(QStringLiteral("form-data; name=%1"))
 						   .arg(POST_ELEMENT_LOG_ID_NAME));
-		part.setBody(fragment->id().toUtf8());
+		part.setBody(_readyFragment->id().toUtf8());
 		multipart->append(part);
 		part = QHttpPart();
 
 	}
 
-	if(fragment->from().isValid()) {
+	if(_readyFragment->from().isValid()) {
 		part.setHeader(QNetworkRequest::ContentDispositionHeader,
 						   QString(QStringLiteral("form-data; name=%1"))
 						   .arg(POST_ELEMENT_LOG_FROM_NAME));
-		part.setBody(fragment->from().toString().toUtf8());
+		part.setBody(_readyFragment->from().toString().toUtf8());
 		multipart->append(part);
 		part = QHttpPart();
 
 	}
 
-	if(fragment->to().isValid()) {
+	if(_readyFragment->to().isValid()) {
 		part.setHeader(QNetworkRequest::ContentDispositionHeader,
 						   QString(QStringLiteral("form-data; name=%1"))
 						   .arg(POST_ELEMENT_LOG_TO_NAME));
-		part.setBody(fragment->to().toString().toUtf8());
+		part.setBody(_readyFragment->to().toString().toUtf8());
 		multipart->append(part);
 		part = QHttpPart();
 
@@ -138,7 +149,7 @@ void LogReader::checkSending()
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QString(QStringLiteral("form-data; name=%1"))
 					   .arg(POST_ELEMENT_LOG_START_INDEX_NAME));
-	part.setBody(QString(QStringLiteral("%1")).arg(fragment->startIndex()).toUtf8());
+	part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->startIndex()).toUtf8());
 	multipart->append(part);
 	part = QHttpPart();
 
@@ -146,31 +157,31 @@ void LogReader::checkSending()
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QString(QStringLiteral("form-data; name=%1"))
 					   .arg(POST_ELEMENT_LOG_END_INDEX_NAME));
-	part.setBody(QString(QStringLiteral("%1")).arg(fragment->endIndex()).toUtf8());
+	part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->endIndex()).toUtf8());
 	multipart->append(part);
 
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
 				   QString(QStringLiteral("form-data; name=%1"))
 				   .arg(POST_ELEMENT_LOG_RECORD_COUNT_NAME));
-	part.setBody(QString(QStringLiteral("%1")).arg(fragment->recordCnt()).toUtf8());
+	part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->recordCnt()).toUtf8());
 	multipart->append(part);
 	part = QHttpPart();
 
-	if(fragment->firstFound() != fragment->startIndex()) {
+	if(_readyFragment->firstFound() != _readyFragment->startIndex()) {
 		part.setHeader(QNetworkRequest::ContentDispositionHeader,
 						   QString(QStringLiteral("form-data; name=%1"))
 						   .arg(POST_ELEMENT_LOG_FIRST_FOUND_NAME));
-		part.setBody(QString(QStringLiteral("%1")).arg(fragment->firstFound()).toUtf8());
+		part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->firstFound()).toUtf8());
 		multipart->append(part);
 		part = QHttpPart();
 
 	}
 
-	if(fragment->lastFound() != fragment->endIndex()) {
+	if(_readyFragment->lastFound() != _readyFragment->endIndex()) {
 		part.setHeader(QNetworkRequest::ContentDispositionHeader,
 						   QString(QStringLiteral("form-data; name=%1"))
 						   .arg(POST_ELEMENT_LOG_LAST_FOUND_NAME));
-		part.setBody(QString(QStringLiteral("%1")).arg(fragment->lastFound()).toUtf8());
+		part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->lastFound()).toUtf8());
 		multipart->append(part);
 		part = QHttpPart();
 
@@ -185,18 +196,14 @@ void LogReader::checkSending()
 	part = QHttpPart();
 // DEBUG ONLY CODE  END
 
-	qDebug() << "\tWaiting for last HTTP transmit to end...";
-	_sender.wait();
-
 	qDebug() << "\tPosting new HTTP multipart send signal...";
 
-	_sender.sendMultipart(multipart);
-/*
+
 	qDebug() << ((
 					QMetaObject::invokeMethod(&_sender, "sendMultipart", Q_ARG(QHttpMultiPart *, multipart))
 				) ? "\tSucceeded" : "\tFailed")
 				;
-*/
+
 /*
 
 	qDebug() << &multix;
@@ -206,23 +213,23 @@ void LogReader::checkSending()
 				;
 */
 
-	processFragment((fragment->nextFragment()));
+	processFragment((_readyFragment->nextFragment()));
 
 
-	qDebug() << "LogReader finished HTTP transmit ...";
 
 }
 
-	void LogReader::processFragment(LogFragment *fragment) {
-		if(!fragment) {
-			deleteLater();
-			return;
-		}
-		qDebug() << "\tStarting processing of new fragment...";
-		connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
-		connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
-			qDebug() << "LogReader detected fragmentFailed on" << fragment;
-			_sender.wait();
-			deleteLater();
-		});
+void LogReader::processFragment(LogFragment *fragment) {
+	if(!fragment) {
+		deleteLater();
+		return;
 	}
+	qDebug() << "\tStarting processing of new fragment...";
+	_readyFragment=0;
+	connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
+	connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
+		qDebug() << "LogReader detected fragmentFailed on" << fragment;
+		deleteLater();
+	});
+	QMetaObject::invokeMethod(fragment, "fillFragment");
+}

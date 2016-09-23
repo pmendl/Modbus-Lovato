@@ -46,7 +46,7 @@ NetworkSender sender;
 
 // Early declaration of various signal-processing functions, defined below main()
 void onKeypress(char c);
-void onHTTPreply(QSharedPointer<QNetworkReply> reply);
+void onHTTPreply(QNetworkReply *reply);
 void onCommandReceived(CommandDescriptor descriptor);
 void defaultKeypressFunction(char c);
 
@@ -144,8 +144,8 @@ int main(int argc, char *argv[])
 }
 
 
-void onHTTPreply(QSharedPointer<QNetworkReply> reply) {
-	qDebug() << "HTTP response received" << reply.data();
+void onHTTPreply(QNetworkReply *reply) {
+	qDebug() << "HTTP response received" << reply;
 	if(reply->error() != 0)
 		qDebug() << "\tURL" << reply->url() << "SENDING ERROR: " << reply->errorString();
    else {
