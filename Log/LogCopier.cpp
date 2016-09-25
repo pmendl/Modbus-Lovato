@@ -43,7 +43,9 @@ void LogCopier::processFragment(LogFragment *fragment) {
 		qDebug() << "LogCopier detected fragmentFailed on" << fragment;
 		deleteLater();
 	});
-	fragment->fillFragment();
+//	fragment->fillFragment();
+	QMetaObject::invokeMethod(fragment, "fillFragment");
+
 }
 
 LogCopier::~LogCopier() {
@@ -63,8 +65,6 @@ void LogCopier::onFragmentReady(LogFragment *fragment)
 		return;
 	}
 
-	processFragment((fragment->nextFragment()));
-	
 	if(!fragment->open(QIODevice::ReadOnly)) {
 		qDebug() << "LogCopier::onFragmentReady aborts as it can not open fragment for reading...";
 		fragment->deleteLater();
@@ -75,4 +75,6 @@ void LogCopier::onFragmentReady(LogFragment *fragment)
 		_targetFile.write(fragment->read(LOG_MAX_BUFFER_SIZE));
 
 	qDebug() << "LogCopier finished file writting...";
+
+	processFragment((fragment->nextFragment()));
 }

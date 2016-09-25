@@ -89,6 +89,7 @@ void LogFragment::fillFragment(void)
 				continue;
 			}
 			else {
+				qDebug() << "\tCurrent thread =" << thread();
 				qDebug() << "LogFragment completed partial fill up. Moving back to thread" << _parentThread;
 				moveToThread(_parentThread);
 				emit fragmentReady(this);
@@ -98,6 +99,7 @@ void LogFragment::fillFragment(void)
 
 	} while (!record.isEmpty());
 	_lastFragment = true;
+	qDebug() << "\tCurrent thread =" << thread();
 	qDebug() << "LogFragment finished filling up. Moving back to thread" << _parentThread;
 	moveToThread(_parentThread);
 	emit fragmentReady(this);
