@@ -43,9 +43,7 @@ void LogCopier::processFragment(LogFragment *fragment) {
 		qDebug() << "LogCopier detected fragmentFailed on" << fragment;
 		deleteLater();
 	});
-//	fragment->fillFragment();
 	QMetaObject::invokeMethod(fragment, "fillFragment");
-
 }
 
 LogCopier::~LogCopier() {
