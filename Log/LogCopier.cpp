@@ -2,9 +2,7 @@
 
 #include <QDebug>
 #include <QFile>
-//#include <QHttpMultiPart>
 #include <QRegularExpression>
-//#include <QNetworkReply>
 #include <QBuffer>
 
 #include "Globals.h"
@@ -45,6 +43,7 @@ void LogCopier::processFragment(LogFragment *fragment) {
 		qDebug() << "LogCopier detected fragmentFailed on" << fragment;
 		deleteLater();
 	});
+	fragment->fillFragment();
 }
 
 LogCopier::~LogCopier() {
@@ -57,7 +56,6 @@ LogCopier::~LogCopier() {
 
 void LogCopier::onFragmentReady(LogFragment *fragment)
 {
-	processFragment((fragment->nextFragment()));
 
 	qDebug() << "LogCopier::onFragmentReady starts file writting...";
 	if(fragment == 0) {
@@ -65,6 +63,8 @@ void LogCopier::onFragmentReady(LogFragment *fragment)
 		return;
 	}
 
+	processFragment((fragment->nextFragment()));
+	
 	if(!fragment->open(QIODevice::ReadOnly)) {
 		qDebug() << "LogCopier::onFragmentReady aborts as it can not open fragment for reading...";
 		fragment->deleteLater();
