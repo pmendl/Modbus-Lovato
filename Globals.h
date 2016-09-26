@@ -30,6 +30,8 @@
 #define DEBUG_SERVER_HTTP_KEY "HttpServer"
 
 // --- Server related ---
+#define SERVER_PANIC_CONNECTIONS_GROUP_KEY "PanicConnections"
+#define SERVER_PANIC_CONNECTIONS_URL_KEY "url"
 #define TEST_FILE_ITEM_KEY "testFile"
 
 // --- Modbus related ---

@@ -11,7 +11,7 @@
 
 
 
-class PostParsingProcessor : public ParsingProcessor, public NetworkAccessBase
+class PostParsingProcessor : public ParsingProcessor
 {
 	Q_OBJECT
 

@@ -12,7 +12,7 @@
 
 class QNetworkReply;
 
-class NetworkSender : public QObject, public NetworkAccessBase
+class NetworkSender : public NetworkAccessBase
 {
 	Q_OBJECT
 
@@ -46,8 +46,6 @@ public:
 	explicit NetworkSender(QUrl defaultSlotUrl, quint64 defaultSlotTimeout = NETWORK_DEFAULT_TIMEOUT);
 	explicit NetworkSender(quint64 defaultSlotTimeout);
 	virtual ~NetworkSender() {}
-	static QUrl parseUrl(QString url);
-
 
 	QNetworkReply *send(QUrl url, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
 	QNetworkReply *send(QString url, QHttpMultiPart *multiPart, quint64 timeout = NETWORK_DEFAULT_TIMEOUT);
@@ -65,6 +63,7 @@ protected slots:
 	void onReplyFinished();
 
 protected:
+//	void readPanicConnections(void);
 	void timerEvent(QTimerEvent *event);
 
 private:

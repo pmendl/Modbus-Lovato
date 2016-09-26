@@ -97,7 +97,6 @@ void LogReader::sendReadyFragment() {
 
 	if(!_readyFragment->open(QIODevice::ReadOnly)) {
 		qDebug() << "LogReader::sendReadyFragment aborts as it can not open _readyFragment for reading...";
-#warning DEBUG/RESTORE THE BELOW FUNCTIONALITY (LogReader destruction)
 		_readyFragment->deleteLater();
 		_readyFragment=0;
 		return;

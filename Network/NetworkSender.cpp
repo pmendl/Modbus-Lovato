@@ -6,47 +6,48 @@
 #include <QEventLoop>
 #include <QHttpMultiPart>
 #include <QTimerEvent>
-
-QUrl NetworkSender::parseUrl(QString url) {
-	QUrl resultUrl(url);
-	if(!resultUrl.isValid())
-		resultUrl=QUrl::fromUserInput(url);
-	if(!resultUrl.isValid())
-		qDebug() << "URL" << url << "IS INVALID (unparsable) !";
-	return resultUrl;
-}
+#include <QSettings>
 
 NetworkSender::NetworkSender(QObject * parent, QString defaultSlotUrl, quint64 defaultSlotTimeout) :
-	QObject(parent),
+	NetworkAccessBase(parent),
 	_defaultSlotTimeout(defaultSlotTimeout),
 	_defaultSlotUrl(parseUrl(defaultSlotUrl))
 {}
 
 NetworkSender::NetworkSender(QObject * parent, QUrl defaultSlotUrl, quint64 defaultSlotTimeout) :
-	QObject(parent),
+	NetworkAccessBase(parent),
 	_defaultSlotTimeout(defaultSlotTimeout),
 	_defaultSlotUrl(defaultSlotUrl)
 {}
 
+
 NetworkSender::NetworkSender(QObject * parent, quint64 defaultSlotTimeout) :
-	QObject(parent),
+	NetworkAccessBase(parent),
 	_defaultSlotTimeout(defaultSlotTimeout)
 {}
+
 
 
 NetworkSender::NetworkSender(QString defaultSlotUrl, quint64 defaultSlotTimeout)  :
+	NetworkAccessBase(0),
 	_defaultSlotTimeout(defaultSlotTimeout),
 	_defaultSlotUrl(defaultSlotUrl)
 {}
+
 
 NetworkSender::NetworkSender(QUrl defaultSlotUrl, quint64 defaultSlotTimeout)  :
+	NetworkAccessBase(0),
 	_defaultSlotTimeout(defaultSlotTimeout),
 	_defaultSlotUrl(defaultSlotUrl)
 {}
 
+
 NetworkSender::NetworkSender(quint64 defaultSlotTimeout) :
+	NetworkAccessBase(0),
 	_defaultSlotTimeout(defaultSlotTimeout)
-{}
+{
+	readPanicConnections();
+}
 
 QNetworkReply *NetworkSender::sendMultipart(QHttpMultiPart *multiPart) {
 	return sendToUrl(_defaultSlotUrl, multiPart);
@@ -147,6 +148,9 @@ void NetworkSender::onReplyFinished() {
 }
 
 void NetworkSender::timerEvent(QTimerEvent *event) {
+	NetworkAccessBase::timerEvent(event);
+	if(event->isAccepted())
+		return;
 	killTimer(event->timerId());
 	QNetworkReply *reply(0);
 	for (QHash<QNetworkReply *, int>::iterator i = _timerIds.begin(); i != _timerIds.end(); ++i)

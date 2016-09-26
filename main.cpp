@@ -52,9 +52,7 @@ void defaultKeypressFunction(char c);
 
 
 // Keypress distribution stuff
-#warning Continue implementation of this concept
 using keypressReceiverFn = std::function<void(char)>;
-// keypressReceiverFn const defaultKeypressReceiver(userKeypressFunction);
 keypressReceiverFn actualKeypressReceiver(defaultKeypressFunction);
 char fKeypressEscapeStatus;
 void fKeypressFunction(char c);
@@ -82,6 +80,8 @@ int main(int argc, char *argv[])
 	QCoreApplication::setOrganizationName("PMCS");
 	QCoreApplication::setOrganizationDomain("mendl.info");
 	QCoreApplication::setApplicationName("LovatoModbus");
+
+	NetworkAccessBase::readPanicConnections();
 
 #ifdef NO_AUTOMATIC_PROCESSING
 	#warning TESTING ONLY - managed by setting NO_AUTOMATIC_PROCESSING in Globals.h

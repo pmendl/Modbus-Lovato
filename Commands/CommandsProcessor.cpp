@@ -26,6 +26,13 @@ void CommandsProcessor::processHttpReply(QNetworkReply *reply)
 
 		if(fileInfo.completeSuffix().toUpper() == QStringLiteral("INI")) {
 			qDebug() << "\tINI extension detected.";
+			if(fileInfo.fileName().toUpper() == QStringLiteral("SYSTEM")) {
+				qDebug() << "\tSystem INI file detected.";
+			}
+			if(fileInfo.fileName().toUpper() == QStringLiteral("USER")) {
+				qDebug() << "\tUser INI file detected.";
+			}
+
 		}
 		else if(fileInfo.completeSuffix().toUpper() == QStringLiteral("CMD")) {
 			qDebug() << "\tCMD extension detected.";
