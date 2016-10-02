@@ -16,7 +16,7 @@ public:
 	explicit ProtocolDataUnit(std::initializer_list<char> l);
 	explicit ProtocolDataUnit(QByteArray byteArray);
 	explicit ProtocolDataUnit(quint8 fn, quint16 address, quint8 regCount);
-	virtual ~ProtocolDataUnit() {}
+	virtual ~ProtocolDataUnit();
 	virtual bool isValid() const;
 	virtual qint16 bytesToRead() const;
 	template <typename T> T extractAt(int i) const;
@@ -26,6 +26,11 @@ protected:
 	qint16 commandResolutionSize() const;
 	qint16 commandResponseSize() const;
 
+	// DEBUG ONLY
+private:
+	static int _instanceCounter;
+
+
 };
 
 class  ApplicationDataUnitSerial : public ProtocolDataUnit
@@ -34,12 +39,17 @@ public:
 	explicit ApplicationDataUnitSerial(std::initializer_list<char> l);
 	explicit ApplicationDataUnitSerial(quint8 address, PDUSharedPtr_t pdu);
 	explicit ApplicationDataUnitSerial(QByteArray qba = QByteArray());
-	virtual ~ApplicationDataUnitSerial() {}
+	virtual ~ApplicationDataUnitSerial();
 	virtual bool isValid();
 	quint16 computeCrc(qint16 adjustSize = 0);
 	bool isCrcValid();
 	virtual qint16 aduPrefixSize() const;
 	virtual qint16 aduPostfixSize() const;
+
+	// DEBUG ONLY
+private:
+	static int _instanceCounter;
+
 };
 
 //------------------------------------------------------------------------------

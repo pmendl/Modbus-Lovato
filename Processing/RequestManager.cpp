@@ -46,7 +46,8 @@ quint8 bytesPerType(RequestManager::itemType_t t, quint8 deflt = sizeof(quint16)
 RequestManager::RequestManager(QSettings &settings, ProcessingManager *processingManager) :
 	QObject(processingManager),
 	_groupName(settings.group().remove(QRegularExpression(".*/"))),
-	_command(0x03)
+	_command(0x03),
+	_response(0)
 {
 	setObjectName(ProcessingManager::objectNameFromGroup(REQUEST_MANAGER_NAME_PREFIX, _groupName));
 	if((settings.value(REQUEST_ACTIVITY_KEY, false).toBool())) {
@@ -128,6 +129,7 @@ quint8 RequestManager::device() const
 }
 
 PDUSharedPtr_t RequestManager::request() {
+	qDebug() << "*** RequestManager::request()";
 	return PDUSharedPtr_t(new ProtocolDataUnit(_command, _address, _registerCount));
 }
 
@@ -161,6 +163,7 @@ QVariant RequestManager::responseItemParsed(QString name) const {
 }
 
 void RequestManager::onResponse(PDUSharedPtr_t response) {
+		qDebug() << "*** RequestManager::onResponse(PDUSharedPtr_t response)" << response.data();
 /******************************************************************************
  * This stuff is intended for simulation of error responses only.
  * Uncomment only if you fully understand what you are doing !

@@ -1,5 +1,6 @@
 #include "DataUnits.h"
 
+#include <QProcess>
 #include <QDebug>
 #include <QtGlobal>
 #include <QtEndian>
@@ -10,13 +11,23 @@
 
 ProtocolDataUnit::ProtocolDataUnit(std::initializer_list<char> l) :
 	QByteArray(l.begin(), l.size())
-{}
+{
+	qDebug() << "*** PDU Creator INSTANCE COUNTER =" << ++_instanceCounter << this;
+
+
+}
 
 ProtocolDataUnit::ProtocolDataUnit(QByteArray byteArray) :
 	QByteArray(byteArray)
-{}
+{
+	qDebug() << "*** PDU Creator INSTANCE COUNTER =" << ++_instanceCounter << this;
+
+
+}
 
 ProtocolDataUnit::ProtocolDataUnit(quint8 fn, quint16 address, quint8 regCount) {
+	qDebug() << "*** PDU Creator INSTANCE COUNTER =" << ++_instanceCounter << this;
+
 	switch(fn) {
 	case 0x03:
 		append(fn);
@@ -27,6 +38,18 @@ ProtocolDataUnit::ProtocolDataUnit(quint8 fn, quint16 address, quint8 regCount) 
 		break;
 	}
 }
+
+ProtocolDataUnit::~ProtocolDataUnit() {
+	qDebug() << "*** PDU Destructor INSTANCE COUNTER =" << --_instanceCounter << this;
+	QProcess p;
+	p.start("awk", QStringList() << "/MemFree/ { print $0 }" << "/proc/meminfo");
+	p.waitForFinished();
+	qDebug() << "***" << p.readAllStandardOutput();
+	p.close();
+
+}
+
+int ProtocolDataUnit::_instanceCounter = 0;
 
 qint16 ProtocolDataUnit::commandResolutionSize() const
 {
@@ -64,6 +87,7 @@ bool ProtocolDataUnit::isValid() const
 
 qint16 ProtocolDataUnit::bytesToRead(void) const
 {
+//	qDebug() << "*** PDU ProtocolDataUnit::bytesToRead()" << size() << aduPrefixSize() << commandResolutionSize() << aduPostfixSize();
 	if(size() <= aduPrefixSize())
 		return aduPrefixSize()+1-size();
 
@@ -92,11 +116,16 @@ qint16 ProtocolDataUnit::aduPostfixSize() const
 
 ApplicationDataUnitSerial::ApplicationDataUnitSerial(std::initializer_list<char> l) :
 	ProtocolDataUnit(l)
-{}
+{
+	qDebug() << "*** ADU Creator INSTANCE COUNTER =" << ++_instanceCounter << this;
+
+}
 
 ApplicationDataUnitSerial::ApplicationDataUnitSerial(quint8 address, PDUSharedPtr_t pdu) :
 	ProtocolDataUnit(*pdu)
 {
+	qDebug() << "*** ADU Creator INSTANCE COUNTER =" << ++_instanceCounter << this;
+
 	prepend(address);
 	quint16 crc(computeCrc());
 	append(crc & 0xFF);
@@ -105,7 +134,17 @@ ApplicationDataUnitSerial::ApplicationDataUnitSerial(quint8 address, PDUSharedPt
 
 ApplicationDataUnitSerial::ApplicationDataUnitSerial(QByteArray qba) :
 	ProtocolDataUnit(qba)
-{}
+{
+	qDebug() << "*** ADU Creator INSTANCE COUNTER =" << ++_instanceCounter << this;
+
+}
+
+ApplicationDataUnitSerial::~ApplicationDataUnitSerial() {
+	qDebug() << "*** ADU Destructor INSTANCE COUNTER =" << --_instanceCounter << this;
+
+}
+
+int ApplicationDataUnitSerial::_instanceCounter = 0;
 
 bool ApplicationDataUnitSerial::isValid() {
 	return (bytesToRead() == 0) && isCrcValid() ;
