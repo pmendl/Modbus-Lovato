@@ -129,7 +129,6 @@ quint8 RequestManager::device() const
 }
 
 PDUSharedPtr_t RequestManager::request() {
-	qDebug() << "*** RequestManager::request()";
 	return PDUSharedPtr_t(new ProtocolDataUnit(_command, _address, _registerCount));
 }
 
@@ -163,7 +162,6 @@ QVariant RequestManager::responseItemParsed(QString name) const {
 }
 
 void RequestManager::onResponse(PDUSharedPtr_t response) {
-		qDebug() << "*** RequestManager::onResponse(PDUSharedPtr_t response)" << response.data();
 /******************************************************************************
  * This stuff is intended for simulation of error responses only.
  * Uncomment only if you fully understand what you are doing !

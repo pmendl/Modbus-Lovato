@@ -6,6 +6,7 @@
 #include <QBasicTimer>
 #include <QUrl>
 
+#include "Network/DebugHttpMultiPart.h"
 #include "Globals.h"
 #include "Network/NetworkSender.h"
 
@@ -47,7 +48,7 @@ private:
 	requestPriority_t _priority;
 	quint16 _delayedCount;
 	NetworkSender _sender;
-	QHttpMultiPart *_multipart;
+	DebugHttpMultiPart *_multipart;
 	QBasicTimer _timer;
 	quint16 _timeout;
 };

@@ -20,6 +20,7 @@
 
 #include "Console/KeyboardScanner.h"
 
+#include "Network/DebugHttpMultiPart.h"
 #include "Globals.h"
 #include "Modbus/DataUnits.h"
 #include "Modbus/ModbusSerialMaster.h"
@@ -478,7 +479,7 @@ GROUP=\"Gr.*_.?\"\n\
 
 
 /*
-		QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
+		QHttpMultiPart *multipart(new DebugHttpMultiPart(QHttpMultiPart::FormDataType));
 		fragment->setParent(multipart);
 
 		QHttpPart part;
@@ -513,7 +514,7 @@ void testFileSendActual() {
 	QFile *file(new QFile(testFilesList.at(testFilesIndex).absoluteFilePath()));
 	qDebug() << "\tSending:" << file->fileName();
 
-	QHttpMultiPart *multipart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
+	QHttpMultiPart *multipart(new DebugHttpMultiPart(QHttpMultiPart::FormDataType));
 	file->setParent(multipart);
 	if(!file->open(QFile::ReadOnly)) {
 		qDebug() << "Opening command file for send FAILED:" << testFilesList.at(testFilesIndex).absoluteFilePath();

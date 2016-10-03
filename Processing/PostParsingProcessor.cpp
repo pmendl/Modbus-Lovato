@@ -6,6 +6,7 @@
 #include <QNetworkReply>
 #include <QDateTime>
 
+#include "Network/DebugHttpMultiPart.h"
 #include "Globals.h"
 #include "Processing/RequestManager.h"
 #include "Processing/ProcessingManager.h"
@@ -52,7 +53,8 @@ void PostParsingProcessor::process(RequestManager *rm)
 	_priority = priority;
 
 	// Adapted from http://doc.qt.io/qt-5/qhttpmultipart.html#details
-	QHttpMultiPart *multiPart(new QHttpMultiPart(QHttpMultiPart::FormDataType));
+//	QHttpMultiPart *multiPart(new DebugHttpMultiPart(QHttpMultiPart::FormDataType));
+	DebugHttpMultiPart *multiPart(new DebugHttpMultiPart(QHttpMultiPart::FormDataType));
 
 	QHttpPart textPart;
 	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,

@@ -7,6 +7,7 @@
 #include <QNetworkReply>
 #include <QBuffer>
 
+#include "Network/DebugHttpMultiPart.h"
 #include "Globals.h"
 #include "Network/NetworkSender.h"
 
@@ -102,7 +103,7 @@ void LogReader::sendReadyFragment() {
 		return;
 	}
 
-	_multipart = new QHttpMultiPart(QHttpMultiPart::FormDataType, _readyFragment);
+	_multipart = new DebugHttpMultiPart(QHttpMultiPart::FormDataType, _readyFragment);
 	QHttpPart part;
 
 	if(_postFileContent) {

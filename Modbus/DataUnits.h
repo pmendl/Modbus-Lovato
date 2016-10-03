@@ -25,12 +25,6 @@ public:
 protected:
 	qint16 commandResolutionSize() const;
 	qint16 commandResponseSize() const;
-
-	// DEBUG ONLY
-private:
-	static int _instanceCounter;
-
-
 };
 
 class  ApplicationDataUnitSerial : public ProtocolDataUnit
@@ -45,11 +39,6 @@ public:
 	bool isCrcValid();
 	virtual qint16 aduPrefixSize() const;
 	virtual qint16 aduPostfixSize() const;
-
-	// DEBUG ONLY
-private:
-	static int _instanceCounter;
-
 };
 
 //------------------------------------------------------------------------------
