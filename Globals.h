@@ -22,6 +22,10 @@
 
 #define NETWORK_DEFAULT_TIMEOUT	10*1000
 
+// === Network debugging/release object version choice ===
+//#define HTTP_MULTI_PART_USED DebugHttpMultiPart
+#define HTTP_MULTI_PART_USED QHttpMultiPart
+
 // === Settings keys ===
 // --- Debugging and testing ---
 #define DEBUG_SERVER_HTTP_DEFAULT "http://mirtes.wz.cz/import.php"

@@ -1,5 +1,6 @@
 #include "PostParsingProcessor.h"
 
+#include <QProcess>
 #include <QDebug>
 #include <QSettings>
 #include <QHttpMultiPart>
@@ -53,8 +54,8 @@ void PostParsingProcessor::process(RequestManager *rm)
 	_priority = priority;
 
 	// Adapted from http://doc.qt.io/qt-5/qhttpmultipart.html#details
-//	QHttpMultiPart *multiPart(new DebugHttpMultiPart(QHttpMultiPart::FormDataType));
-	DebugHttpMultiPart *multiPart(new DebugHttpMultiPart(QHttpMultiPart::FormDataType));
+//	QHttpMultiPart *multiPart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
+	HTTP_MULTI_PART_USED *multiPart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
 
 	QHttpPart textPart;
 	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
@@ -80,6 +81,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 
 	if(_inProcess) {
 		++_delayedCount;
+		qDebug() << "*** RequestManager" << rm << ": _delayedCount=" << _delayedCount;
 		return;
 	}
 
@@ -91,6 +93,12 @@ void PostParsingProcessor::process(RequestManager *rm)
 		textPart.setBody(QString(QStringLiteral("%1").arg(_delayedCount)).toUtf8());
 		multiPart->append(textPart);
 	}
+
+	QProcess p;
+	p.start("awk", QStringList() << "/MemFree/ { print $0 }" << "/proc/meminfo");
+	p.waitForFinished();
+	qDebug() << "*** RequestManager" << rm << ":" << p.readAllStandardOutput();
+	p.close();
 
 	_multipart = multiPart;
 	_sender.send(_url, multiPart);

@@ -48,7 +48,7 @@ private:
 	requestPriority_t _priority;
 	quint16 _delayedCount;
 	NetworkSender _sender;
-	DebugHttpMultiPart *_multipart;
+	HTTP_MULTI_PART_USED *_multipart;
 	QBasicTimer _timer;
 	quint16 _timeout;
 };

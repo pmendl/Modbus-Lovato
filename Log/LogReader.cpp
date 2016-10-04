@@ -103,7 +103,7 @@ void LogReader::sendReadyFragment() {
 		return;
 	}
 
-	_multipart = new DebugHttpMultiPart(QHttpMultiPart::FormDataType, _readyFragment);
+	_multipart = new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType, _readyFragment);
 	QHttpPart part;
 
 	if(_postFileContent) {

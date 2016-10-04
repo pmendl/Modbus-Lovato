@@ -117,7 +117,7 @@ QNetworkReply *NetworkSender::send(QUrl url, QHttpMultiPart *multiPart, quint64 
 
 QNetworkReply *NetworkSender::send(QNetworkRequest request, QHttpMultiPart *multiPart, quint64 timeout) {
 /*
-	DebugHttpMultiPart *multiPart(dynamic_cast<DebugHttpMultiPart *>(xmultiPart));
+	HTTP_MULTI_PART_USED *multiPart(dynamic_cast<HTTP_MULTI_PART_USED *>(xmultiPart));
 	if(multiPart == 0) {
 		qDebug() << "*** NON-DEBUG MULTIPART REQUESTED TO BE SENT *** ABORTING ***";
 		return 0;
@@ -159,7 +159,6 @@ void NetworkSender::onReplyFinished() {
 		_commandsDistributor.emitCommandReply(reply);
 
 		if((reply->parent() == 0) || (reply->parent() == this)) {
-			qDebug() << "*** Delete later placed on" << reply;
 			reply->deleteLater();
 		}
 	}
