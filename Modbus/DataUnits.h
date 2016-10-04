@@ -48,13 +48,13 @@ T ProtocolDataUnit::extractAt(int i) const {
 	T x;
 	char *tp(static_cast<char *>(static_cast<void*>(&x)));
 #if Q_BYTE_ORDER != Q_BIG_ENDIAN
-	const char *fp(data()+aduPrefixSize()+i+sizeof(T)-1);
+	const char *fp(data()+aduPrefixSize()+i+sizeof(x)-1);
 	for(int count=sizeof(x); count--; --fp, ++tp) {
 		*tp = *fp;
 	}
 #else
 	const char *fp(data()+aduPrefixSize()+i);
-	for(int count=sizeof(T); count--; ++fp, ++tp) {
+	for(int count=sizeof(x); count--; ++fp, ++tp) {
 		*tp = *fp;
 	}
 #endif
