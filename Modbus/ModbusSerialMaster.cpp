@@ -36,7 +36,7 @@ ADUSharedPtr_t ModbusSerialMaster::process(ADUSharedPtr_t request)
 	QSettings settings;
 	ADUSharedPtr_t response(new ApplicationDataUnitSerial());
 	int retries(settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_MAXRETRIES_KEY), MODBUS_MAXRETRIES_DEFAULT).toInt());
-	int timeout;
+//	volatile int timeout;
 
 	if(!isOpen()) {
 		qDebug() <<	"\tModbusSerialMaster: Device not opened - aborting request processing";
@@ -46,7 +46,6 @@ ADUSharedPtr_t ModbusSerialMaster::process(ADUSharedPtr_t request)
 	while(retries--) {
 		clearError();
 		response->clear();
-		timeout = settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_INITIALREADTIMEOUT_KEY), MODBUS_INITIALREADTIMEOUT_DEFAULT).toInt();
 		write(*request);
 		if(error()) {
 			qDebug() <<	"\tModbusSerialMaster: Error: " << errorString();
@@ -55,17 +54,20 @@ ADUSharedPtr_t ModbusSerialMaster::process(ADUSharedPtr_t request)
 			response->append(error());
 			return response;
 		}
-		qDebug() << "*** CHECKPOINT ALPHA";
-		// Do notice +2 at end of initial value for first attempt and --X operator
-		int consequents(settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_MAXCONSEQUENTS_KEY), MODBUS_MAXCONSEQUENTREADS_DEFAULT).toInt() +2 );
-		while((--consequents>0) && waitForReadyRead(timeout)) {
-			qDebug() << "*** CHECKPOINT BRAVO";
-			timeout=settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_CONSEQUENTREADTIMEOUT_KEY), MODBUS_CONSEQUENTREADTIMEOUT_DEFAULT).toInt();
+//		qDebug() << "*** CHECKPOINT ALPHA";
+		// Do notice +1 at end of initial value for first attempt
+		int consequents(settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_MAXCONSEQUENTS_KEY), MODBUS_MAXCONSEQUENTREADS_DEFAULT).toInt() +1 );
+//		qDebug() << "***" << settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_INITIALREADTIMEOUT_KEY), MODBUS_INITIALREADTIMEOUT_DEFAULT).toInt() << settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_CONSEQUENTREADTIMEOUT_KEY), MODBUS_CONSEQUENTREADTIMEOUT_DEFAULT).toInt();
+		waitForReadyRead(settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_INITIALREADTIMEOUT_KEY), MODBUS_INITIALREADTIMEOUT_DEFAULT).toInt());
+		do {
 			response->append(read(256));
 			if(response->isValid()) {
 				return response;
 			}
-		}
+//			qDebug() << "*** CHECKPOINT BRAVO";
+			struct timespec ts = { 0, settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_INCYCLEWAIT_KEY), MODBUS_INCYCLEWAIT_DEFAULT).toInt()};
+			nanosleep(&ts, NULL);
+		} while((--consequents>0) && waitForReadyRead(settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_CONSEQUENTREADTIMEOUT_KEY), MODBUS_CONSEQUENTREADTIMEOUT_DEFAULT).toInt()));
 	}
 	qDebug() << "FAILED after " << settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_MAXRETRIES_KEY), MODBUS_MAXRETRIES_DEFAULT).toInt() << "retries !!!";
 	return ADUSharedPtr_t();

@@ -93,13 +93,13 @@ void PostParsingProcessor::process(RequestManager *rm)
 		textPart.setBody(QString(QStringLiteral("%1").arg(_delayedCount)).toUtf8());
 		multiPart->append(textPart);
 	}
-
+/*
 	QProcess p;
 	p.start("awk", QStringList() << "/MemFree/ { print $0 }" << "/proc/meminfo");
 	p.waitForFinished();
 	qDebug() << "*** RequestManager" << rm << ":" << p.readAllStandardOutput();
 	p.close();
-
+*/
 	_multipart = multiPart;
 	_sender.send(_url, multiPart);
 }

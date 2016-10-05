@@ -51,7 +51,7 @@ void CommandsProcessor::processHttpReply(QNetworkReply *reply)
 
 void CommandsProcessor::processCommandsList(CommandsList *commandsList) {
 	for (CommandDescriptor descr : *commandsList) {
-		qDebug() << "*** emited" << descr;
+//		qDebug() << "*** emited" << descr;
 		emit commandReceived(descr);
 	}
 }

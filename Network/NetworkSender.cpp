@@ -116,23 +116,8 @@ QNetworkReply *NetworkSender::send(QUrl url, QHttpMultiPart *multiPart, quint64 
 
 
 QNetworkReply *NetworkSender::send(QNetworkRequest request, QHttpMultiPart *multiPart, quint64 timeout) {
-/*
-	HTTP_MULTI_PART_USED *multiPart(dynamic_cast<HTTP_MULTI_PART_USED *>(xmultiPart));
-	if(multiPart == 0) {
-		qDebug() << "*** NON-DEBUG MULTIPART REQUESTED TO BE SENT *** ABORTING ***";
-		return 0;
-	}
-*/
 	qDebug() << "\tNetworkSender::send(" << multiPart << request.url() << ")";
 
-	/*
-	qDebug() << "*** DEBUG ONLY multipart destruction";
-//	delete multiPart;
-	QObject *parent(new QObject);
-	multiPart->setParent(parent);
-	delete parent;
-	return 0;
-*/
 	if((!request.url().isValid()) || (multiPart == 0)) {
 		qDebug() << "\tNetworkSender: invalid request (URL=" << request.url() << ", multipart=" << multiPart;
 		return 0;
