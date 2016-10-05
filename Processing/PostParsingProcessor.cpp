@@ -92,6 +92,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 						   QStringLiteral("form-data; name=delayedCount"));
 		textPart.setBody(QString(QStringLiteral("%1").arg(_delayedCount)).toUtf8());
 		multiPart->append(textPart);
+		_delayedCount = 0;
 	}
 /*
 	QProcess p;
@@ -116,6 +117,5 @@ void PostParsingProcessor::process(RequestManager *rm)
 	 if(static_cast<QNetworkReply *>(sender())->error() == 0) {
 		 _inProcess = false;
 		 _priority = nullRequestPriority;
-		 _delayedCount = 0;
 	 }
 }
