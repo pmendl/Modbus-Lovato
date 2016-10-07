@@ -1,6 +1,6 @@
 #include "LogServer.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QCoreApplication>
 #include <QThread>
 #include <QDateTime>
@@ -31,10 +31,10 @@ LogServer::LogServer(QString defaultLogPath, QObject *parent) : QObject(parent)
 
 	_logDir.makeAbsolute();
 
-	qDebug() << "\tLogs directory = " << _logDir.canonicalPath();
+	DP_LOGGING_INIT("\tLogs directory = " << _logDir.canonicalPath());
 
 	if(!(_isValid = _logDir.mkpath(_logDir.canonicalPath()))) {
-		qDebug() << "\tCould NOT create requested directory !";
+		DP_LOGGING_INIT("\tCould NOT create requested directory !");
 		return;
 	}
 }
@@ -73,10 +73,10 @@ void LogWritter::run() {
 					+ QStringLiteral(LOG_SEPARATOR_RECORD)).toUtf8());
 		file.close();
 		file.flush();
-		qDebug() << "Log WRITTEN:" << _pathname;
+		DP_LOGGING_ACTION("Log WRITTEN:" << _pathname);
 	}
 	else
-		qDebug() << _pathname << file.errorString();
+		DP_LOGGING_ERROR(_pathname << file.errorString());
 }
 
 LogMaintenanceLocker::LogMaintenanceLocker(LogServer *logServer):

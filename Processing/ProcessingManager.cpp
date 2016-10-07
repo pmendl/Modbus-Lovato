@@ -1,7 +1,7 @@
 #include "ProcessingManager.h"
 
 #include<QCoreApplication>
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QSettings>
 #include <QDir>
 
@@ -21,7 +21,7 @@ ProcessingManager::ProcessingManager(QObject *parent, bool suppressPeriodicalReq
 
 	settings.beginGroup(REQUEST_GROUPS_KEY);
 	foreach(QString group, settings.childGroups()) {
-		qDebug() << "Processing group" << group;
+		DP_PROCESSING_INIT("Processing group" << group);
 		settings.beginGroup(group);
 		RequestManager *rm(new RequestManager(settings, this));
 		connect(rm, &RequestManager::requesting, this, &ProcessingManager::onQueryRequest);
@@ -36,15 +36,15 @@ void ProcessingManager::onQueryRequest() {
 		return;
 
 	RequestManager *rm(static_cast<RequestManager*>(sender()));
-	qDebug() << "PROCESSING" << rm->objectName() << ":" << rm;
+	DP_PROCESSING_REQUEST("PROCESSING" << rm->objectName() << ":" << rm);
 	ADUSharedPtr_t req(new ApplicationDataUnitSerial(rm->device(), rm->request()));
-	qDebug() << "\tREQUEST: " << req->toHex();
+	DP_PROCESSING_REQUEST("\tREQUEST: " << req->toHex());
 	ADUSharedPtr_t response(_serialMaster.process(req));
 	if(response.isNull())
-		qDebug() << "\tNULL RESPONSE!";
+		DP_PROCESSING_REQUEST("\tNULL RESPONSE!");
 	// Command 0x03 hardwired for now; can get reimplemented more flexible later
 	else if(response->extractAt<char>(0) != 0x03) {
-			qDebug() << "\tERROR RESPONSE!";
+			DP_PROCESSING_REQUEST("\tERROR RESPONSE!");
 	};
 	rm->onResponse(response);
 }
@@ -67,14 +67,14 @@ QSharedPointer<LogServer> ProcessingManager::logServer() const
 QSharedPointer<ParsingProcessor> ProcessingManager::processor(QSettings *settings, QString group)
 {
 	QSharedPointer<ParsingProcessor> p;
-	qDebug() << "\tConstructing ParsingProcessor of type" << settings->value(REQUEST_PARSING_TYPE_KEY);
+	DP_PROCESSING_INIT("\tConstructing ParsingProcessor of type" << settings->value(REQUEST_PARSING_TYPE_KEY));
 	if(settings->value(REQUEST_PARSING_TYPE_KEY) == xstr(REQUEST_PARSING_TYPE_VALUE_POST))
 		p.reset(new PostParsingProcessor(settings, group));
 	else if(settings->value(REQUEST_PARSING_TYPE_KEY) == xstr(REQUEST_PARSING_TYPE_VALUE_LOG))
 		p.reset(new LogParsingProcessor(settings, group, _logServer));
 
 	if(!p.isNull() && p->isValid()) {
-		qDebug () << "\t\tProcessingManager::processor returns" << p;
+		DP_PROCESSING_INIT("\t\tProcessingManager::processor returns" << p);
 		return p;
 	}
 

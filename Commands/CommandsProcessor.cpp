@@ -1,6 +1,6 @@
 #include "CommandsProcessor.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QNetworkReply>
 #include <QRegularExpression>
 #include <QFileInfo>
@@ -13,8 +13,8 @@ CommandsProcessor::CommandsProcessor()
 
 void CommandsProcessor::processHttpReply(QNetworkReply *reply)
 {
-	qDebug() << "CommandsProcessor processing" << reply;
-	qDebug() << "\tContent-Disposition=" << reply->rawHeader("Content-Disposition");
+	DP_COMMANDS_PROCESSOR("CommandsProcessor processing" << reply);
+	DP_COMMANDS_PROCESSOR_DETAILS("\tContent-Disposition=" << reply->rawHeader("Content-Disposition"));
 
 	const QRegularExpression contentDispositionExpression(
 				QStringLiteral("filename\\s*=\\s*(\\\")([^\"]*)")
@@ -22,36 +22,35 @@ void CommandsProcessor::processHttpReply(QNetworkReply *reply)
 	QRegularExpressionMatch match(contentDispositionExpression.match(reply->rawHeader("Content-Disposition")));
 	if(match.hasMatch()) {
 		QFileInfo fileInfo(match.captured(2));
-		qDebug().noquote().nospace() << "\tfilename=" << fileInfo.fileName();
+		DP_COMMANDS_PROCESSOR_DETAILS("\tfilename=" << fileInfo.fileName());
 
 		if(fileInfo.completeSuffix().toUpper() == QStringLiteral("INI")) {
-			qDebug() << "\tINI extension detected.";
+			DP_COMMANDS_PROCESSOR_DETAILS("\tINI extension detected.");
 			if(fileInfo.fileName().toUpper() == QStringLiteral("SYSTEM")) {
-				qDebug() << "\tSystem INI file detected.";
+				DP_COMMANDS_PROCESSOR_DETAILS("\tSystem INI file detected.");
 			}
 			if(fileInfo.fileName().toUpper() == QStringLiteral("USER")) {
-				qDebug() << "\tUser INI file detected.";
+				DP_COMMANDS_PROCESSOR_DETAILS("\tUser INI file detected.");
 			}
 
 		}
 		else if(fileInfo.completeSuffix().toUpper() == QStringLiteral("CMD")) {
-			qDebug() << "\tCMD extension detected.";
+			DP_COMMANDS_PROCESSOR_DETAILS("\tCMD extension detected.");
 
 			CommandsList commands(reply->url().url(), reply);
 			processCommandsList(&commands);
 		}
 		else {
-				qDebug() << "\tFilename extension found in Content-Disposition not supported! ERROR";
+				DP_COMMANDS_PROCESSOR_DETAILS("\tFilename extension found in Content-Disposition not supported! ERROR");
 		}
 	}
 
-	qDebug() << "CommandsProcessor finished" << reply;
+	DP_COMMANDS_PROCESSOR_DETAILS("CommandsProcessor finished" << reply);
 
 }
 
 void CommandsProcessor::processCommandsList(CommandsList *commandsList) {
 	for (CommandDescriptor descr : *commandsList) {
-//		qDebug() << "*** emited" << descr;
 		emit commandReceived(descr);
 	}
 }

@@ -2,7 +2,7 @@
 
 #include <QStorageInfo>
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QSettings>
 #include <QDir>
 #include <QRegularExpression>
@@ -73,7 +73,7 @@ const QSet<QString> trueCandidates = {
 
 int main(int argc, char *argv[])
 {
-	qDebug() << "Modbus application initializing:";
+	DP_INIT("Modbus application initializing:");
 
 	/// @warning The code assumes Linux OS to be used, as QSettings::setDefaultFormat(...INI...)
 	/// does not behave properly - at least it reads no groups/values on construction.
@@ -82,7 +82,32 @@ int main(int argc, char *argv[])
 	QCoreApplication::setOrganizationDomain("mendl.info");
 	QCoreApplication::setApplicationName("LovatoModbus");
 
+	if(Q_BYTE_ORDER == Q_BIG_ENDIAN)
+		DP_INIT("\tHost uses big endianness.");
+	else
+		DP_INIT("\tHost uses little endianness.");
+
+	if(std::numeric_limits<float>::is_iec559)
+		DP_INIT("\tHost complies to IEEE 754.");
+	else
+		DP_INIT("\tHost does not comply to IEEE 754.");
+
+	DP_INIT("\nMounted filesystems:");
+	foreach (QStorageInfo storageInfo, QStorageInfo::mountedVolumes()) {
+		DP_INIT("\tStorage" << storageInfo.displayName() << "(" << storageInfo.fileSystemType() << ")");
+		DP_INIT("\tFree space: " << storageInfo.bytesAvailable() << "bytes\n");
+	}
+
+	QSettings settings;
+	QVariant var(settings.value(QStringLiteral(DEBUG_GROUP_KEY "/" DEBUG_SERVER_HTTP_KEY)));
+	if(var.isValid())
+		sender.setDefaultSlotUrl(var.toString());
+	DP_INIT("Test server: " << sender.defaultSlotUrl().url());
+	DP_INIT("Test files path: " XSTR(TEST_COMMAND_FILES_PATH));
+
 	NetworkAccessBase::readPanicConnections();
+	DP_INIT("------------------------------");
+	DP_PROCESSING_INIT("Processing manager initializing:");
 
 #ifdef NO_AUTOMATIC_PROCESSING
 	#warning TESTING ONLY - managed by setting NO_AUTOMATIC_PROCESSING in Globals.h
@@ -99,76 +124,57 @@ int main(int argc, char *argv[])
 	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
 					 &onCommandReceived);
 
-	if(Q_BYTE_ORDER == Q_BIG_ENDIAN)
-		qDebug() << "\tHost uses big endianness.";
-	else
-		qDebug() << "\tHost uses little endianness.";
+	DP_PROCESSING_INIT("------------------------------");
 
-	if(std::numeric_limits<float>::is_iec559)
-		qDebug() << "\tHost complies to IEEE 754.";
-	else
-		qDebug() << "\tHost does not comply to IEEE 754.";
 
-	qDebug() << "\nMounted filesystems:";
-	foreach (QStorageInfo storageInfo, QStorageInfo::mountedVolumes()) {
-		qDebug() << "\tStorage" << storageInfo.displayName() << "(" << storageInfo.fileSystemType() << ")";
-		qDebug() << "\tFree space: " << storageInfo.bytesAvailable() << "bytes\n";
-	}
-
-	QSettings settings;
-	QVariant var(settings.value(QStringLiteral(DEBUG_GROUP_KEY "/" DEBUG_SERVER_HTTP_KEY)));
-	if(var.isValid())
-		sender.setDefaultSlotUrl(var.toString());
-	qDebug() << "Test server: " << sender.defaultSlotUrl().url();
-	qDebug() << "Test files path: " XSTR(TEST_COMMAND_FILES_PATH);
 
 	if(trueCandidates.contains(settings.value(QStringLiteral(DEBUG_GROUP_KEY "/" DEBUG_SUPPRESS_PERIODICAL_REQUESTING_KEY)).toString().toLower()))
 			processingManager->setSuppressPeriodicalRequesting(true);
 	// Note can be set elswhere, not only in the line above - so needs to re-read via method
 	if(processingManager->suppressPeriodicalRequesting())
 #ifdef NO_AUTOMATIC_PROCESSING
-		qDebug() << "\nPERIODICAL REQUESTING OF VALUES SUPPRESSED !"
-					"\n(This is debugging tool hardcoded by #define NO_AUTOMATIC_PROCESSING in Globals.h"
-					"\neventually doubled by " DEBUG_GROUP_KEY "/" DEBUG_SUPPRESS_PERIODICAL_REQUESTING_KEY " value in .INI file)";
+		D_P("\nPERIODICAL REQUESTING OF VALUES SUPPRESSED !" \
+			"\n(This is debugging tool hardcoded by #define NO_AUTOMATIC_PROCESSING in Globals.h" \
+			"\neventually doubled by " DEBUG_GROUP_KEY "/" DEBUG_SUPPRESS_PERIODICAL_REQUESTING_KEY " value in .INI file)");
 #else
-		qDebug() << "\nPERIODICAL REQUESTING OF VALUES SUPPRESSED !"
-					"\n(This is debugging tool activated by " DEBUG_GROUP_KEY "/" DEBUG_SUPPRESS_PERIODICAL_REQUESTING_KEY "=true value in .INI file)";
+		D_P("\nPERIODICAL REQUESTING OF VALUES SUPPRESSED !"
+					"\n(This is debugging tool activated by " DEBUG_GROUP_KEY "/" DEBUG_SUPPRESS_PERIODICAL_REQUESTING_KEY "=true value in .INI file)");
 #endif
 
 	keyboardScanner.startTimer();
 
 
-	qDebug() << "\nModbus application started...";
+	D_P("Modbus application started...");
 	int result = a.exec();
-	qDebug() << "Modbus application quited...\n";
+	D_P("Modbus application quited...\n");
 	return result;
 }
 
 
 void onHTTPreply(QNetworkReply *reply) {
-	qDebug() << "HTTP response received" << reply;
+	DP_NET_HTTP_REPLY("HTTP response received" << reply);
 	if(reply->error() != 0)
-		qDebug() << "\tURL" << reply->url() << "SENDING ERROR: " << reply->errorString();
+		DP_NET_HTTP_REPLY_DETAILS("\tURL" << reply->url() << "SENDING ERROR: " << reply->errorString());
    else {
-		qDebug() << "\tURL" << reply->url() << "SENT WITH RESULT" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+		DP_NET_HTTP_REPLY_DETAILS("\tURL" << reply->url() << "SENT WITH RESULT" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute));
 /// @todo Consider more sophisticated processing above - even signalling uplink
-		qDebug() << "\tNetworkSender HEADERS:";
+		DP_NET_HTTP_REPLY_DETAILS("\tNetworkSender HEADERS:");
 		foreach (QNetworkReply::RawHeaderPair header, reply->rawHeaderPairs()) {
-			qDebug() << "\t\t" << header.first << "=" << header.second;
+			DP_NET_HTTP_REPLY_DETAILS("\t\t" << header.first << "=" << header.second);
 		}
-//		 qDebug() << "\tDATA:\n" << reply->readAll();
-		qDebug() << "\tDATA SIZE:" << reply->bytesAvailable();
+//		 DP_NET_HTTP_REPLY_DETAILS("\tDATA:\n" << reply->readAll());
+		DP_NET_HTTP_REPLY_DETAILS("\tDATA SIZE:" << reply->bytesAvailable());
 
-		qDebug() << "End of HTTP response data";
+		DP_NET_HTTP_REPLY_DETAILS("End of HTTP response data");
 
 	}
 
 }
 
 void onCommandReceived(CommandDescriptor descriptor) {
-	qDebug() << "\n--------------- COMMAND:" << descriptor.value(QStringLiteral(COMMAND_NAME)).toUpper() << "---------------";
+	D_P("\n--------------- COMMAND:" << descriptor.value(QStringLiteral(COMMAND_NAME)).toUpper() << "---------------");
 
-	qDebug() << "\tFull command descriptor:"<< descriptor;
+	D_P("\tFull command descriptor:"<< descriptor);
 
 	if(descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_LOG_VALUE)) {
 		// --- LOG COMMAND ---
@@ -202,50 +208,50 @@ void onCommandReceived(CommandDescriptor descriptor) {
 				temp(target.section(QChar('.'),0,-2)+QStringLiteral(".old"));
 
 		if((source.isEmpty() || target.isEmpty())) {
-			qDebug() << "\tSource and/or target parameter missing or invalid:" << source << "->" << target << "\n\tAborting...";
+			D_P("\tSource and/or target parameter missing or invalid:" << source << "->" << target << "\n\tAborting...");
 			return;
 		}
 
 		QSharedPointer<LogMaintenanceLocker> lock(processingManager->logServer()->fileMaintenanceLocker());
 
 		if(QFile::remove(temp))
-			qDebug() << "\tRemoved temporary:" << temp;
+			D_P("\tRemoved temporary:" << temp);
 
 		if(QFile::exists(target)) {
 			if(QFile::rename(target, temp))
-				qDebug() << "\tRenamed" << target << "->" << temp;
+				D_P("\tRenamed" << target << "->" << temp);
 			else {
-				qDebug() << "\tRenaming" << target << "->" << temp << "FAILED!\n\tAborting...";
+				D_P("\tRenaming" << target << "->" << temp << "FAILED!\n\tAborting...");
 				return;
 			}
 		}
 
 		if(QFile::rename(source,target))
-			qDebug() << "\tRenamed" << source << "->" << target;
+			D_P("\tRenamed" << source << "->" << target);
 		else {
-			qDebug() << "\tRenaming" << source << "->" << target << "FAILED!\n\tAborting...";
+			D_P("\tRenaming" << source << "->" << target << "FAILED!\n\tAborting...");
 			return;
 		}
 
 		if(QFile::remove(temp))
-			qDebug() << "\tRemoved temporary:" << temp;
+			D_P("\tRemoved temporary:" << temp);
 		else
-			qDebug() << "\tFAILED temporary removal!!! File may remain on disk:" << temp;
+			D_P("\tFAILED temporary removal!!! File may remain on disk:" << temp);
 	} else if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_DELETE_VALUE)) {
 		// --- DELETE COMMAND ---
 		QString source(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))));
 
 		if(source.isEmpty()) {
-			qDebug() << "\tSource parameter missing or invalid:" << source << "\n\tAborting...";
+			D_P("\tSource parameter missing or invalid:" << source << "\n\tAborting...");
 			return;
 		}
 
 		QSharedPointer<LogMaintenanceLocker> lock(processingManager->logServer()->fileMaintenanceLocker());
 
 		if(QFile::remove(source))
-			qDebug() << "\tRemoved:" << source;
+			D_P("\tRemoved:" << source);
 		else
-			qDebug() << "\tRemoval FAILED !!! File may remain on disk:" << source;
+			D_P("\tRemoval FAILED !!! File may remain on disk:" << source);
 	}
 }
 
@@ -255,7 +261,7 @@ void onKeypress(char c) {
 
 void defaultKeypressFunction(char c)
 {
-	qDebug() << "\n--------------- KEYPRESS:" << static_cast<char>(QChar::toUpper(c)) << "---------------";
+	D_P("\n--------------- KEYPRESS:" << static_cast<char>(QChar::toUpper(c)) << "---------------");
 
 	switch (toupper(c)) {
 	case 'Q':
@@ -277,14 +283,14 @@ void defaultKeypressFunction(char c)
 
 		QBuffer buff(&cmd);
 		if(!buff.open(QIODevice::ReadOnly)) {
-			qDebug() << "Error opening buffer!";
+			D_P("Error opening buffer!");
 			break;
 		}
 
 		CommandsList list(sender.defaultSlotUrl().url(), &buff);
 		commandsProcessor.processCommandsList(&list);
 
-		qDebug() << "Leaving 'L' command...";
+		D_P("Leaving 'L' command...");
 		break;
 	}
 
@@ -302,24 +308,24 @@ void defaultKeypressFunction(char c)
 
 		QBuffer buff(&cmd);
 		if(!buff.open(QIODevice::ReadOnly)) {
-			qDebug() << "Error opening buffer!";
+			D_P("Error opening buffer!");
 			break;
 		}
 
 		CommandsList list(sender.defaultSlotUrl().url(), &buff);
 		commandsProcessor.processCommandsList(&list);
 
-		qDebug() << "Leaving 'H' command...";
+		D_P("Leaving 'H' command...");
 		break;
 	}
 
 	case 'E': // Test event loop
 	{
-		qDebug() << "Entering QEventLoop test...";
+		D_P("Entering QEventLoop test...");
 		QEventLoop loop;
 		QObject::connect(&keyboardScanner, &KeyboardScanner::KeyPressed, &loop, &QEventLoop::quit);
 		loop.exec();
-		qDebug() << "Exiting QEventLoop test...";
+		D_P("Exiting QEventLoop test...");
 		break;
 	}
 
@@ -342,7 +348,7 @@ void defaultKeypressFunction(char c)
 		const QRegularExpression pattern("(.*)=(.*)");
 		QRegularExpressionMatch match;
 		forever {
-			qDebug() << "Enter KEY=VALUE:";
+			D_P("Enter KEY=VALUE:");
 			line=in.readLine();
 //			line=keyboardScanner.waitLine();
 			if(line.isEmpty())
@@ -351,7 +357,7 @@ void defaultKeypressFunction(char c)
 			if((match=pattern.match(line)).hasMatch()) {
 
 				settings.setValue(match.captured(1), match.captured(2));
-				qDebug().noquote() << "\twritten: " << match.captured(1) << "=" << settings.value(match.captured(1));
+				DEBUG(qDebug().noquote() << "\twritten: " << match.captured(1) << "=" << settings.value(match.captured(1));)
 			}
 		}
 //		keyboardScanner.setMode(true);
@@ -369,7 +375,7 @@ TARGET=\"Common.log\"\n\
 
 		QBuffer buff(&cmd);
 		if(!buff.open(QIODevice::ReadOnly)) {
-			qDebug() << "Error opening buffer!";
+			D_P("Error opening buffer!");
 			break;
 		}
 
@@ -386,9 +392,9 @@ TARGET=\"Common.log\"\n\
 		QString str;
 
 		keyboardScanner.setDetection(false);
-			qDebug() << "Enter KEY:";
+			D_P("Enter KEY:");
 			str=in.readLine();
-			qDebug().noquote() << "\tread: " << str << "=" << settings.value(str);
+			D_P("\tread: " << str << "=" << settings.value(str);)
 		keyboardScanner.setDetection(true);
 		break;
 	}
@@ -403,7 +409,7 @@ SOURCE=\"Test.log\"\n\
 
 		QBuffer buff(&cmd);
 		if(!buff.open(QIODevice::ReadOnly)) {
-			qDebug() << "Error opening buffer!";
+			D_P("Error opening buffer!");
 			break;
 		}
 
@@ -425,7 +431,7 @@ GROUP=\"Gr.*_.?\"\n\
 
 		QBuffer buff(&cmd);
 		if(!buff.open(QIODevice::ReadOnly)) {
-			qDebug() << "Error opening buffer!";
+			D_P("Error opening buffer!");
 			break;
 		}
 
@@ -450,10 +456,10 @@ GROUP=\"Gr.*_.?\"\n\
 		QSettings active, group;
 		active.beginGroup("Active");
 		for(QString s : active.childKeys()) {
-			qDebug() << "Group:" << s;
+			D_P("Group:" << s);
 			group.beginGroup(s);
-			qDebug() <<  group.childKeys();
-			qDebug() <<  group.childGroups();
+			D_P(group.childKeys());
+			D_P(group.childGroups());
 			group.endGroup();
 		}
 		active.endGroup();
@@ -464,13 +470,13 @@ GROUP=\"Gr.*_.?\"\n\
 
 	case 'F': // Send demo response FILE
 	{
-		qDebug() << "--- F keypress processing inited ---";
+		D_P("--- F keypress processing inited ---");
 
 		QDir dir(XSTR(TEST_COMMAND_FILES_PATH));
-		qDebug() << "\t" << dir.entryList(QDir::Files, QDir::Name);
+		D_P("\t" << dir.entryList(QDir::Files, QDir::Name));
 		testFilesList = dir.entryInfoList(QDir::Files, QDir::Name);
 		testFilesIndex = 0;
-//		qDebug() << "\t" << dir.entryInfoList();
+//		D_P("\t" << dir.entryInfoList());
 
 		fKeypressEscapeStatus = 0;
 		actualKeypressReceiver = fKeypressFunction;
@@ -507,17 +513,17 @@ GROUP=\"Gr.*_.?\"\n\
 }
 
 void testFileQueryActual() {
-	qDebug() << "\tSend test file:" << testFilesList.at(testFilesIndex).fileName() << "?";
+	D_P("\tSend test file:" << testFilesList.at(testFilesIndex).fileName() << "?");
 }
 
 void testFileSendActual() {
 	QFile *file(new QFile(testFilesList.at(testFilesIndex).absoluteFilePath()));
-	qDebug() << "\tSending:" << file->fileName();
+	D_P("\tSending:" << file->fileName());
 
 	QHttpMultiPart *multipart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
 	file->setParent(multipart);
 	if(!file->open(QFile::ReadOnly)) {
-		qDebug() << "Opening command file for send FAILED:" << testFilesList.at(testFilesIndex).absoluteFilePath();
+		D_P("Opening command file for send FAILED:" << testFilesList.at(testFilesIndex).absoluteFilePath());
 	}
 
 	QHttpPart part;
@@ -548,7 +554,7 @@ void fKeypressFunction(char c) {
 
 		case 'q':
 		case 'Q':
-			qDebug() << "Leaving keypress 'F'...";
+			D_P("Leaving keypress 'F'...");
 			actualKeypressReceiver = defaultKeypressFunction;
 			break;
 		}
@@ -566,34 +572,34 @@ void fKeypressFunction(char c) {
 		fKeypressEscapeStatus=0;
 		switch(c) {
 		case 'A':
-			qDebug() << "UP ARROW";
+			D_P("UP ARROW");
 			if(++testFilesIndex == testFilesList.size())
 				--testFilesIndex;
 			testFileQueryActual();
 			break;
 
 		case 'B':
-			qDebug() << "DOWN ARROW";
+			D_P("DOWN ARROW");
 			if(testFilesIndex > 0)
 				--testFilesIndex;
 			testFileQueryActual();
 			break;
 
 		case 'C':
-			qDebug() << "RIGHT ARROW";
+			D_P("RIGHT ARROW");
 			testFileSendActual();
 			break;
 
 		case 'D':
-			qDebug() << "LEFT ARROW";
+			D_P("LEFT ARROW");
 			break;
 
 		case 'H':
-			qDebug() << "HOME";
+			D_P("HOME");
 			break;
 
 		case 'F':
-			qDebug() << "END";
+			D_P("END");
 			break;
 		}
 

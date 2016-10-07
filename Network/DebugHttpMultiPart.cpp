@@ -1,35 +1,35 @@
 #include "DebugHttpMultiPart.h"
 
 #include <QProcess>
-#include <QDebug>
+#include "DebugMacros.h"
 
 
 DebugHttpMultiPart::DebugHttpMultiPart(QObject *parent) :
 	QHttpMultiPart(parent)
 {
-	qDebug() << "*** Constructor INSTANCE COUNT =" << ++_instanceCount << this;
+	DP_DEBUGHTTPMULTIPART("*** Constructor INSTANCE COUNT =" << ++_instanceCount << this);
 }
 
 DebugHttpMultiPart::DebugHttpMultiPart(ContentType contentType, QObject *parent) :
 QHttpMultiPart(contentType, parent)
 {
-	qDebug() << "*** Constructor INSTANCE COUNT =" << ++_instanceCount << this;
+	DP_DEBUGHTTPMULTIPART("*** Constructor INSTANCE COUNT =" << ++_instanceCount << this);
 
 }
 
 DebugHttpMultiPart::~DebugHttpMultiPart()
 {
-	qDebug() << "*** Destructor INSTANCE COUNT =" << --_instanceCount << this;
+	DP_DEBUGHTTPMULTIPART("*** Destructor INSTANCE COUNT =" << --_instanceCount << this);
 
 	QProcess p;
 	p.start("awk", QStringList() << "/MemFree/ { print $0 }" << "/proc/meminfo");
 	p.waitForFinished();
-	qDebug() << "***" << p.readAllStandardOutput();
+	DP_DEBUGHTTPMULTIPART("***" << p.readAllStandardOutput());
 	p.close();
 
 
 //	this->QHttpMultiPart::~QHttpMultiPart();
-	qDebug() << "\t*** Destructor finished on" << this;
+	DP_DEBUGHTTPMULTIPART("\t*** Destructor finished on" << this);
 }
 
 int DebugHttpMultiPart::_instanceCount = 0;

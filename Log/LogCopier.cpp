@@ -1,6 +1,6 @@
 #include "LogCopier.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QFile>
 #include <QRegularExpression>
 #include <QBuffer>
@@ -21,15 +21,15 @@ LogCopier::LogCopier(QString sourceFile, QString targetFile, QDateTime from, QDa
 
 {
 	if(!_targetFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-		qDebug() << "LogCopier aborted as it could not open target file"
-				 << targetFile << "for write. ERROR";
+		DP_CMD_LOG_COPIER_ERROR("LogCopier aborted as it could not open target file" \
+				 << targetFile << "for write. ERROR");
 		deleteLater();
 	}
 
 	start();
 
 	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(sourceFile)), true, from, to, group, 0, this));
-	qDebug() << "LogCopier "<< sourceFile << "->" << targetFile << "constructed.";
+	DP_CMD_LOG_COPIER("LogCopier "<< sourceFile << "->" << targetFile << "constructed.");
 }
 
 void LogCopier::processFragment(LogFragment *fragment) {
@@ -37,10 +37,10 @@ void LogCopier::processFragment(LogFragment *fragment) {
 		deleteLater();
 		return;
 	}
-	qDebug() << "\tStarting processing of new fragment...";
+	DP_CMD_LOG_COPIER_DETAILS("\tStarting processing of new fragment...");
 	connect(fragment, &LogFragment::fragmentReady, this, &LogCopier::onFragmentReady);
 	connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
-		qDebug() << "LogCopier detected fragmentFailed on" << fragment;
+		DP_CMD_LOG_COPIER_ERROR("LogCopier detected fragmentFailed on" << fragment);
 		deleteLater();
 	});
 	QMetaObject::invokeMethod(fragment, "fillFragment");
@@ -49,22 +49,22 @@ void LogCopier::processFragment(LogFragment *fragment) {
 LogCopier::~LogCopier() {
 	quit();
 	wait();
+	DP_CMD_LOG_COPIER("LogCopier destroyed. (target=" << _targetFile.fileName() << ")");
 	if(_targetFile.isOpen())
 		_targetFile.close();
-	qDebug() << "LogCopier destroyed.";
 }
 
 void LogCopier::onFragmentReady(LogFragment *fragment)
 {
 
-	qDebug() << "LogCopier::onFragmentReady starts file writting...";
+	DP_CMD_LOG_COPIER_DETAILS("LogCopier::onFragmentReady starts file writting...");
 	if(fragment == 0) {
-		qDebug() << "LogCopier::onFragmentReady called with zero pointer! ERROR!";
+		DP_CMD_LOG_COPIER_DETAILS("LogCopier::onFragmentReady called with zero pointer! ERROR!");
 		return;
 	}
 
 	if(!fragment->open(QIODevice::ReadOnly)) {
-		qDebug() << "LogCopier::onFragmentReady aborts as it can not open fragment for reading...";
+		DP_CMD_LOG_COPIER_DETAILS("LogCopier::onFragmentReady aborts as it can not open fragment for reading...");
 		fragment->deleteLater();
 		return;
 	}
@@ -72,7 +72,7 @@ void LogCopier::onFragmentReady(LogFragment *fragment)
 	while (fragment->bytesAvailable() > 0)
 		_targetFile.write(fragment->read(LOG_MAX_BUFFER_SIZE));
 
-	qDebug() << "LogCopier finished file writting...";
+	DP_CMD_LOG_COPIER_DETAILS("LogCopier finished file writting...");
 
 	processFragment((fragment->nextFragment()));
 }

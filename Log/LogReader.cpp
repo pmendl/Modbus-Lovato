@@ -1,6 +1,6 @@
 #include "LogReader.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QFile>
 #include <QHttpMultiPart>
 #include <QRegularExpression>
@@ -40,7 +40,7 @@ LogReader::LogReader(QString url, QString pathname, bool postFileContent, QStrin
 	connect(&_sender, &NetworkSender::multipartSent, this, &LogReader::onMultipartSent);
 
 	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), postFileContent, id, from, to, group, this, this));
-	qDebug() << "LogReader" << pathname << "constructed." << url;
+	DP_CMD_LOG_READER("LogReader" << pathname << "constructed." << url);
 }
 
 bool LogReader::postFileContent() const
@@ -51,19 +51,19 @@ bool LogReader::postFileContent() const
 LogReader::~LogReader() {
 	quit();
 	wait();
-	qDebug() << "LogReader destroyed.";
+	DP_CMD_LOG_READER("LogReader destroyed.");
 }
 
 void LogReader::onFragmentReady(LogFragment *fragment)
 {
-	qDebug() << "LogReader has new fragment" << fragment << "ready for sending ...";
+	DP_CMD_LOG_READER_DETAILS("LogReader has new fragment" << fragment << "ready for sending ...");
 	_readyFragment = fragment;
 	checkSending();
 }
 
 void LogReader::onReplyFinished()
 {
-	qDebug() << "LogReader finished HTTP transmit" << static_cast<QNetworkReply*>(sender())->url().url();
+	DP_CMD_LOG_READER_DETAILS("LogReader finished HTTP transmit" << static_cast<QNetworkReply*>(sender())->url().url());
 	_sendPending = false;
 	checkSending();
 }
@@ -90,14 +90,14 @@ void LogReader::onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply)
 }
 
 void LogReader::sendReadyFragment() {
-	qDebug() << "LogReader::sendReadyFragment starts HTTP transmit ...";
+	DP_CMD_LOG_READER_DETAILS("LogReader::sendReadyFragment starts HTTP transmit ...");
 	if(_readyFragment == 0) {
-		qDebug() << "LogReader::sendReadyFragment called with zero pointer! ERROR!";
+		DP_CMD_LOG_READER_ERROR("LogReader::sendReadyFragment called with zero pointer! ERROR!");
 		return;
 	}
 
 	if(!_readyFragment->open(QIODevice::ReadOnly)) {
-		qDebug() << "LogReader::sendReadyFragment aborts as it can not open _readyFragment for reading...";
+		DP_CMD_LOG_READER_ERROR("LogReader::sendReadyFragment aborts as it can not open _readyFragment for reading...");
 		_readyFragment->deleteLater();
 		_readyFragment=0;
 		return;
@@ -190,32 +190,13 @@ void LogReader::sendReadyFragment() {
 		part = QHttpPart();
 
 	}
-/*
-
-#warning DEBUG ONLY	CODE !!!
-	part.setHeader(QNetworkRequest::ContentDispositionHeader,
-					   QString(QStringLiteral("form-data; name=debugTest")));
-	part.setBody(QByteArray("here will come LOG command response"));
-	_multipart->append(part);
-	part = QHttpPart();
-// DEBUG ONLY CODE  END
-*/
 	_sendPending = true;
-	qDebug() << "\tPosting new HTTP multipart send signal...";
+	DP_CMD_LOG_READER_DETAILS("\tPosting new HTTP multipart send signal...");
 
-	qDebug() << ((
-					QMetaObject::invokeMethod(&_sender, "sendMultipart", Q_ARG(QHttpMultiPart *, _multipart))
-				) ? "\tSucceeded" : "\tFailed")
-				;
+	DP_CMD_LOG_READER_DETAILS(((QMetaObject::invokeMethod(&_sender, "sendMultipart", \
+												 Q_ARG(QHttpMultiPart *, _multipart))) \
+		  ? "\tSucceeded" : "\tFailed"));
 
-/*
-
-	qDebug() << &multix;
-	qDebug() << ((
-					QMetaObject::invokeMethod(&_sender, "sendMultipart", Q_ARG(QHttpMultiPart *, &multix))
-				) ? "\tSucceeded" : "\tFailed")
-				;
-*/
 
 	processFragment((_readyFragment->nextFragment()));
 
@@ -230,10 +211,10 @@ void LogReader::processFragment(LogFragment *fragment) {
 		checkSending();
 		return;
 	}
-	qDebug() << "\tStarting processing of new fragment...";
+	DP_CMD_LOG_READER_DETAILS("\tStarting processing of new fragment...");
 	connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
 	connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
-		qDebug() << "LogReader detected fragmentFailed on" << fragment;
+		DP_CMD_LOG_READER_ERROR("LogReader detected fragmentFailed on" << fragment);
 		deleteLater();
 	});
 	QMetaObject::invokeMethod(fragment, "fillFragment");

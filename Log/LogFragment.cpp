@@ -1,6 +1,6 @@
 #include "LogFragment.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QFile>
 #include <QRegularExpression>
 
@@ -43,20 +43,20 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QS
 
 
 	if(!_logFile->isOpen()) {
-		qDebug() << "LogFragment aborted as log file could not get opened...";
+		DP_CMD_LOG_FRAGMENT_ERROR("LogFragment aborted as log file could not get opened...");
 		emit fragmentFailed(this);
 		return;
 	}
 
 	if(_workingThread != 0) {
-		qDebug() << "LogFragment moving to thread" << _workingThread;
+		DP_CMD_LOG_FRAGMENT("LogFragment moving to thread" << _workingThread);
 		moveToThread(_workingThread);
 	}
 }
 
 void LogFragment::fillFragment(void)
 {
-	qDebug() << "LogFragment starts filling up...";
+	DP_CMD_LOG_FRAGMENT_ERROR("LogFragment starts filling up...");
 
 	const QRegularExpression recordRegexp(QStringLiteral("(.*?)\\|VALUES (.*?)\\|(.*)"));
 	QString record;
@@ -67,7 +67,6 @@ void LogFragment::fillFragment(void)
 		record = _logFile->readLine(LOG_MAX_BUFFER_SIZE);
 		QRegularExpressionMatch match(recordRegexp.match(record));
 		if(match.hasMatch()) {
-//			qDebug() << match.captured(1) << match.captured(2);
 			if(_from.isValid() && (QDateTime::fromString(match.captured(1)) < _from))
 				continue;
 			if(_to.isValid() && (QDateTime::fromString(match.captured(1)) > _to))
@@ -78,18 +77,18 @@ void LogFragment::fillFragment(void)
 				continue;
 
 			if((size() + record.size()) < LOG_MAX_BUFFER_SIZE) {
-//				qDebug() << record;
+//				DP_CMD_LOG_FRAGMENT_DETAILS(record);
 				buffer().append(record);
 				++_recordCnt;
 				if(_firstFound < 0)
 					_firstFound = _endIndex;
 				_lastFound = _endIndex + record.size();
 
-				qDebug() << "\tLogFragment recordCnt=" << _recordCnt << ", size=" << size();
+				DP_CMD_LOG_FRAGMENT_DETAILS("\tLogFragment recordCnt=" << _recordCnt << ", size=" << size());
 				continue;
 			}
 			else {
-				qDebug() << "LogFragment completed partial fill up. Moving back to thread" << _parentThread;
+				DP_CMD_LOG_FRAGMENT("LogFragment completed partial fill up. Moving back to thread" << _parentThread);
 				moveToThread(_parentThread);
 				emit fragmentReady(this);
 				return;
@@ -98,7 +97,7 @@ void LogFragment::fillFragment(void)
 
 	} while (!record.isEmpty());
 	_lastFragment = true;
-	qDebug() << "LogFragment finished filling up. Moving back to thread" << _parentThread;
+	DP_CMD_LOG_FRAGMENT("LogFragment finished filling up. Moving back to thread" << _parentThread);
 	moveToThread(_parentThread);
 	emit fragmentReady(this);
 	return;

@@ -1,6 +1,6 @@
 #include "ModbusSerialMaster.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QtGlobal>
 #include <QSettings>
 
@@ -15,10 +15,10 @@ ModbusSerialMaster::ModbusSerialMaster(QString device, QObject *parent, qint32 b
 {
 	setBaudRate(baudRate);
 	if(QSerialPort::open(QIODevice::ReadWrite)) {
-		qDebug() << "\tModbusSerialMaster" << device << "opened at speed" << baudRate << "Bd";
+		DP_MODBUS_INIT("\tModbusSerialMaster" << device << "opened at speed" << baudRate << "Bd");
 	}
 	else {
-		qDebug() << "\tModbusSerialMaster " << device << "open failed ! (error=" << errorString() << ")";
+		DP_MODBUS_ERROR("\tModbusSerialMaster " << device << "open failed ! (error=" << errorString() << ")");
 	}
 }
 
@@ -38,7 +38,7 @@ ADUSharedPtr_t ModbusSerialMaster::process(ADUSharedPtr_t request)
 	int retries(settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_MAXRETRIES_KEY), MODBUS_MAXRETRIES_DEFAULT).toInt());
 
 	if(!isOpen()) {
-		qDebug() <<	"\tModbusSerialMaster: Device not opened - aborting request processing";
+		DP_MODBUS_ERROR("\tModbusSerialMaster: Device not opened - aborting request processing");
 		return response;
 	}
 
@@ -47,7 +47,7 @@ ADUSharedPtr_t ModbusSerialMaster::process(ADUSharedPtr_t request)
 		response->clear();
 		write(*request);
 		if(error()) {
-			qDebug() <<	"\tModbusSerialMaster: Error: " << errorString();
+			DP_MODBUS_ERROR("\tModbusSerialMaster: Error: " << errorString());
 			response->append(static_cast<char>(0)); // Note - valid only for ApplicationDataUnitSerial, i.e. aduPrefixSize() == 1
 			response->append(static_cast<char>(0));
 			response->append(error());
@@ -65,6 +65,6 @@ ADUSharedPtr_t ModbusSerialMaster::process(ADUSharedPtr_t request)
 			nanosleep(&ts, NULL);
 		} while((--consequents>0) && waitForReadyRead(settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_CONSEQUENTREADTIMEOUT_KEY), MODBUS_CONSEQUENTREADTIMEOUT_DEFAULT).toInt()));
 	}
-	qDebug() << "FAILED after " << settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_MAXRETRIES_KEY), MODBUS_MAXRETRIES_DEFAULT).toInt() << "retries !!!";
+	DP_MODBUS_ERROR("FAILED after " << settings.value(xstr(MODBUS_GROUP_NAME) "/" xstr(MODBUS_MAXRETRIES_KEY), MODBUS_MAXRETRIES_DEFAULT).toInt() << "retries !!!");
 	return ADUSharedPtr_t();
 }

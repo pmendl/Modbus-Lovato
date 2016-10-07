@@ -1,6 +1,6 @@
 #include "CommandsList.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QIODevice>
 #include <QRegularExpression>
 #include <QUrl>
@@ -18,7 +18,7 @@ CommandsList::CommandsList(QUrl originatorUrl, QIODevice *device, QObject *paren
 
 CommandsList::CommandsList(QString originatorUrl, QIODevice *device, QObject *parent) : QObject(parent)
 {
-	qDebug() << "CommandsDescriptor starts filling up...";
+	DP_COMMANDS_LIST("CommandsDescriptor starts filling up...");
 	QRegularExpression commandExpr(QStringLiteral("^\\s*(\\w+)\\s*$"));
 	QRegularExpression parameterExpr(QStringLiteral("^\\s*(\\w+)\\s*=\\s*(\"[^\"\\n]*\"|[^=\\n]*)\\s*$"));
 
@@ -28,7 +28,7 @@ CommandsList::CommandsList(QString originatorUrl, QIODevice *device, QObject *pa
 		QString line(device->readLine());
 		match=commandExpr.match(line);
 		if(match.hasMatch()) {
-			qDebug() << "\tCOMMAND:" << match.captured(1);
+			DP_COMMANDS_LIST("\tCOMMAND:" << match.captured(1));
 			if(currentCommand.size() > 0) {
 				append(currentCommand);
 				currentCommand.clear();
@@ -38,17 +38,17 @@ CommandsList::CommandsList(QString originatorUrl, QIODevice *device, QObject *pa
 		match=parameterExpr.match(line);
 		if(match.hasMatch()) {
 			QString value(match.captured(2).replace('"', QStringLiteral("")));
-			qDebug() << "\tPARAMETER:" << match.captured(1) << "=" << value;
+			DP_COMMANDS_LIST("\tPARAMETER:" << match.captured(1) << "=" << value);
 			// Safety precaution against hackery command insertions
 			if(match.captured(1).toUpper() != QStringLiteral("COMMAND")) {
 				currentCommand.insert(match.captured(1).toUpper(), value);
 			}
 		}
-//		qDebug() << line;
+//		DP_COMMANDS_LIST(line);
 
 	} while(device->bytesAvailable() > 0);
 	if(currentCommand.size() > 0) {
 		append(currentCommand);
 	}
-	qDebug() << "CommandsList fill-up finished...\n-->" << *this;
+	DP_COMMANDS_LIST("CommandsList fill-up finished...\n-->" << *this);
 }

@@ -1,6 +1,6 @@
 #include "KeyboardScanner.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QCoreApplication>
 
 #include <iostream>
@@ -54,48 +54,13 @@ void KeyboardScanner::setMode(mode_t mode) {
 
 }
 
-/*
-char KeyboardScanner::waitKey(bool echo) {
-	_oldmode = _mode;
-	_mode = echo ? echoMode : silentMode;
-	_key =0;
-	while(_key <=0) {
-		QCoreApplication::processEvents();
-		qDebug() << "***>" << _key;
-	}
-	setMode(_oldmode);
-	return _key;
-}
-
-QString KeyboardScanner::waitLine(bool echo) {
-	_oldmode = _mode;
-	_mode = echo ?  echoMode : silentMode;
-	_completeLine = false;
-	_line.clear();
-	while(!_completeLine) {
-		QCoreApplication::processEvents();
-	}
-	return _line;
-}
-*/
-
 void KeyboardScanner::timerEvent(QTimerEvent *) {
 
 	char c(getchar());
 	if(c != static_cast<char>(EOF)) { // 255 = EOF casted to char
-//		qDebug() << "*** KEY:" << c;
 		_key = c;
 		if(_mode & emitChar)
 			emit KeyPressed(c);
-/*
-		if((c != '\n') && c != '\r')
-			_line.append(QChar(c));
-		else {
-			_completeLine = true;
-			if (_mode & emitLine)
-				emit LineCollected(_line);
-		}
-*/
 	}
 }
 

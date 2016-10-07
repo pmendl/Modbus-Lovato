@@ -1,6 +1,6 @@
 #include "LogParsingProcessor.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QSettings>
 #include <QDir>
 
@@ -18,7 +18,7 @@ LogParsingProcessor::LogParsingProcessor(QSettings *settings, QString group, QSh
 	if(_logName.isEmpty())
 		_logName = group + QStringLiteral(".log");
 
-	qDebug() << "\t\tLogParsingProcessor will write to" << _logName;
+	DP_LOGGING_INIT("\t\tLogParsingProcessor will write to" << _logName);
 }
 
 bool LogParsingProcessor::isValid() const {

@@ -1,6 +1,6 @@
 #include "NetworkSender.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QEventLoop>
@@ -116,17 +116,17 @@ QNetworkReply *NetworkSender::send(QUrl url, QHttpMultiPart *multiPart, quint64 
 
 
 QNetworkReply *NetworkSender::send(QNetworkRequest request, QHttpMultiPart *multiPart, quint64 timeout) {
-	qDebug() << "\tNetworkSender::send(" << multiPart << request.url() << ")";
+	DP_NET_SENDER_SEND("NetworkSender::send(" << multiPart << request.url() << ")");
 
 	if((!request.url().isValid()) || (multiPart == 0)) {
-		qDebug() << "\tNetworkSender: invalid request (URL=" << request.url() << ", multipart=" << multiPart;
+		DP_NET_SENDER_ERROR("\tNetworkSender: invalid request (URL=" << request.url() << ", multipart=" << multiPart);
 		return 0;
 	}
 
 	QNetworkReply *reply(networkAccessManager()->post(request, multiPart));
 	reply->setParent(this);
 	multiPart->setParent(reply);
-	qDebug() << "\tNetworkSender: transmitted to " << request.url() << "; reply.isRunnung()=" << reply->isRunning();
+	DP_NET_SENDER_DETAILS("\tNetworkSender: transmitted to " << request.url() << "; reply.isRunning()=" << reply->isRunning());
 	connect(reply, &QNetworkReply::finished, this, &NetworkSender::onReplyFinished);
 	_timerIds.insert(reply, startTimer(timeout));
 	emit multipartSent(multiPart, reply);
@@ -151,8 +151,9 @@ void NetworkSender::onReplyFinished() {
 
 void NetworkSender::timerEvent(QTimerEvent *event) {
 	NetworkAccessBase::timerEvent(event);
-	if(event->isAccepted())
+	if(event->isAccepted()) {
 		return;
+	}
 	killTimer(event->timerId());
 	QNetworkReply *reply(0);
 	for (QHash<QNetworkReply *, int>::iterator i = _timerIds.begin(); i != _timerIds.end(); ++i)
@@ -163,7 +164,7 @@ void NetworkSender::timerEvent(QTimerEvent *event) {
 		}
 	if(reply != 0) {
 		if(reply->isRunning()) {
-			qDebug() << "NetworkSender: URL" << reply->url() << "SENDING TIMEOUT - ABORTING !!!";
+			DP_NET_SENDER_ERROR("NetworkSender: URL" << reply->url() << "SENDING TIMEOUT - ABORTING !!!");
 			reply->abort();
 		}
 	}

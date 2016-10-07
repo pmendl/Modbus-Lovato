@@ -70,7 +70,8 @@ HEADERS += \
     Commands/CommandsList.h \
     Commands/CommandDescriptor.h \
     Log/LogCopier.h \
-    Network/DebugHttpMultiPart.h
+    Network/DebugHttpMultiPart.h \
+    DebugMacros.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \

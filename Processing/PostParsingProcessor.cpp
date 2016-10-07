@@ -1,7 +1,7 @@
 #include "PostParsingProcessor.h"
 
 #include <QProcess>
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QSettings>
 #include <QHttpMultiPart>
 #include <QNetworkReply>
@@ -21,7 +21,7 @@ PostParsingProcessor::PostParsingProcessor(QSettings *settings, QString group, q
 {
 	setObjectName(ProcessingManager::objectNameFromGroup(POST_PARSING_PROCESSOR_PREFIX, group));
 	setOccurance(settings);
-	qDebug() << "\t\tParsingProcessor will post to" << _url.url();
+	DP_NET_POSTING_INIT("\t\tParsingProcessor will post to" << _url.url());
 	connect(&_sender, &NetworkSender::multipartSent, this, &PostParsingProcessor::onMultipartSent);
 }
 
@@ -81,7 +81,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 
 	if(_inProcess) {
 		++_delayedCount;
-		qDebug() << "*** RequestManager" << rm << ": _delayedCount=" << _delayedCount;
+		DP_DELAYED_COUNT("*** RequestManager" << rm << ": _delayedCount=" << _delayedCount);
 		return;
 	}
 
@@ -98,7 +98,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 	QProcess p;
 	p.start("awk", QStringList() << "/MemFree/ { print $0 }" << "/proc/meminfo");
 	p.waitForFinished();
-	qDebug() << "*** RequestManager" << rm << ":" << p.readAllStandardOutput();
+	DP_MEMORY("***" << rm << ":" << p.readAllStandardOutput());
 	p.close();
 */
 	_multipart = multiPart;

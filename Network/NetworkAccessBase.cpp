@@ -1,7 +1,7 @@
 #include "NetworkAccessBase.h"
 #include "Globals.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QUrl>
 #include <QSettings>
 #include <QTimerEvent>
@@ -17,7 +17,7 @@ QUrl NetworkAccessBase::parseUrl(QString url) {
 	if(!resultUrl.isValid())
 		resultUrl=QUrl::fromUserInput(url);
 	if(!resultUrl.isValid())
-		qDebug() << "URL" << url << "IS INVALID (unparsable) !";
+		DP_NET_SENDER_ERROR("URL" << url << "IS INVALID (unparsable) !");
 	return resultUrl;
 }
 
@@ -28,7 +28,7 @@ void NetworkAccessBase::timerEvent(QTimerEvent *event) {
 	if(event->timerId() == _panicTimer.timerId()) {
 #warning DO IMPLEMENT HERE
 		// Do something like advance pointer in panic list and send multipart
-		qDebug() << "*** HTTP PANIC occured";
+		DP_PANIC("*** HTTP PANIC occured");
 		event->accept();
 	}
 }
@@ -45,7 +45,7 @@ void NetworkAccessBase::readPanicConnections(void) {
 	}
 	settings.endArray();
 
-	qDebug() << "\tNetworkSender's panic connection URLs =" << _panicUrlList;
+	DP_PANIC("\tNetworkSender's panic connection URLs =" << _panicUrlList);
 }
 
 QNetworkAccessManager* NetworkAccessBase::_networkAccessManager = 0;

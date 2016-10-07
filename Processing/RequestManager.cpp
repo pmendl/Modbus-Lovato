@@ -1,6 +1,6 @@
 #include "RequestManager.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QSettings>
 #include <QRegularExpression>
 #include <QTimerEvent>
@@ -51,7 +51,7 @@ RequestManager::RequestManager(QSettings &settings, ProcessingManager *processin
 {
 	setObjectName(ProcessingManager::objectNameFromGroup(REQUEST_MANAGER_NAME_PREFIX, _groupName));
 	if((settings.value(REQUEST_ACTIVITY_KEY, false).toBool())) {
-		qDebug() << "Object" << objectName() << "is active.";
+		DP_REQUESTMANAGER_INIT("Object" << objectName() << "is active.");
 
 		_device = settings.value(REQUEST_DEVICE_KEY).toString().toUInt(0,0);
 		_address = settings.value(REQUEST_ADDRESS_KEY).toString().toUInt(0,0);
@@ -89,22 +89,22 @@ RequestManager::RequestManager(QSettings &settings, ProcessingManager *processin
 				_parsingProcessors.append(processor);
 			}
 			else {
-				qDebug() << "\tParsingProcessor could not be constructed !";
+				DP_MODBUS_ERROR("\tParsingProcessor could not be constructed !");
 			}
 		}
 		settings.endArray();
 
 		int period = settings.value(REQUEST_PERIOD_KEY, 0).toInt();
 		if(period > 0) {
-			_timer.start(period, this),
-			qDebug() << "\tTimer started:" << objectName() << "->" << period;
+			_timer.start(period, this);
+			DP_REQUESTMANAGER_INIT("\tTimer started:" << objectName() << "->" << period);
 		}
 		else {
-			qDebug() << "\tTimer start failed! " << objectName() << "->" << period;
+			DP_REQUESTMANAGER_ERROR("\tTimer start failed! " << objectName() << "->" << period);
 		}
 	}
 	else {
-		qDebug() << "Object" << objectName() << "is INACTIVE.";
+		DP_REQUESTMANAGER_INIT("Object" << objectName() << "is INACTIVE.");
 	}
 }
 
@@ -175,10 +175,10 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 //	response->operator [](2) = 2;
 /******************************************************************************/
 	if(!response.isNull())
-		qDebug() << "\tRESPONSE: " << response->toHex();
+		DP_PROCESSING_REQUEST("\tRESPONSE: " << response->toHex());
 
 	_response = response;
-	qDebug() << "PARSING:";
+	DP_REQUESTMANAGER_PARSING("PARSING:");
 	_parsedItems.clear();
 	parsedItem_t item;
 
@@ -266,9 +266,9 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	foreach (parsedItem_t item, _parsedItems.values()) {
 		QString s("%1 : %2 (offset=%3)");
 
-		qDebug() << "\t" << s.arg(item.def->name)
-					.arg(item.value.toString())
-					.arg(item.def->pduOffset);
+		DP_REQUESTMANAGER_PARSING("\t" << s.arg(item.def->name) \
+					.arg(item.value.toString()) \
+					.arg(item.def->pduOffset));
 	}
 
 	foreach (QSharedPointer<ParsingProcessor> processor, _parsingProcessors) {

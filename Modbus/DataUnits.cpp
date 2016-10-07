@@ -1,6 +1,6 @@
 #include "DataUnits.h"
 
-#include <QDebug>
+#include "DebugMacros.h"
 #include <QtGlobal>
 #include <QtEndian>
 
