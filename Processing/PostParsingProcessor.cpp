@@ -114,8 +114,15 @@ void PostParsingProcessor::process(RequestManager *rm)
  }
 
  void PostParsingProcessor::onReplyFinished() {
-	 if(static_cast<QNetworkReply *>(sender())->error() == 0) {
+	 QNetworkReply *reply(static_cast<QNetworkReply *>(sender()));
+	 {
+		 DP_NETSENDER_TIMEREVENT("*** TIMER EVENT: PostParsingProcessor::onReplyFinished()" << reply);
 		 _inProcess = false;
 		 _priority = nullRequestPriority;
+	 }
+
+	 if(reply->error() != 0) {
+		 DP_NETSENDER_TIMEREVENT("*** TIMER EVENT: PostParsingProcessor::onReplyFinished()" << reply \
+								 << "has ERROR=" << reply->errorString());
 	 }
 }
