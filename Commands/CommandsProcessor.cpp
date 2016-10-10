@@ -4,6 +4,7 @@
 #include <QNetworkReply>
 #include <QRegularExpression>
 #include <QFileInfo>
+#include <QSettings>
 
 #include "Commands/CommandsList.h"
 
@@ -26,13 +27,30 @@ void CommandsProcessor::processHttpReply(QNetworkReply *reply)
 
 		if(fileInfo.completeSuffix().toUpper() == QStringLiteral("INI")) {
 			DP_COMMANDS_PROCESSOR_DETAILS("\tINI extension detected.");
-			if(fileInfo.fileName().toUpper() == QStringLiteral("SYSTEM")) {
+			QSharedPointer<QSettings> settings(new QSettings());
+			if(fileInfo.fileName().toUpper() == QStringLiteral("SYSTEM.INI")) {
+				settings.reset(new QSettings(QSettings::SystemScope, "PMCS", "LovatoModbus"));
 				DP_COMMANDS_PROCESSOR_DETAILS("\tSystem INI file detected.");
 			}
-			if(fileInfo.fileName().toUpper() == QStringLiteral("USER")) {
+			else if(fileInfo.fileName().toUpper() == QStringLiteral("USER.INI")) {
 				DP_COMMANDS_PROCESSOR_DETAILS("\tUser INI file detected.");
 			}
+			else {
+				DP_COMMANDS_PROCESSOR_ERROR("\tINI file name is neither User or System one ! ERROR");
+				return;
+			}
 
+			QByteArray buff(reply->readAll());
+			QFile file(settings->fileName());
+			DP_COMMANDS_PROCESSOR_DETAILS("\tPath =" << file.fileName());
+			if(!file.open(QFile::WriteOnly)) {
+				DP_COMMANDS_PROCESSOR_ERROR("\tCould not open INI file for writting! ABORTING");
+				return;
+			}
+			qint64 count(file.write(buff));
+//			qint64 count(42);
+			DP_COMMANDS_PROCESSOR_DETAILS("\tWritten" << count << "bytes.");
+			file.close();
 		}
 		else if(fileInfo.completeSuffix().toUpper() == QStringLiteral("CMD")) {
 			DP_COMMANDS_PROCESSOR_DETAILS("\tCMD extension detected.");

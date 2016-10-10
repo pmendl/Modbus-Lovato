@@ -81,4 +81,6 @@ DISTFILES += \
     Data/Test/Log.cmd \
     Data/Test/Copy.cmd \
     Data/Test/Delete.cmd \
-    Data/Test/Replace.cmd
+    Data/Test/Replace.cmd \
+    Data/Test/User.ini \
+    Data/Test/System.ini

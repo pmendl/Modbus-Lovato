@@ -25,14 +25,15 @@
 #define DP_LOGGING_ACTION(x) NOD_P(x)			// LogServer record trace
 #define DP_LOGGING_ERROR(x) D_P(x)				// LogServer errors
 #define DP_COMMANDS_LIST(x) D_P(x)				// CommandsList activity
-#define DP_COMMANDS_PROCESSOR(x) NOD_P(x)			// CommandsProcessor activation
-#define DP_COMMANDS_PROCESSOR_DETAILS(x) NOD_P(x)	// CommandsProcessor details
+#define DP_COMMANDS_PROCESSOR(x) D_P(x)			// CommandsProcessor activation
+#define DP_COMMANDS_PROCESSOR_DETAILS(x) D_P(x)	// CommandsProcessor details
+#define DP_COMMANDS_PROCESSOR_ERROR(x) D_P(x)	// CommandsProcessor errors
 #define DP_NET_POSTING_INIT(x) D_P(x)			// PostParsingProcessor initialization
 #define DP_NET_SENDER_SEND(x) D_P(x)			// NetworkSender send action
 #define DP_NET_SENDER_ERROR(x) D_P(x)			// NetworkSender errors
 #define DP_NET_SENDER_DETAILS(x) D_P(x)		// NetworkSender details
 #define DP_NET_HTTP_REPLY(x) D_P(x)				// HTTP response arrival
-#define DP_NET_HTTP_REPLY_DETAILS(x) NOD_P(x)	// HTTP response details
+#define DP_NET_HTTP_REPLY_DETAILS(x) D_P(x)	// HTTP response details
 #define DP_CMD_LOG_READER(x) D_P(x)				// LogReader object major actions
 #define DP_CMD_LOG_READER_ERROR(x) D_P(x)		// LogReader object errors
 #define DP_CMD_LOG_READER_DETAILS(x) NOD_P(x)	// LogReader object details
