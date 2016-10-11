@@ -7,16 +7,16 @@
 
 class QUrl;
 
-CommandsList::CommandsList(class QIODevice *device, QObject *parent) :
-	CommandsList(QString(), device, parent)
+CommandsList::CommandsList(class QIODevice *device) :
+	CommandsList(QString(), device)
 {}
 
-CommandsList::CommandsList(QUrl originatorUrl, QIODevice *device, QObject *parent) :
-	CommandsList(originatorUrl.url(), device, parent)
+CommandsList::CommandsList(QUrl originatorUrl, QIODevice *device) :
+	CommandsList(originatorUrl.url(), device)
 {}
 
 
-CommandsList::CommandsList(QString originatorUrl, QIODevice *device, QObject *parent) : QObject(parent)
+CommandsList::CommandsList(QString originatorUrl, QIODevice *device)
 {
 	DP_COMMANDS_LIST("CommandsDescriptor starts filling up...");
 	QRegularExpression commandExpr(QStringLiteral("^\\s*(\\w+)\\s*$"));

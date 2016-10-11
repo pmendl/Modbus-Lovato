@@ -1,26 +1,20 @@
 #ifndef COMMANDSLIST_H
 #define COMMANDSLIST_H
 
-#include <QObject>
+#include <QUrl>
 #include <QList>
-#include <QHash>
+//#include <QHash>
 
 #include <Commands/CommandDescriptor.h>
 
-class CommandsList : public QObject, public QList<CommandDescriptor>
+class CommandsList : public QList<CommandDescriptor>
 {
-	Q_OBJECT
-
 public:
 
-	explicit CommandsList(class QIODevice *device, QObject *parent = 0);
-	explicit CommandsList(QString originatorUrl, class QIODevice *device, QObject *parent = 0);
-	explicit CommandsList(QUrl originatorUrl, class QIODevice *device, QObject *parent = 0);
+	explicit CommandsList(class QIODevice *device);
+	explicit CommandsList(QString originatorUrl, class QIODevice *device);
+	explicit CommandsList(QUrl originatorUrl, class QIODevice *device);
 
-signals:
-
-
-public slots:
 };
 
 #endif // COMMANDSDESCRIPTOR_H

@@ -11,8 +11,6 @@
 #include "Globals.h"
 #include "Network/NetworkSender.h"
 
-//QHttpMultiPart multix;
-
 LogReader::LogReader(QString url, QString pathname,  bool postFileContent,
 					 QDateTime from, QDateTime to,
 					 QString group, QObject *parent) :
