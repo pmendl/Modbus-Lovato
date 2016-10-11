@@ -3,7 +3,7 @@
 
 #include <QHash>
 
-class QNetworkReply;
+//class QNetworkReply;
 
 class CommandDescriptor : public QHash<QString, QString>
 {

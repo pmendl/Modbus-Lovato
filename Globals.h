@@ -7,7 +7,7 @@
  * or testing only.
  * SHOULD BE COMMENTED-OUT ALL TIMES in the production environment !!!
  */
-#define NO_AUTOMATIC_PROCESSING
+//#define NO_AUTOMATIC_PROCESSING
 
 // === Log related settings ===
 #define LOG_RECORD_VALUES "VALUES "
@@ -22,9 +22,9 @@
 #define MODBUS_CONSEQUENTREADTIMEOUT_DEFAULT	10 // [ms]
 #define MODBUS_INCYCLEWAIT_DEFAULT	(MODBUS_CONSEQUENTREADTIMEOUT_DEFAULT * 1000 * 1000) // [ns]
 
-#warning DEBUG ONLY SHORTENED TIME
-//#define NETWORK_DEFAULT_TIMEOUT	10*1000
-#define NETWORK_DEFAULT_TIMEOUT	3*1000
+#define NETWORK_DEFAULT_TIMEOUT	10*1000
+//#warning DEBUG ONLY SHORTENED TIME
+//#define NETWORK_DEFAULT_TIMEOUT	3*1000
 
 // === Network debugging/release object version choice ===
 //#define HTTP_MULTI_PART_USED DebugHttpMultiPart
