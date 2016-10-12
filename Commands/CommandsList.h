@@ -3,7 +3,6 @@
 
 #include <QUrl>
 #include <QList>
-//#include <QHash>
 
 #include <Commands/CommandDescriptor.h>
 

@@ -36,13 +36,13 @@
 #define DP_NET_HTTP_REPLY_DETAILS(x) D_P(x)	// HTTP response details
 #define DP_CMD_LOG_READER(x) D_P(x)				// LogReader object major actions
 #define DP_CMD_LOG_READER_ERROR(x) D_P(x)		// LogReader object errors
-#define DP_CMD_LOG_READER_DETAILS(x) NOD_P(x)	// LogReader object details
+#define DP_CMD_LOG_READER_DETAILS(x) D_P(x)	// LogReader object details
 #define DP_CMD_LOG_COPIER(x) D_P(x)				// LogCopier object instantiation
 #define DP_CMD_LOG_COPIER_ERROR(x) D_P(x)		// LogCopier object errors
 #define DP_CMD_LOG_COPIER_DETAILS(x) NOD_P(x)	// LogCopier object details
 #define DP_CMD_LOG_FRAGMENT(x) D_P(x)			// LogFragment object major actions
 #define DP_CMD_LOG_FRAGMENT_ERROR(x) D_P(x)		// LogFragment object errors
-#define DP_CMD_LOG_FRAGMENT_DETAILS(x) NOD_P(x)	// LogFragment object details
+#define DP_CMD_LOG_FRAGMENT_DETAILS(x) D_P(x)	// LogFragment object details
 
 //--- Object instancing debug prints ---
 #define DP_DEBUGHTTPMULTIPART(x) D_P(x)
