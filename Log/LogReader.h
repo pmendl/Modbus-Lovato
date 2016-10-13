@@ -7,6 +7,8 @@
 #include <QByteArray>
 #include <QSharedPointer>
 
+#include "Globals.h"
+#include HTTP_MULTI_PART_INCLUDE
 #include "Network/NetworkSender.h"
 #include "Log/LogFragment.h"
 
@@ -44,7 +46,7 @@ private:
 	NetworkSender _sender;
 	LogFragment *_readyFragment;
 	bool _lastFragment;
-	QHttpMultiPart *_multipart;
+	class HTTP_MULTI_PART_USED *_multipart;
 	bool _sendPending;
 	bool _postFileContent;
 };

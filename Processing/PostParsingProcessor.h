@@ -6,8 +6,9 @@
 #include <QBasicTimer>
 #include <QUrl>
 
-#include "Network/DebugHttpMultiPart.h"
+//#include "Network/DebugHttpMultiPart.h"
 #include "Globals.h"
+#include HTTP_MULTI_PART_INCLUDE
 #include "Network/NetworkSender.h"
 
 

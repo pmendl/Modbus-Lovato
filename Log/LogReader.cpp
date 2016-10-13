@@ -1,14 +1,14 @@
 #include "LogReader.h"
 
-#include "DebugMacros.h"
 #include <QFile>
 #include <QHttpMultiPart>
 #include <QRegularExpression>
 #include <QNetworkReply>
 #include <QBuffer>
 
-#include "Network/DebugHttpMultiPart.h"
-#include "Globals.h"
+#include "DebugMacros.h"
+#include HTTP_MULTI_PART_INCLUDE
+
 #include "Network/NetworkSender.h"
 
 LogReader::LogReader(QString url, QString pathname,  bool postFileContent,
@@ -37,7 +37,7 @@ LogReader::LogReader(QString url, QString pathname, bool postFileContent, QStrin
 	start();
 	connect(&_sender, &NetworkSender::multipartSent, this, &LogReader::onMultipartSent);
 
-	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), postFileContent, id, from, to, group, this, this));
+	processFragment(new LogFragment(QSharedPointer<QFile>(new QFile(pathname)), postFileContent, id, from, to, group, 0, this));
 	DP_CMD_LOG_READER("LogReader" << pathname << "constructed." << url);
 }
 
@@ -102,104 +102,42 @@ void LogReader::sendReadyFragment() {
 	}
 
 	_multipart = new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType, _readyFragment);
-	QHttpPart part;
 
 	if(_postFileContent) {
-		part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain; charset=utf-8"));
-		part.setHeader(QNetworkRequest::ContentDispositionHeader,
-					   QVariant(
-						   QString(QStringLiteral("form-data; name=\"%1\"; filename=\"%2\""))
-						   .arg(POST_ELEMENT_LOG_FILE_NAME)
-						   .arg(_readyFragment->logfile()->fileName())
-						   )
-					   );
-		part.setBodyDevice(_readyFragment);
-		_multipart->append(part);
-		part = QHttpPart();
+		_multipart->appendFile(POST_ELEMENT_LOG_FILE_NAME,_readyFragment->logfile());
 	}
 
 	if(!_readyFragment->id().isEmpty()) {
-		part.setHeader(QNetworkRequest::ContentDispositionHeader,
-						   QString(QStringLiteral("form-data; name=%1"))
-						   .arg(POST_ELEMENT_LOG_ID_NAME));
-		part.setBody(_readyFragment->id().toUtf8());
-		_multipart->append(part);
-		part = QHttpPart();
-
+		_multipart->appendFormData(POST_ELEMENT_LOG_ID_NAME, _readyFragment->id());
 	}
 
 	if(_readyFragment->from().isValid()) {
-		part.setHeader(QNetworkRequest::ContentDispositionHeader,
-						   QString(QStringLiteral("form-data; name=%1"))
-						   .arg(POST_ELEMENT_LOG_FROM_NAME));
-		part.setBody(_readyFragment->from().toString().toUtf8());
-		_multipart->append(part);
-		part = QHttpPart();
-
+		_multipart->appendFormData(POST_ELEMENT_LOG_FROM_NAME, _readyFragment->from());
 	}
 
 	if(_readyFragment->to().isValid()) {
-		part.setHeader(QNetworkRequest::ContentDispositionHeader,
-						   QString(QStringLiteral("form-data; name=%1"))
-						   .arg(POST_ELEMENT_LOG_TO_NAME));
-		part.setBody(_readyFragment->to().toString().toUtf8());
-		_multipart->append(part);
-		part = QHttpPart();
-
+		_multipart->appendFormData(POST_ELEMENT_LOG_TO_NAME, _readyFragment->to());
 	}
 
-	part.setHeader(QNetworkRequest::ContentDispositionHeader,
-					   QString(QStringLiteral("form-data; name=%1"))
-					   .arg(POST_ELEMENT_LOG_START_INDEX_NAME));
-	part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->startIndex()).toUtf8());
-	_multipart->append(part);
-	part = QHttpPart();
-
-
-	part.setHeader(QNetworkRequest::ContentDispositionHeader,
-					   QString(QStringLiteral("form-data; name=%1"))
-					   .arg(POST_ELEMENT_LOG_END_INDEX_NAME));
-	part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->endIndex()).toUtf8());
-	_multipart->append(part);
-
-	part.setHeader(QNetworkRequest::ContentDispositionHeader,
-				   QString(QStringLiteral("form-data; name=%1"))
-				   .arg(POST_ELEMENT_LOG_RECORD_COUNT_NAME));
-	part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->recordCnt()).toUtf8());
-	_multipart->append(part);
-	part = QHttpPart();
+	_multipart->appendFormData(POST_ELEMENT_LOG_START_INDEX_NAME, _readyFragment->startIndex());
+	_multipart->appendFormData(POST_ELEMENT_LOG_END_INDEX_NAME, _readyFragment->endIndex());
+	_multipart->appendFormData(POST_ELEMENT_LOG_RECORD_COUNT_NAME, _readyFragment->recordCnt());
 
 	if(_readyFragment->firstFound() != _readyFragment->startIndex()) {
-		part.setHeader(QNetworkRequest::ContentDispositionHeader,
-						   QString(QStringLiteral("form-data; name=%1"))
-						   .arg(POST_ELEMENT_LOG_FIRST_FOUND_NAME));
-		part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->firstFound()).toUtf8());
-		_multipart->append(part);
-		part = QHttpPart();
-
+		_multipart->appendFormData(POST_ELEMENT_LOG_FIRST_FOUND_NAME, _readyFragment->firstFound());
 	}
 
 	if(_readyFragment->lastFound() != _readyFragment->endIndex()) {
-		part.setHeader(QNetworkRequest::ContentDispositionHeader,
-						   QString(QStringLiteral("form-data; name=%1"))
-						   .arg(POST_ELEMENT_LOG_LAST_FOUND_NAME));
-		part.setBody(QString(QStringLiteral("%1")).arg(_readyFragment->lastFound()).toUtf8());
-		_multipart->append(part);
-		part = QHttpPart();
-
+		_multipart->appendFormData(POST_ELEMENT_LOG_LAST_FOUND_NAME, _readyFragment->lastFound());
 	}
+
 	_sendPending = true;
 	DP_CMD_LOG_READER_DETAILS("\tPosting new HTTP multipart send signal...");
-
-	DP_CMD_LOG_READER_DETAILS(((QMetaObject::invokeMethod(&_sender, "sendMultipart", \
-												 Q_ARG(QHttpMultiPart *, _multipart))) \
-		  ? "\tSucceeded" : "\tFailed"));
-
+	bool result = (QMetaObject::invokeMethod(&_sender, "sendMultipart", \
+											 Q_ARG(QHttpMultiPart *, static_cast<QHttpMultiPart*>(_multipart))));
+	DP_CMD_LOG_READER_DETAILS("\tQMetaObject::invokeMethod(sendMultipart...)" << (result ? "Succeeded" : "Failed"));
 
 	processFragment((_readyFragment->nextFragment()));
-
-
-
 }
 
 void LogReader::processFragment(LogFragment *fragment) {

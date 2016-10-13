@@ -8,7 +8,7 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QBuffer>
-#include <QHttpMultiPart>
+//#include <QHttpMultiPart>
 #include <QDateTime>
 #include <QNetworkReply>
 #include <QSharedPointer>
@@ -20,8 +20,8 @@
 
 #include "Console/KeyboardScanner.h"
 
-#include "Network/DebugHttpMultiPart.h"
 #include "Globals.h"
+#include HTTP_MULTI_PART_INCLUDE
 #include "Modbus/DataUnits.h"
 #include "Modbus/ModbusSerialMaster.h"
 #include "Processing/ProcessingManager.h"
@@ -482,27 +482,6 @@ GROUP=\"Gr.*_.?\"\n\
 		actualKeypressReceiver = fKeypressFunction;
 
 		testFileQueryActual();
-
-
-/*
-		QHttpMultiPart *multipart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
-		fragment->setParent(multipart);
-
-		QHttpPart part;
-		if(_postFileContent) {
-			part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain; charset=utf-8"));
-			part.setHeader(QNetworkRequest::ContentDispositionHeader,
-						   QVariant(
-							   QString(QStringLiteral("form-data; name=\"%1\"; filename=\"%2\""))
-							   .arg(POST_ELEMENT_LOG_FILE_NAME)
-							   .arg(fragment->logfile()->fileName())
-							   )
-						   );
-			part.setBodyDevice(fragment);
-			multipart->append(part);
-*/
-
-//		keyboardScanner.setDetection(true);
 	}
 		break;
 
@@ -520,23 +499,13 @@ void testFileSendActual() {
 	QFile *file(new QFile(testFilesList.at(testFilesIndex).absoluteFilePath()));
 	D_P("\tSending:" << file->fileName());
 
-	QHttpMultiPart *multipart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
+	HTTP_MULTI_PART_USED *multipart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
 	file->setParent(multipart);
 	if(!file->open(QFile::ReadOnly)) {
 		D_P("Opening command file for send FAILED:" << testFilesList.at(testFilesIndex).absoluteFilePath());
 	}
 
-	QHttpPart part;
-	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain; charset=utf-8"));
-	part.setHeader(QNetworkRequest::ContentDispositionHeader,
-				   QVariant(
-					   QString(QStringLiteral("form-data; name=\"%1\"; filename=\"%2\""))
-					   .arg(TEST_FILE_ITEM_KEY)
-					   .arg(file->fileName())
-					   )
-				   );
-	part.setBodyDevice(file);
-	multipart->append(part);
+	multipart->appendFile("experiment",file);
 
 	sender.sendMultipart(multipart);
 }

@@ -54,28 +54,12 @@ void PostParsingProcessor::process(RequestManager *rm)
 	_priority = priority;
 
 	// Adapted from http://doc.qt.io/qt-5/qhttpmultipart.html#details
-//	QHttpMultiPart *multiPart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
 	HTTP_MULTI_PART_USED *multiPart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
 
-	QHttpPart textPart;
-	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
-					   QStringLiteral("form-data; name=groupName"));
-	textPart.setBody(rm->groupName().toUtf8());
-	multiPart->append(textPart);
-	textPart= QHttpPart();
-
-	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
-					   QStringLiteral("form-data; name=responseTime"));
-	textPart.setBody(QDateTime::currentDateTimeUtc().toString().toUtf8());
-	multiPart->append(textPart);
-	textPart= QHttpPart();
-
+	multiPart->appendFormData("groupName", rm->groupName());
+	multiPart->appendFormData("responseTime", QDateTime::currentDateTimeUtc());
 	for ( RequestManager::parsedItem_t item : rm->parsedItems()) {
-		textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
-						   QVariant(QString(QStringLiteral("form-data; name="))+item.def->name));
-		textPart.setBody(item.value.toString().toUtf8());
-		multiPart->append(textPart);
-		textPart= QHttpPart();
+		multiPart->appendFormData(item.def->name, item.value);
 	}
 	// Adapted code end
 
@@ -88,10 +72,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 	_inProcess = true;
 
 	if(_delayedCount > 0) {
-		textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
-						   QStringLiteral("form-data; name=delayedCount"));
-		textPart.setBody(QString(QStringLiteral("%1").arg(_delayedCount)).toUtf8());
-		multiPart->append(textPart);
+		multiPart->appendFormData("delayedCount", QString(QStringLiteral("%1").arg(_delayedCount)));
 		_delayedCount = 0;
 	}
 /*
