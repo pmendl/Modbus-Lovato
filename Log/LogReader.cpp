@@ -2,7 +2,7 @@
 
 #include "DebugMacros.h"
 #include <QFile>
-#include <QHttpMultiPart>
+#include HTTP_MULTI_PART_INCLUDE
 #include <QRegularExpression>
 #include <QNetworkReply>
 #include <QBuffer>

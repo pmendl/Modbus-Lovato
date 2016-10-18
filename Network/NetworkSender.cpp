@@ -4,7 +4,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QEventLoop>
-#include <QHttpMultiPart>
+#include HTTP_MULTI_PART_INCLUDE
 #include <QTimerEvent>
 #include <QSettings>
 
