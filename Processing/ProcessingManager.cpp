@@ -31,6 +31,9 @@ ProcessingManager::ProcessingManager(QObject *parent, bool suppressPeriodicalReq
 }
 
 void ProcessingManager::onQueryRequest() {
+	// THIS ONE EVENT HANDLER IS SPECIAL in that ti does NOT provide start/end debug prints
+	// (as it is called too often and produces many other prints)
+
 	// TESTING ONLY - managed by setting Test\SuppressPeriodicalRequesting=true in .INI file
 	if (_suppressPeriodicalRequesting)
 		return;

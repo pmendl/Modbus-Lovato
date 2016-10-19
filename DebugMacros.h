@@ -45,7 +45,7 @@
 #define DP_CMD_LOG_FRAGMENT(x) PRINT(x)			// LogFragment object major actions
 #define DP_CMD_LOG_FRAGMENT_ERROR(x) PRINT(x)		// LogFragment object errors
 #define DP_CMD_LOG_FRAGMENT_DETAILS(x) NO(x)	// LogFragment object details
-#define DP_KEYPRES_DEBUG(x) MARK(x)			// Emition of keypress event
+#define DP_KEYPRES_DEBUG(x) NO(x)			// Emition of keypress event
 #define DP_EVENTS_DEBUG(x)	MARK(x)			// Entering and exiting of event processing
 
 //--- Object instancing debug prints ---
@@ -56,6 +56,9 @@
 #define DP_MEMORY(x) PRINT(x)
 #define DP_PANIC(x) PRINT(x)
 
-
+//--- Specialized debug print related macros
+#define DP_EVENTS_START(x) DP_EVENTS_DEBUG(metaObject()->className() << "::" #x "start");
+#define DP_EVENTS_END DP_EVENTS_DEBUG(metaObject()->className() << "end" );
+#define DP_EVENTS_COND(x) DP_EVENTS_DEBUG(metaObject()->className() << "end (" << x << ")");
 
 #endif // DEBUGMACROS_H

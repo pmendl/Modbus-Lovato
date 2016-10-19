@@ -54,16 +54,20 @@ LogReader::~LogReader() {
 
 void LogReader::onFragmentReady(LogFragment *fragment)
 {
+	DP_EVENTS_START(onFragmentReady)
 	DP_CMD_LOG_READER_DETAILS("LogReader has new fragment" << fragment << "ready for sending ...");
 	_readyFragment = fragment;
 	checkSending();
+	DP_EVENTS_END
 }
 
 void LogReader::onReplyFinished()
 {
+	DP_EVENTS_START(onReplyFinished)
 	DP_CMD_LOG_READER_DETAILS("LogReader finished HTTP transmit" << static_cast<QNetworkReply*>(sender())->url().url());
 	_sendPending = false;
 	checkSending();
+	DP_EVENTS_END
 }
 
 void LogReader::checkSending()
@@ -82,6 +86,7 @@ void LogReader::checkSending()
 }
 
 void LogReader::onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply) {
+	DP_EVENTS_START(onMultipartSent)
 	if(multiPart != _multipart)
 		return;
 	connect(reply, &QNetworkReply::finished, this, &LogReader::onReplyFinished);
@@ -91,6 +96,7 @@ void LogReader::sendReadyFragment() {
 	DP_CMD_LOG_READER_DETAILS("LogReader::sendReadyFragment starts HTTP transmit ...");
 	if(_readyFragment == 0) {
 		DP_CMD_LOG_READER_ERROR("LogReader::sendReadyFragment called with zero pointer! ERROR!");
+		DP_EVENTS_COND("LogReader::sendReadyFragment called with zero pointer! ERROR!");
 		return;
 	}
 
@@ -98,6 +104,7 @@ void LogReader::sendReadyFragment() {
 		DP_CMD_LOG_READER_ERROR("LogReader::sendReadyFragment aborts as it can not open _readyFragment for reading...");
 		_readyFragment->deleteLater();
 		_readyFragment=0;
+		DP_EVENTS_COND("LogReader::sendReadyFragment aborts as it can not open _readyFragment for reading...");
 		return;
 	}
 
@@ -138,6 +145,7 @@ void LogReader::sendReadyFragment() {
 	DP_CMD_LOG_READER_DETAILS("\tQMetaObject::invokeMethod(sendMultipart...)" << (result ? "Succeeded" : "Failed"));
 
 	processFragment((_readyFragment->nextFragment()));
+	DP_EVENTS_END
 }
 
 void LogReader::processFragment(LogFragment *fragment) {

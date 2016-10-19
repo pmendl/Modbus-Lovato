@@ -87,17 +87,23 @@ void PostParsingProcessor::process(RequestManager *rm)
 }
 
  void PostParsingProcessor::onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply) {
-	 if(multiPart != _multipart)
+	 DP_EVENTS_START(onMultipartSent)
+	 if(multiPart != _multipart) {
+		 DP_EVENTS_COND("multiPart != _multipart")
 		 return;
+	 }
 
 	 connect(reply, &QNetworkReply::finished, this, &PostParsingProcessor::onReplyFinished);
 	 _multipart=0;
+	 DP_EVENTS_END
  }
 
  void PostParsingProcessor::onReplyFinished() {
+	 DP_EVENTS_START(onReplyFinished)
 	 QNetworkReply *reply(static_cast<QNetworkReply *>(sender()));
 	 {
 		 _inProcess = false;
 		 _priority = nullRequestPriority;
 	 }
+	 DP_EVENTS_END
 }
