@@ -21,15 +21,6 @@ ExtendedHttpMultiPart::~ExtendedHttpMultiPart()
 {
 }
 
-// --- ->*.h
-/*
-void ExtendedHttpMultiPart::appendFile(QString itemKey, QFile *file, QString contentTypeHeader)
-{
-	qDebug() << "*** file";
-	appendFile(itemKey, file, contentTypeHeader, file->fileName());
-}
-*/
-
 void ExtendedHttpMultiPart::appendFile(QString itemKey, QIODevice *device, QString fileName, QString contentTypeHeader)
 {
 	if(contentTypeHeader.isEmpty())
@@ -44,8 +35,6 @@ void ExtendedHttpMultiPart::appendFile(QString itemKey, QIODevice *device, QStri
 			fileName="unknown_file";
 	}
 
-	qDebug() << "*** file, name" << itemKey << device << contentTypeHeader << fileName;
-
 	QHttpPart part;
 	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant(contentTypeHeader));
 	part.setHeader(QNetworkRequest::ContentDispositionHeader,
@@ -58,21 +47,6 @@ void ExtendedHttpMultiPart::appendFile(QString itemKey, QIODevice *device, QStri
 	part.setBodyDevice(device);
 	append(part);
 }
-/*
-void ExtendedHttpMultiPart::appendFile(QString itemKey, QSharedPointer<QFile> file,
-				QString contentTypeHeader, QString fileName)
-{
-	qDebug() << "*** sharedPtr, name";
-	appendFile(itemKey, file.data(), contentTypeHeader, fileName);
-}
-
-void ExtendedHttpMultiPart::appendFile(QString itemKey, QSharedPointer<QFile> file,
-				QString contentTypeHeader)
-{
-	qDebug() << "*** sharedPtr";
-	appendFile(itemKey, file.data(), contentTypeHeader, file->fileName());
-}
-*/
 
 void ExtendedHttpMultiPart::appendFormData(QString itemKey, QString itemValue)
 {

@@ -60,7 +60,7 @@ void KeyboardScanner::timerEvent(QTimerEvent *) {
 	if(c != static_cast<char>(EOF)) { // 255 = EOF casted to char
 		_key = c;
 		if(_mode & emitChar)
-			qDebug() << "*** Keypress" << c;
+//			qDebug() << "*** Keypress" << c;
 			emit KeyPressed(c);
 	}
 }
