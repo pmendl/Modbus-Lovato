@@ -105,7 +105,7 @@ void LogReader::sendReadyFragment() {
 	QHttpPart part;
 
 	if(_postFileContent) {
-		_multipart->appendFile(POST_ELEMENT_LOG_FILE_NAME,_readyFragment->logfile());
+		_multipart->appendFile(POST_ELEMENT_LOG_FILE_NAME,_readyFragment, _readyFragment->logfile()->fileName());
 	}
 
 	if(!_readyFragment->id().isEmpty()) {

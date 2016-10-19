@@ -12,14 +12,20 @@ public:
 	explicit ExtendedHttpMultiPart(ContentType contentType, QObject *parent = 0);
 	~ExtendedHttpMultiPart();
 
-	void appendFile(QString itemKey, QFile *file,
+/*
+	void appendFile(QString itemKey, QIODevice *device,
 					QString contentTypeHeader = QStringLiteral("text/plain; charset=utf-8"));
-	void appendFile(QString itemKey, QFile *file,
-					QString contentTypeHeader, QString fileName);
+*/
+
+	void appendFile(QString itemKey, QIODevice *device,
+					QString fileName = QString(), QString contentTypeHeader = QStringLiteral("text/plain; charset=utf-8"));
+
+/*
 	void appendFile(QString itemKey, QSharedPointer<QFile> file,
 					QString contentTypeHeader = QStringLiteral("text/plain; charset=utf-8"));
 	void appendFile(QString itemKey, QSharedPointer<QFile> file,
 					QString contentTypeHeader, QString fileName);
+*/
 	void appendFormData(QString itemKey, QString itemValue);
 	void appendFormData(QString itemKey, QDateTime itemValue);
 	void appendFormData(QString itemKey, QVariant itemValue);

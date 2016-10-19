@@ -13,7 +13,7 @@ ExtendedHttpMultiPart::ExtendedHttpMultiPart(QObject *parent) :
 }
 
 ExtendedHttpMultiPart::ExtendedHttpMultiPart(ContentType contentType, QObject *parent) :
-QHttpMultiPart(contentType, parent)
+	QHttpMultiPart(contentType, parent)
 {
 }
 
@@ -22,19 +22,29 @@ ExtendedHttpMultiPart::~ExtendedHttpMultiPart()
 }
 
 // --- ->*.h
-
+/*
 void ExtendedHttpMultiPart::appendFile(QString itemKey, QFile *file, QString contentTypeHeader)
 {
+	qDebug() << "*** file";
 	appendFile(itemKey, file, contentTypeHeader, file->fileName());
 }
+*/
 
-void ExtendedHttpMultiPart::appendFile(QString itemKey, QFile *file, QString contentTypeHeader, QString fileName)
+void ExtendedHttpMultiPart::appendFile(QString itemKey, QIODevice *device, QString fileName, QString contentTypeHeader)
 {
 	if(contentTypeHeader.isEmpty())
 		contentTypeHeader = QStringLiteral("text/plain; charset=utf-8");
 
-	if(fileName.isEmpty())
-		fileName = file->fileName();
+	if(fileName.isEmpty()) {
+		QFile *file(dynamic_cast<QFile *>(device));
+		if(file != 0) {
+			fileName = file->fileName();
+		}
+		else
+			fileName="unknown_file";
+	}
+
+	qDebug() << "*** file, name" << itemKey << device << contentTypeHeader << fileName;
 
 	QHttpPart part;
 	part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant(contentTypeHeader));
@@ -45,24 +55,26 @@ void ExtendedHttpMultiPart::appendFile(QString itemKey, QFile *file, QString con
 					   .arg(fileName)
 					   )
 				   );
-	part.setBodyDevice(file);
+	part.setBodyDevice(device);
 	append(part);
 }
-
+/*
 void ExtendedHttpMultiPart::appendFile(QString itemKey, QSharedPointer<QFile> file,
 				QString contentTypeHeader, QString fileName)
 {
+	qDebug() << "*** sharedPtr, name";
 	appendFile(itemKey, file.data(), contentTypeHeader, fileName);
 }
 
 void ExtendedHttpMultiPart::appendFile(QString itemKey, QSharedPointer<QFile> file,
 				QString contentTypeHeader)
 {
+	qDebug() << "*** sharedPtr";
 	appendFile(itemKey, file.data(), contentTypeHeader, file->fileName());
 }
+*/
 
-void ExtendedHttpMultiPart::appendFormData(QString itemKey, QString itemValue)
-{
+void ExtendedHttpMultiPart::appendFormData(QString itemKey, QString itemValue) {
 	QHttpPart textPart;
 	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QString(QStringLiteral("form-data; name="))+itemKey);
