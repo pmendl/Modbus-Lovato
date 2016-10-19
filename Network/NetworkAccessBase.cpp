@@ -28,7 +28,7 @@ void NetworkAccessBase::timerEvent(QTimerEvent *event) {
 	if(event->timerId() == _panicTimer.timerId()) {
 #warning DO IMPLEMENT HERE
 		// Do something like advance pointer in panic list and send multipart
-		DP_PANIC("*** HTTP PANIC occured");
+		DP_PANIC("HTTP PANIC occured! *********");
 		event->accept();
 	}
 }

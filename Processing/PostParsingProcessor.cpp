@@ -65,7 +65,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 
 	if(_inProcess) {
 		++_delayedCount;
-		DP_DELAYED_COUNT("*** RequestManager" << rm << ": _delayedCount=" << _delayedCount);
+		DP_DELAYED_COUNT("RequestManager" << rm << ": _delayedCount=" << _delayedCount);
 		return;
 	}
 
@@ -79,7 +79,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 	QProcess p;
 	p.start("awk", QStringList() << "/MemFree/ { print $0 }" << "/proc/meminfo");
 	p.waitForFinished();
-	DP_MEMORY("***" << rm << ":" << p.readAllStandardOutput());
+	DP_MEMORY(Object_id << ":" << p.readAllStandardOutput());
 	p.close();
 */
 	_multipart = multiPart;
@@ -97,13 +97,7 @@ void PostParsingProcessor::process(RequestManager *rm)
  void PostParsingProcessor::onReplyFinished() {
 	 QNetworkReply *reply(static_cast<QNetworkReply *>(sender()));
 	 {
-		 DP_NETSENDER_TIMEREVENT("*** TIMER EVENT: PostParsingProcessor::onReplyFinished()" << reply);
 		 _inProcess = false;
 		 _priority = nullRequestPriority;
-	 }
-
-	 if(reply->error() != 0) {
-		 DP_NETSENDER_TIMEREVENT("*** TIMER EVENT: PostParsingProcessor::onReplyFinished()" << reply \
-								 << "has ERROR=" << reply->errorString());
 	 }
 }

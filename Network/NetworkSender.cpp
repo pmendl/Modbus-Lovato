@@ -150,18 +150,17 @@ void NetworkSender::onReplyFinished() {
 }
 
 void NetworkSender::timerEvent(QTimerEvent *event) {
-//	NetworkAccessBase::timerEvent(event);
-	DP_NETSENDER_TIMEREVENT("*** TIMER EVENT" << event);
 /*
+	NetworkAccessBase::timerEvent(event);
 	if(event->isAccepted()) {
-		DP_NETSENDER_TIMEREVENT("*** TIMER EVENT skipped as accepted !");
+		DP_NETSENDER_TIMEREVENT("TIMER EVENT skipped as accepted !");
 		return;
 	}
 */
+
 	QNetworkReply *reply(0);
 	for (QHash<QNetworkReply *, int>::iterator i = _timerIds.begin(); i != _timerIds.end(); ++i)
 		if (i.value() == event->timerId()) {
-			DP_NETSENDER_TIMEREVENT("*** TIMER EVENT timer found and erased" << event);
 			killTimer(event->timerId());
 			reply = i.key();
 			_timerIds.erase(i);
