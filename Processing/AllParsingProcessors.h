@@ -3,5 +3,6 @@
 
 #include "Processing/PostParsingProcessor.h"
 #include "Processing/LogParsingProcessor.h"
+#include "Processing/MemoryParsingProcessor.h"
 
 #endif // ALLPARSINGPROCESSORS_H

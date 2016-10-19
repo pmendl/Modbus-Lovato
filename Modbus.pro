@@ -47,7 +47,8 @@ SOURCES += main.cpp \
     Commands/CommandDescriptor.cpp \
     Log/LogCopier.cpp \
     Network/DebugHttpMultiPart.cpp \
-    Network/ExtendedHttpMultiPart.cpp
+    Network/ExtendedHttpMultiPart.cpp \
+    Processing/MemoryParsingProcessor.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \
@@ -73,7 +74,8 @@ HEADERS += \
     Log/LogCopier.h \
     Network/DebugHttpMultiPart.h \
     DebugMacros.h \
-    Network/ExtendedHttpMultiPart.h
+    Network/ExtendedHttpMultiPart.h \
+    Processing/MemoryParsingProcessor.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \
