@@ -105,17 +105,7 @@ void LogReader::sendReadyFragment() {
 	QHttpPart part;
 
 	if(_postFileContent) {
-		part.setHeader(QNetworkRequest::ContentTypeHeader, QVariant( "text/plain; charset=utf-8"));
-		part.setHeader(QNetworkRequest::ContentDispositionHeader,
-					   QVariant(
-						   QString(QStringLiteral("form-data; name=\"%1\"; filename=\"%2\""))
-						   .arg(POST_ELEMENT_LOG_FILE_NAME)
-						   .arg(_readyFragment->logfile()->fileName())
-						   )
-					   );
-		part.setBodyDevice(_readyFragment);
-		_multipart->append(part);
-		part = QHttpPart();
+		_multipart->appendFile(POST_ELEMENT_LOG_FILE_NAME,_readyFragment->logfile());
 	}
 
 	if(!_readyFragment->id().isEmpty()) {
