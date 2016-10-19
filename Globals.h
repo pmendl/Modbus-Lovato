@@ -28,8 +28,10 @@
 
 // === Network debugging/release object version choice ===
 //#define HTTP_MULTI_PART_USED QHttpMultiPart
+
 //#define HTTP_MULTI_PART_INCLUDE "Network/DebugHttpMultiPart.h"
 //#define HTTP_MULTI_PART_USED DebugHttpMultiPart
+
 #define HTTP_MULTI_PART_INCLUDE "Network/ExtendedHttpMultiPart.h"
 #define HTTP_MULTI_PART_USED ExtendedHttpMultiPart
 

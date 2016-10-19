@@ -1,7 +1,7 @@
 #include "LogReader.h"
 
 #include <QFile>
-#include <QHttpMultiPart>
+#include HTTP_MULTI_PART_INCLUDE
 #include <QRegularExpression>
 #include <QNetworkReply>
 #include <QBuffer>
@@ -104,7 +104,7 @@ void LogReader::sendReadyFragment() {
 	_multipart = new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType, _readyFragment);
 
 	if(_postFileContent) {
-		_multipart->appendFile(POST_ELEMENT_LOG_FILE_NAME,_readyFragment->logfile());
+		_multipart->appendFile(POST_ELEMENT_LOG_FILE_NAME,_readyFragment, _readyFragment->logfile()->fileName());
 	}
 
 	if(!_readyFragment->id().isEmpty()) {
@@ -133,7 +133,7 @@ void LogReader::sendReadyFragment() {
 
 	_sendPending = true;
 	DP_CMD_LOG_READER_DETAILS("\tPosting new HTTP multipart send signal...");
-	bool result = (QMetaObject::invokeMethod(&_sender, "sendMultipart", \
+	bool result(QMetaObject::invokeMethod(&_sender, "sendMultipart", \
 											 Q_ARG(QHttpMultiPart *, static_cast<QHttpMultiPart*>(_multipart))));
 	DP_CMD_LOG_READER_DETAILS("\tQMetaObject::invokeMethod(sendMultipart...)" << (result ? "Succeeded" : "Failed"));
 
@@ -151,6 +151,7 @@ void LogReader::processFragment(LogFragment *fragment) {
 	connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
 	connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
 		DP_CMD_LOG_READER_ERROR("LogReader detected fragmentFailed on" << fragment);
+		fragment->deleteLater();
 		deleteLater();
 	});
 	QMetaObject::invokeMethod(fragment, "fillFragment");

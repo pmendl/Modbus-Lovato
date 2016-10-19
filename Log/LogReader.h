@@ -12,6 +12,7 @@
 #include "Network/NetworkSender.h"
 #include "Log/LogFragment.h"
 
+class HTTP_MULTI_PART_USED;
 
 class LogReader : public QThread
 {
@@ -46,7 +47,7 @@ private:
 	NetworkSender _sender;
 	LogFragment *_readyFragment;
 	bool _lastFragment;
-	class HTTP_MULTI_PART_USED *_multipart;
+	HTTP_MULTI_PART_USED *_multipart;
 	bool _sendPending;
 	bool _postFileContent;
 };

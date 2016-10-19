@@ -1,7 +1,8 @@
 #ifndef DEBUGHTTPMULTIPART_H
 #define DEBUGHTTPMULTIPART_H
 
-#include <QHttpMultiPart>
+#include "Globals.h"
+#include HTTP_MULTI_PART_INCLUDE
 
 class DebugHttpMultiPart : public QHttpMultiPart
 {

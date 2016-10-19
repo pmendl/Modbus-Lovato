@@ -3,7 +3,7 @@
 #include <QProcess>
 #include "DebugMacros.h"
 #include <QSettings>
-#include <QHttpMultiPart>
+#include HTTP_MULTI_PART_INCLUDE
 #include <QNetworkReply>
 #include <QDateTime>
 

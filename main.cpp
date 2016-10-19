@@ -8,7 +8,8 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QBuffer>
-//#include <QHttpMultiPart>
+#include <Globals.h>
+#include HTTP_MULTI_PART_INCLUDE
 #include <QDateTime>
 #include <QNetworkReply>
 #include <QSharedPointer>
