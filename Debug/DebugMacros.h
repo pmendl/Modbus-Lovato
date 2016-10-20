@@ -9,7 +9,8 @@
 // Following is shortcut for Debug Print
 // Do notice the semicolon placed at the end - do not append semicolon even after
 // expressions concatenated with operator<<() !!
-#define D_P(x) DEBUG(qDebug() << x)
+#define D_P(x) DEBUG(if(Debug::eventPrintFlag) {qDebug() << x;})
+//#define D_P(x) DEBUG(qDebug() << x)
 //#define PRINT(x) D_P(x)
 #define PRINT(x) NODEBUG(x)
 #define MARK(x) D_P("*** " << x)
@@ -61,10 +62,21 @@
 #include "Debug/MemoryAnalytics.h"
 #define DP_EVENTS_MEMORY_FROM /*Debug::setMemoryRef();*/
 #define DP_EVENTS_MEMORY_TO /*Debug::printMemory();*/
-
-#define DP_EVENTS_COMMON(x)	DP_EVENTS_DEBUG(";" << ++Debug::eventIndex << ";" << x << ";"<< Debug::snapMemory() << ";" << Q_FUNC_INFO);
+/*
+#define DP_EVENTS_COMMON(x)	DP_EVENTS_DEBUG(++Debug::eventIndex << ";" << x << ";"<< Debug::snapMemory() << ";" << Q_FUNC_INFO);
 #define DP_EVENTS_START(x) DP_EVENTS_COMMON("Start");
 #define DP_EVENTS_END(x) DP_EVENTS_COMMON(x)
+*/
+#define DP_EVENTS_START(x) \
+if(Debug::eventPrintFlag) {\
+	D_P("-----------" <<  Debug::snapMemory() << Q_FUNC_INFO << "[Start] -----------");\
+	Debug::checkPrint(QString());\
+};
+
+#define DP_EVENTS_END(x) \
+if(Debug::checkPrint(Q_FUNC_INFO)) {\
+	D_P("-----------" <<  Q_FUNC_INFO << "[End] -----------");\
+};
 
 
 #endif // DEBUGMACROS_H

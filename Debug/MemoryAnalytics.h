@@ -1,6 +1,8 @@
 #ifndef MEMORYANALYTICS_H
 #define MEMORYANALYTICS_H
 
+#include <QString>
+
 namespace Debug {
 	int snapMemory();
 	void setMemoryRef();
@@ -10,6 +12,14 @@ namespace Debug {
 	void printMemory(bool snap = true);
 
 	extern int eventIndex;
+
+
+	// --------------- VERY SPECIAL FUNCTIONS FOR FOCUS ON OBSERVED EVENT ------------------
+
+	extern bool eventPrintFlag;
+
+	bool checkPrint(QString q_func_info);
+
 } // Debug
 
 #endif // MEMORYANALYTICS_H
