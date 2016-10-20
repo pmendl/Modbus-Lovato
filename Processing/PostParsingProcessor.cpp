@@ -32,6 +32,7 @@ bool PostParsingProcessor::isValid() const
 
 void PostParsingProcessor::process(RequestManager *rm)
 {
+
 	if(nextOccurance())
 		return;
 
@@ -52,7 +53,6 @@ void PostParsingProcessor::process(RequestManager *rm)
 		return;
 
 	_priority = priority;
-
 	// Adapted from http://doc.qt.io/qt-5/qhttpmultipart.html#details
 	HTTP_MULTI_PART_USED *multiPart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
 
@@ -62,7 +62,6 @@ void PostParsingProcessor::process(RequestManager *rm)
 		multiPart->appendFormData(item.def->name, item.value);
 	}
 	// Adapted code end
-
 	if(_inProcess) {
 		++_delayedCount;
 		DP_DELAYED_COUNT("RequestManager" << rm << ": _delayedCount=" << _delayedCount);
@@ -88,6 +87,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 	 }
 
 	 connect(reply, &QNetworkReply::finished, this, &PostParsingProcessor::onReplyFinished);
+	 _multipart->setParent(reply);
 	 _multipart=0;
 	 DP_EVENTS_END("End")
  }
