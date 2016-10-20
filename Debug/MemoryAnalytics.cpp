@@ -25,6 +25,10 @@ void setMemoryRef()
 	refMem=Debug::getMemory();
 }
 
+bool checkRef(int limit)
+{
+	return Debug::getMemory()-refMem < limit;
+}
 
 void printMemory()
 {

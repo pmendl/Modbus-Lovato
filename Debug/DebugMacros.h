@@ -10,7 +10,8 @@
 // Do notice the semicolon placed at the end - do not append semicolon even after
 // expressions concatenated with operator<<() !!
 #define D_P(x) DEBUG(qDebug() << x)
-#define PRINT(x) D_P(x)
+//#define PRINT(x) D_P(x)
+#define PRINT(x) NODEBUG(x)
 #define MARK(x) D_P("*** " << x)
 #define NO(x) NODEBUG(x)
 
@@ -58,11 +59,16 @@
 
 //--- Specialized debug print related macros
 #include "Debug/MemoryAnalytics.h"
-#define DP_EVENTS_START(x) DP_EVENTS_DEBUG(metaObject()->className() << "::" #x "start");\
+//#define DP_EVENTS_START(x) DP_EVENTS_DEBUG(metaObject()->className() << "::" #x "start");\
 	Debug::setMemoryRef();
-#define DP_EVENTS_END(x) DP_EVENTS_DEBUG(metaObject()->className() << "end (" << x << ")");\
+#define DP_EVENTS_START(x) Debug::setMemoryRef();
+//#define DP_EVENTS_END(x) DP_EVENTS_DEBUG(metaObject()->className() << "end (" << x << ")");\
 	Debug::printMemory();
-
+#define DP_EVENTS_END(x)\
+	if(Debug::checkRef(-10)) {\
+	   DP_EVENTS_DEBUG(metaObject()->className() << "end (" << x << ")");\
+	   Debug::printMemory();\
+	};
 
 
 #endif // DEBUGMACROS_H

@@ -78,5 +78,5 @@ void LogCopier::onFragmentReady(LogFragment *fragment)
 	DP_CMD_LOG_COPIER_DETAILS("LogCopier finished file writting...");
 
 	processFragment((fragment->nextFragment()));
-	DP_EVENTS_END("")
+	DP_EVENTS_END("onFragmentReady")
 }

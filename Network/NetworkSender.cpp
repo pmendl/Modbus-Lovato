@@ -148,7 +148,7 @@ void NetworkSender::onReplyFinished() {
 			reply->deleteLater();
 		}
 	}
-	DP_EVENTS_END("")
+	DP_EVENTS_END("onReplyFinished")
 }
 
 void NetworkSender::timerEvent(QTimerEvent *event) {

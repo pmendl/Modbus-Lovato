@@ -58,7 +58,7 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 	DP_CMD_LOG_READER_DETAILS("LogReader has new fragment" << fragment << "ready for sending ...");
 	_readyFragment = fragment;
 	checkSending();
-	DP_EVENTS_END("")
+	DP_EVENTS_END("onFragmentReady")
 }
 
 void LogReader::onReplyFinished()
@@ -67,7 +67,7 @@ void LogReader::onReplyFinished()
 	DP_CMD_LOG_READER_DETAILS("LogReader finished HTTP transmit" << static_cast<QNetworkReply*>(sender())->url().url());
 	_sendPending = false;
 	checkSending();
-	DP_EVENTS_END("")
+	DP_EVENTS_END("onReplyFinished")
 }
 
 void LogReader::checkSending()
@@ -145,7 +145,7 @@ void LogReader::sendReadyFragment() {
 	DP_CMD_LOG_READER_DETAILS("\tQMetaObject::invokeMethod(sendMultipart...)" << (result ? "Succeeded" : "Failed"));
 
 	processFragment((_readyFragment->nextFragment()));
-	DP_EVENTS_END("")
+	DP_EVENTS_END("sendReadyFragment")
 }
 
 void LogReader::processFragment(LogFragment *fragment) {

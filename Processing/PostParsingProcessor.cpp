@@ -95,7 +95,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 
 	 connect(reply, &QNetworkReply::finished, this, &PostParsingProcessor::onReplyFinished);
 	 _multipart=0;
-	 DP_EVENTS_END("")
+	 DP_EVENTS_END("onMultipartSent")
  }
 
  void PostParsingProcessor::onReplyFinished() {
@@ -105,5 +105,5 @@ void PostParsingProcessor::process(RequestManager *rm)
 		 _inProcess = false;
 		 _priority = nullRequestPriority;
 	 }
-	 DP_EVENTS_END("")
+	 DP_EVENTS_END("onMultipartSent")
 }
