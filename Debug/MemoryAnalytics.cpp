@@ -39,10 +39,10 @@ void printMemory(bool snap)
 		snapMemory();
 	}
 	if(refMem < 0) {
-		D_P("--------- Memory change:" << diffLast() << "(MemFree:" << actualMem << "Kb) ---------");
+		D_P("--------- Memory change:" << diffLast() << "\t(MemFree:" << actualMem << "Kb) ---------");
 	}
 	else {
-		D_P("--------- Memory change:" << diffLast() << "Ref change:" << diffRef() << "(MemFree:" << actualMem << "Kb) ---------");
+		D_P("--------- Memory change:" << diffLast() << "\tRef change:" << diffRef() << "\t(MemFree:" << actualMem << "Kb) ---------");
 	}
 	lastMem=actualMem;
 	refMem=-1;

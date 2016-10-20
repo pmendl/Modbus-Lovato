@@ -134,7 +134,7 @@ QNetworkReply *NetworkSender::send(QNetworkRequest request, QHttpMultiPart *mult
 }
 
 void NetworkSender::onReplyFinished() {
-	DP_EVENTS_START(onReplyFinished)
+	DP_EVENTS_START()
 	QNetworkReply *reply(dynamic_cast<QNetworkReply *>(sender()));
 	if(reply != 0) {
 		if(_timerIds.contains(reply)) {
@@ -148,7 +148,7 @@ void NetworkSender::onReplyFinished() {
 			reply->deleteLater();
 		}
 	}
-	DP_EVENTS_END("onReplyFinished")
+	DP_EVENTS_END("End")
 }
 
 void NetworkSender::timerEvent(QTimerEvent *event) {
