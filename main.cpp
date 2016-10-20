@@ -2,7 +2,7 @@
 
 #include <QStorageInfo>
 
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QSettings>
 #include <QDir>
 #include <QRegularExpression>
@@ -575,3 +575,4 @@ void fKeypressFunction(char c) {
 
 	}
 }
+

@@ -1,6 +1,6 @@
 #include "ModbusSerialMaster.h"
 
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QtGlobal>
 #include <QSettings>
 

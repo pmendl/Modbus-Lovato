@@ -1,7 +1,7 @@
 #include "PostParsingProcessor.h"
 
 #include <QProcess>
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QSettings>
 #include HTTP_MULTI_PART_INCLUDE
 #include <QNetworkReply>
@@ -89,13 +89,13 @@ void PostParsingProcessor::process(RequestManager *rm)
  void PostParsingProcessor::onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply) {
 	 DP_EVENTS_START(onMultipartSent)
 	 if(multiPart != _multipart) {
-		 DP_EVENTS_COND("multiPart != _multipart")
+		 DP_EVENTS_END("multiPart != _multipart")
 		 return;
 	 }
 
 	 connect(reply, &QNetworkReply::finished, this, &PostParsingProcessor::onReplyFinished);
 	 _multipart=0;
-	 DP_EVENTS_END
+	 DP_EVENTS_END("")
  }
 
  void PostParsingProcessor::onReplyFinished() {
@@ -105,5 +105,5 @@ void PostParsingProcessor::process(RequestManager *rm)
 		 _inProcess = false;
 		 _priority = nullRequestPriority;
 	 }
-	 DP_EVENTS_END
+	 DP_EVENTS_END("")
 }

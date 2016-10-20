@@ -1,7 +1,7 @@
 #ifndef DATAUNITS_H
 #define DATAUNITS_H
 
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QByteArray>
 
 #include <initializer_list>

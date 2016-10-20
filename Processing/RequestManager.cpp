@@ -1,6 +1,6 @@
 #include "RequestManager.h"
 
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QSettings>
 #include <QRegularExpression>
 #include <QTimerEvent>
@@ -275,5 +275,5 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	foreach (QSharedPointer<ParsingProcessor> processor, _parsingProcessors) {
 		processor->process(this);
 	}
-	DP_EVENTS_END
+	DP_EVENTS_END("")
 }

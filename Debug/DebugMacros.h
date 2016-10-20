@@ -57,8 +57,12 @@
 #define DP_PANIC(x) PRINT(x)
 
 //--- Specialized debug print related macros
-#define DP_EVENTS_START(x) DP_EVENTS_DEBUG(metaObject()->className() << "::" #x "start");
-#define DP_EVENTS_END DP_EVENTS_DEBUG(metaObject()->className() << "end" );
-#define DP_EVENTS_COND(x) DP_EVENTS_DEBUG(metaObject()->className() << "end (" << x << ")");
+#include "Debug/MemoryAnalytics.h"
+#define DP_EVENTS_START(x) DP_EVENTS_DEBUG(metaObject()->className() << "::" #x "start");\
+	Debug::setMemoryRef();
+#define DP_EVENTS_END(x) DP_EVENTS_DEBUG(metaObject()->className() << "end (" << x << ")");\
+	Debug::printMemory();
+
+
 
 #endif // DEBUGMACROS_H

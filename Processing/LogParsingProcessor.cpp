@@ -1,6 +1,6 @@
 #include "LogParsingProcessor.h"
 
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QSettings>
 #include <QDir>
 
