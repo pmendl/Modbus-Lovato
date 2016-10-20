@@ -75,13 +75,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 		multiPart->appendFormData("delayedCount", QString(QStringLiteral("%1").arg(_delayedCount)));
 		_delayedCount = 0;
 	}
-/*
-	QProcess p;
-	p.start("awk", QStringList() << "/MemFree/ { print $0 }" << "/proc/meminfo");
-	p.waitForFinished();
-	DP_MEMORY(Object_id << ":" << p.readAllStandardOutput());
-	p.close();
-*/
+
 	_multipart = multiPart;
 	_sender.send(_url, multiPart);
 }

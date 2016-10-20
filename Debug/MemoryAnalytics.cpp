@@ -5,41 +5,46 @@
 #include "Debug/DebugMacros.h"
 namespace Debug {
 
-int lastMem;
-int refMem;
+int actualMem, lastMem, refMem;
 
-using namespace Debug;
-
-int getMemory()
+int snapMemory()
 {
 	QProcess p;
 	p.start("awk", QStringList() << "/MemFree/ { print $2 }" << "/proc/meminfo");
 	p.waitForFinished();
-	int mem(QString::fromUtf8(p.readLine()).toInt());
+	actualMem = QString::fromUtf8(p.readLine()).toInt();
 	p.close();
-	return mem;
+	return actualMem;
 }
 
 void setMemoryRef()
 {
-	refMem=Debug::getMemory();
+//	D_P("---- Memory ref");
+	refMem=snapMemory();
 }
 
-bool checkRef(int limit)
+int diffLast()
 {
-	return Debug::getMemory()-refMem < limit;
+	return actualMem - lastMem;
 }
 
-void printMemory()
+int diffRef()
 {
-	int mem(getMemory());
+	return actualMem - refMem;
+}
+
+void printMemory(bool snap)
+{
+	if (snap) {
+		snapMemory();
+	}
 	if(refMem < 0) {
-		D_P("--------- Memory change:" << (mem - lastMem) << "(MemFree:" << mem << "Kb) ---------");
+		D_P("--------- Memory change:" << diffLast() << "(MemFree:" << actualMem << "Kb) ---------");
 	}
 	else {
-		D_P("--------- Memory change:" << (mem - lastMem) << "Ref change:" << (mem-refMem) << "(MemFree:" << mem << "Kb) ---------");
+		D_P("--------- Memory change:" << diffLast() << "Ref change:" << diffRef() << "(MemFree:" << actualMem << "Kb) ---------");
 	}
-	lastMem=mem;
+	lastMem=actualMem;
 	refMem=-1;
 }
 

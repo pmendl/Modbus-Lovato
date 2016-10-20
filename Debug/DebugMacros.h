@@ -59,16 +59,23 @@
 
 //--- Specialized debug print related macros
 #include "Debug/MemoryAnalytics.h"
-//#define DP_EVENTS_START(x) DP_EVENTS_DEBUG(metaObject()->className() << "::" #x "start");\
+bool printAllwaysCriterion(int mem, int lastMem, int refMem);
+bool debugCriterion(int mem, int lastMem, int refMem);
+/*
+#define DP_EVENTS_START(x) DP_EVENTS_DEBUG(metaObject()->className() << "::" #x "start");\
 	Debug::setMemoryRef();
-#define DP_EVENTS_START(x) Debug::setMemoryRef();
-//#define DP_EVENTS_END(x) DP_EVENTS_DEBUG(metaObject()->className() << "end (" << x << ")");\
+#define DP_EVENTS_END(x) DP_EVENTS_DEBUG(metaObject()->className() << "end (" << x << ")");\
 	Debug::printMemory();
+*/
+#define DP_EVENTS_START(x) Debug::setMemoryRef();
 #define DP_EVENTS_END(x)\
-	if(Debug::checkRef(-10)) {\
-	   DP_EVENTS_DEBUG(metaObject()->className() << "end (" << x << ")");\
-	   Debug::printMemory();\
-	};
+   Debug::snapMemory();\
+/*   qDebug() << (Debug::diffLast() > 50) << (Debug ::diffRef() < -25) << (Debug::diffLast() < -100);*/\
+   if((Debug::diffLast() > 50) || (Debug ::diffRef() < -25) || (Debug::diffLast() < -100)) {\
+	  DP_EVENTS_DEBUG(metaObject()->className() << "end (" << x << ")");\
+	  Debug::printMemory(false);\
+   };
+
 
 
 #endif // DEBUGMACROS_H

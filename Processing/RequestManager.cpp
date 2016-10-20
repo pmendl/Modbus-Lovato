@@ -161,6 +161,27 @@ QVariant RequestManager::responseItemParsed(QString name) const {
 	return _parsedItems.value(name).value;
 }
 
+const RequestManager::dataItemDefinition_t nullResponseDefinition({
+  PARSED_ITEM_RESPONSE_TYPE_KEY,
+  0,0,
+  RequestManager::invalidType,
+  0., 1, QString()
+});
+
+const RequestManager::dataItemDefinition_t errResponseCodeDefinition({
+  PARSED_ITEM_ERROR_RESPONSE_EXCEPTION_KEY,
+  0,1,
+  RequestManager::uintType,
+  1., 1, QString()
+});
+
+const RequestManager::dataItemDefinition_t errResponseExceptionDefinition({
+  PARSED_ITEM_ERROR_RESPONSE_EXCEPTION_KEY,
+  1,1,
+  RequestManager::uintType,
+  1., 1, QString()
+});
+
 void RequestManager::onResponse(PDUSharedPtr_t response) {
 /******************************************************************************
  * This stuff is intended for simulation of error responses only.
@@ -184,26 +205,14 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	parsedItem_t item;
 
 #ifndef NO_RESPONSE_TYPE_KEY_USED
-	const QSharedPointer<const dataItemDefinition_t> responseType(
-				new const dataItemDefinition_t({PARSED_ITEM_RESPONSE_TYPE_KEY,
-				  0,0,
-				  RequestManager::invalidType,
-				  0., 1, QString()
-				 })
-				);
+	const QSharedPointer<const dataItemDefinition_t> responseType(&nullResponseDefinition);
 	item.def = responseType;
 	item.raw = 0;
 #endif
 	// NULL RESPONSE
 	if(response.isNull()) {
 #ifdef NO_RESPONSE_TYPE_KEY_USED
-		const QSharedPointer<const dataItemDefinition_t> responseType(
-					new const dataItemDefinition_t({PARSED_ITEM_RESPONSE_TYPE_KEY,
-					  0,0,
-					  RequestManager::invalidType,
-					  0., 1, QString()
-					 })
-					);
+		const QSharedPointer<const dataItemDefinition_t> responseType(&nullResponseDefinition);
 		item.def = responseType;
 		item.raw = 0;
 #endif
@@ -219,21 +228,8 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 		_parsedItems.insert(PARSED_ITEM_RESPONSE_TYPE_KEY, item);
 #endif
 
-		const QSharedPointer<const dataItemDefinition_t> errResponseCode(
-				new const dataItemDefinition_t({PARSED_ITEM_ERROR_RESPONSE_CODE_KEY,
-				  0,1,
-				  RequestManager::uintType,
-				  1., 1, QString()
-				 })
-					);
-
-		const QSharedPointer<const dataItemDefinition_t> errResponseException(
-					new const dataItemDefinition_t({PARSED_ITEM_ERROR_RESPONSE_EXCEPTION_KEY,
-					  1,1,
-					  RequestManager::uintType,
-					  1., 1, QString()
-					 })
-					);
+		const QSharedPointer<const dataItemDefinition_t> errResponseCode(&errResponseCodeDefinition);
+		const QSharedPointer<const dataItemDefinition_t> errResponseException(&errResponseExceptionDefinition);
 
 		parsedItem_t item;
 		item.def = errResponseCode;

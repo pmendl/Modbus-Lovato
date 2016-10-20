@@ -2,10 +2,12 @@
 #define MEMORYANALYTICS_H
 
 namespace Debug {
-	int getMemory();
+	int snapMemory();
 	void setMemoryRef();
-	bool checkRef(int limit);
-	void printMemory();
+	int diffLast();
+	int diffRef();
+	bool printAllwaysCriterion(int mem, int lastMem, int refMem);
+	void printMemory(bool snap = true);
 } // Debug
 
 #endif // MEMORYANALYTICS_H
