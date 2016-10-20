@@ -1,6 +1,6 @@
 #include "CommandsList.h"
 
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QIODevice>
 #include <QRegularExpression>
 #include <QUrl>

@@ -1,6 +1,6 @@
 #include "NetworkSender.h"
 
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QEventLoop>
@@ -148,7 +148,7 @@ void NetworkSender::onReplyFinished() {
 			reply->deleteLater();
 		}
 	}
-	DP_EVENTS_END
+	DP_EVENTS_END("")
 }
 
 void NetworkSender::timerEvent(QTimerEvent *event) {

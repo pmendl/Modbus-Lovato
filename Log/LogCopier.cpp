@@ -1,7 +1,7 @@
 #include "LogCopier.h"
 
 #include <QMetaObject>
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QFile>
 #include <QRegularExpression>
 #include <QBuffer>
@@ -61,14 +61,14 @@ void LogCopier::onFragmentReady(LogFragment *fragment)
 	DP_CMD_LOG_COPIER_DETAILS("LogCopier::onFragmentReady starts file writting...");
 	if(fragment == 0) {
 		DP_CMD_LOG_COPIER_DETAILS("LogCopier::onFragmentReady called with zero pointer! ERROR!");
-		DP_EVENTS_COND("LogCopier::onFragmentReady called with zero pointer! ERROR!");
+		DP_EVENTS_END("LogCopier::onFragmentReady called with zero pointer! ERROR!");
 		return;
 	}
 
 	if(!fragment->open(QIODevice::ReadOnly)) {
 		DP_CMD_LOG_COPIER_DETAILS("LogCopier::onFragmentReady aborts as it can not open fragment for reading...");
 		fragment->deleteLater();
-		DP_EVENTS_COND("LogCopier::onFragmentReady aborts as it can not open fragment for reading...");
+		DP_EVENTS_END("LogCopier::onFragmentReady aborts as it can not open fragment for reading...");
 		return;
 	}
 
@@ -78,5 +78,5 @@ void LogCopier::onFragmentReady(LogFragment *fragment)
 	DP_CMD_LOG_COPIER_DETAILS("LogCopier finished file writting...");
 
 	processFragment((fragment->nextFragment()));
-	DP_EVENTS_END
+	DP_EVENTS_END("")
 }
