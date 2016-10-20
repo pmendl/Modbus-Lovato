@@ -8,6 +8,8 @@ namespace Debug {
 	int diffRef();
 	bool printAllwaysCriterion(int mem, int lastMem, int refMem);
 	void printMemory(bool snap = true);
+
+	extern int eventIndex;
 } // Debug
 
 #endif // MEMORYANALYTICS_H

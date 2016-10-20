@@ -6,6 +6,7 @@
 namespace Debug {
 
 int actualMem, lastMem, refMem;
+int eventIndex = 0;
 
 int snapMemory()
 {
