@@ -28,7 +28,7 @@
 #define DP_MODBUS_ERROR(x) PRINT(x)				// Modbus protocol errors
 #define DP_LOGGING_INIT(x) PRINT(x)				// LogServer init
 #define DP_LOGGING_ACTION(x) PRINT(x)			// LogServer record trace
-#define DP_LOGGING_ERROR(x) PRINT(x)				// LogServer errors
+#define DP_LOGGING_ERROR(x) IMMED(x)				// LogServer errors
 #define DP_COMMANDS_LIST(x) PRINT(x)				// CommandsList activity
 #define DP_COMMANDS_PROCESSOR(x) PRINT(x)			// CommandsProcessor activation
 #define DP_COMMANDS_PROCESSOR_DETAILS(x) PRINT(x)	// CommandsProcessor details
@@ -59,6 +59,7 @@
 #define DP_DELAYED_COUNT(x) PRINT(x)
 #define DP_NONDELAYED_COUNT(x) NO(x)
 #define DP_PANIC(x) PRINT(x)
+#define DP_LOGGING_DEBUG(x) NO(x)
 
 //--- Specialized debug print related macros
 #include "Debug/MemoryAnalytics.h"
@@ -79,8 +80,13 @@
 
 #define DC_COUNT(x) globalMessageHandler.countEvent(x);
 
+/*
 extern int httpRequestBalance;
 #define REQUEST_SENT IMMED("[" << ++httpRequestBalance << "]");
 #define REPLY_RECEIVED IMMED("[" << --httpRequestBalance << "]");
+*/
+#define REQUEST_SENT
+#define REPLY_RECEIVED
+
 
 #endif // DEBUGMACROS_H

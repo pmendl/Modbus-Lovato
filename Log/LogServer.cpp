@@ -13,14 +13,17 @@ class LogWritter : public QThread {
 public:
 	LogWritter(QString pathname, QString record, QObject *parent = 0);
 
-	virtual ~LogWritter() {}
+	virtual ~LogWritter();
 
 public slots:
 	void run();
 
 private:
 	QString _pathname, _record;
+	static int _instanceCount;
 };
+
+int LogWritter::_instanceCount = 0;
 
 LogServer::LogServer(QString defaultLogPath, QObject *parent) : QObject(parent)
 {
@@ -43,7 +46,11 @@ void LogServer::log(QString filename, QString record) {
 	LogMaintenanceLocker locker(this);
 
 	LogWritter *writter = new LogWritter(pathname(filename), record, this);
+	DP_LOGGING_DEBUG("-LogWritter created-" << writter);
+
+//#warning DEBUG ONLY !!!!!!!!!!!!!!!!!!!!!!!
 	writter->start();
+//	delete writter;
 }
 
 QString LogServer::pathname(QString filename) const {
@@ -60,9 +67,24 @@ LogWritter::LogWritter(QString pathname, QString record, QObject *parent) :
 	_pathname(pathname),
 	_record(record)
 {
-	connect(this, &LogWritter::finished, this, &LogWritter::deleteLater);
+	/*
+	if(!connect(this, &LogWritter::finished, this, &LogWritter::deleteLater)) {
+		DP_LOGGING_DEBUG("CONNECT FAILED LogWritter::finished");
+	};
+	*/
+	IMMED("(" << ++_instanceCount << ")");
+/*
+#warning DEBUG ONLY
+	connect(this, &LogWritter::finished, this, [this]() {
+		DP_LOGGING_DEBUG("-LogWritter finished-" << this);
+	});
+*/
 }
 
+LogWritter::~LogWritter()
+{
+	IMMED("~(" <<--_instanceCount << ")~");
+}
 
 void LogWritter::run() {
 	QFile file(_pathname);
@@ -76,7 +98,8 @@ void LogWritter::run() {
 		DP_LOGGING_ACTION("Log WRITTEN:" << _pathname);
 	}
 	else
-		DP_LOGGING_ERROR(_pathname << file.errorString());
+		DP_LOGGING_ERROR("Log ERROR:" << _pathname << file.errorString());
+	deleteLater();
 }
 
 LogMaintenanceLocker::LogMaintenanceLocker(LogServer *logServer):

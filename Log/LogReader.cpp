@@ -144,12 +144,14 @@ void LogReader::sendReadyFragment() {
 											 Q_ARG(QHttpMultiPart *, static_cast<QHttpMultiPart*>(_multipart))));
 	DP_CMD_LOG_READER_DETAILS("\tQMetaObject::invokeMethod(sendMultipart...)" << (result ? "Succeeded" : "Failed"));
 
+
 	processFragment((_readyFragment->nextFragment()));
 	DP_EVENTS_END("sendReadyFragment")
 }
 
 void LogReader::processFragment(LogFragment *fragment) {
-	_readyFragment = 0;
+	_readyFragment->deleteLater();
+	_readyFragment=0;
 	if(!fragment) {
 		_lastFragment = true;
 		checkSending();
