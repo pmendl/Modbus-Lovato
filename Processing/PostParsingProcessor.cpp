@@ -70,6 +70,8 @@ void PostParsingProcessor::process(RequestManager *rm)
 		return;
 	}
 
+	DP_NONDELAYED_COUNT("Delayed count = " << _delayedCount);
+
 	_inProcess = true;
 
 	if(_delayedCount > 0) {
@@ -83,12 +85,12 @@ void PostParsingProcessor::process(RequestManager *rm)
 
  void PostParsingProcessor::onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply) {
 	 DP_EVENTS_START();
-	 FUNC("START");
 	 if(multiPart != _multipart) {
 		 DP_EVENTS_END("multiPart != _multipart")
-		 FUNC("multiPart != _multipart");
 		 return;
 	 }
+	 DC_COUNT("onMultipartSent")
+	 REQUEST_SENT
 
 	 connect(reply, &QNetworkReply::finished, this, &PostParsingProcessor::onReplyFinished);
 	 _multipart->setParent(reply);
@@ -103,6 +105,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 		 _inProcess = false;
 		 _priority = nullRequestPriority;
 	 }
-	 FUNC("END");
+	 DC_COUNT("onReplyFinished")
+	 REPLY_RECEIVED
 	 DP_EVENTS_END("End");
 }

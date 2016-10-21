@@ -50,7 +50,8 @@ SOURCES += main.cpp \
     Network/ExtendedHttpMultiPart.cpp \
     Processing/MemoryParsingProcessor.cpp \
     Debug/MemoryAnalytics.cpp \
-    Debug/MessageHandler.cpp
+    Debug/MessageHandler.cpp \
+    Debug/DebugMacros.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \

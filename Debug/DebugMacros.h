@@ -14,8 +14,8 @@
 //#define PRINT(x) D_P(x)
 #define PRINT(x) D_P(x)
 #define MARK(x) D_P("*** " << x)
-#define FUNC(x) D_P(Q_FUNC_INFO << x)
 #define NO(x) NODEBUG(x)
+#define IMMED(x) qInfo() << x;
 
 //========== Enable or disable various debug prints here ==========
 #define DP_INIT(x) PRINT(x)						// Application initialization
@@ -39,6 +39,7 @@
 #define DP_NET_SENDER_DETAILS(x) PRINT(x)		// NetworkSender details
 #define DP_NET_HTTP_REPLY(x) PRINT(x)				// HTTP response arrival
 #define DP_NET_HTTP_REPLY_DETAILS(x) PRINT(x)	// HTTP response details
+#define DP_NET_HTTP_REPLY_ERRORS(x) PRINT(x)	// HTTP response details
 #define DP_CMD_LOG_READER(x) PRINT(x)				// LogReader object major actions
 #define DP_CMD_LOG_READER_ERROR(x) PRINT(x)		// LogReader object errors
 #define DP_CMD_LOG_READER_DETAILS(x) NO(x)	// LogReader object details
@@ -56,6 +57,7 @@
 
 //--- Temporary debug prints ---
 #define DP_DELAYED_COUNT(x) PRINT(x)
+#define DP_NONDELAYED_COUNT(x) NO(x)
 #define DP_PANIC(x) PRINT(x)
 
 //--- Specialized debug print related macros
@@ -70,10 +72,15 @@
 #define DP_MEMORY_CHECK D_P("------ EVENTS:" << globalMessageHandler.getEvents(); Debug::checkMemory());
 
 
-#define DP_EVENTS_START(x) FUNC("START");
-#define DP_EVENTS_END(x) FUNC(x);
+#define DP_EVENTS_START(x) PRINT(Q_FUNC_INFO << "START");
+#define DP_EVENTS_END(x) PRINT(Q_FUNC_INFO << x);
+
+//--- Specialized analytics
 
 #define DC_COUNT(x) globalMessageHandler.countEvent(x);
 
+extern int httpRequestBalance;
+#define REQUEST_SENT IMMED("[" << ++httpRequestBalance << "]");
+#define REPLY_RECEIVED IMMED("[" << --httpRequestBalance << "]");
 
 #endif // DEBUGMACROS_H

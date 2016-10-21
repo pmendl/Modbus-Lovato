@@ -6,9 +6,9 @@
 
 #include "Debug/MemoryAnalytics.h"
 
-void Debug::myMessageOutput(QtMsgType, const QMessageLogContext &, const QString &msg)
+void Debug::myMessageOutput(QtMsgType type, const QMessageLogContext &, const QString &msg)
 {
-	globalMessageHandler.handleMessage(msg);
+	globalMessageHandler.handleMessage(type, msg);
 }
 
 MessageHandler::MessageHandler()
@@ -16,9 +16,14 @@ MessageHandler::MessageHandler()
 	_buffer.reserve(100000); // To prevent memory changes due to text appends
 }
 
-void MessageHandler::handleMessage(const QString &msg)
+void MessageHandler::handleMessage(QtMsgType type, const QString &msg)
 {
-	std::putc('.',stderr);
+	if(type == QtDebugMsg) {
+		std::putc('.',stderr);
+	}
+	else {
+		fprintf(stderr, "%s", msg.toLocal8Bit().constData());
+	}
 	_buffer.append(QString(QStringLiteral("<%1>")).arg(Debug::snapMemory()));
 	_buffer.append(msg);
 	_buffer.append('\n');
@@ -28,6 +33,9 @@ void MessageHandler::dispatchMessage(bool doPrint) {
 	if(doPrint) {
 		fprintf(stderr,	"%u \n", _buffer.size());
 		fprintf(stderr,	"%s", _buffer.constData());
+		for (QHash<QString, int>::iterator i = _events.begin(); i != _events.end(); ++i) {
+			i.value() = 0;
+		}
 	}
 	fprintf(stderr,	"<%u>", Debug::snapMemory());
 	//std::putc('x',stderr);
@@ -36,9 +44,6 @@ void MessageHandler::dispatchMessage(bool doPrint) {
 
 void MessageHandler::clear() {
 	_buffer.truncate(0); // ... workaround instead of clear() to preserve reservation
-	for (QHash<QString, int>::iterator i = _events.begin(); i != _events.end(); ++i) {
-		i.value() = 0;
-	}
 }
 
 void MessageHandler::countEvent(QString id) {

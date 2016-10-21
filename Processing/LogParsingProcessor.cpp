@@ -26,8 +26,8 @@ bool LogParsingProcessor::isValid() const {
 }
 
 void LogParsingProcessor::process(RequestManager *rm){
-//#warning ONLY FOR DEBUG - UNCOMMENT IMMEDIATELY
-	if(nextOccurance())
+#warning ONLY FOR DEBUG - UNCOMMENT IMMEDIATELY
+//	if(nextOccurance())
 		return;
 
 	QString record(QStringLiteral(LOG_RECORD_VALUES)+rm->groupName()+QStringLiteral(LOG_SEPARATOR_ITEMS));

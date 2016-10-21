@@ -16,7 +16,7 @@ class MessageHandler
 public:
 	MessageHandler();
 
-	void handleMessage(const QString &msg);
+	void handleMessage(QtMsgType type, const QString &msg);
 	void dispatchMessage(bool doPrint = true);
 	void clear();
 	void countEvent(QString id);

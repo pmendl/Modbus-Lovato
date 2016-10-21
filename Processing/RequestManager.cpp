@@ -273,6 +273,7 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 								  << processor->metaObject()->className());
 
 		processor->process(this);
+		DP_REQUESTMANAGER_PARSING(processor->metaObject()->className() << "processing finished");
 	}
 	DP_EVENTS_END("End")
 	DP_MEMORY_CHECK
