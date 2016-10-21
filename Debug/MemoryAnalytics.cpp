@@ -56,10 +56,12 @@ void printMemory(bool snap)
 	refMem=-1;
 }
 
+#ifdef USE_MESSAGE_HANDLER
 void checkMemory() {
 		Debug::snapMemory();
 		globalMessageHandler.dispatchMessage(Debug::diffRef() < -100);
 		Debug::setMemoryRef(false);
 }
+#endif
 
 } // namespace

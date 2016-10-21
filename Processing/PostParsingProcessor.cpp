@@ -90,7 +90,6 @@ void PostParsingProcessor::process(RequestManager *rm)
 		 return;
 	 }
 	 DC_COUNT("onMultipartSent")
-	 REQUEST_SENT
 
 	 connect(reply, &QNetworkReply::finished, this, &PostParsingProcessor::onReplyFinished);
 	 _multipart->setParent(reply);
@@ -100,12 +99,10 @@ void PostParsingProcessor::process(RequestManager *rm)
 
  void PostParsingProcessor::onReplyFinished() {
 	 DP_EVENTS_START()
-	 QNetworkReply *reply(static_cast<QNetworkReply *>(sender()));
 	 {
 		 _inProcess = false;
 		 _priority = nullRequestPriority;
 	 }
 	 DC_COUNT("onReplyFinished")
-	 REPLY_RECEIVED
 	 DP_EVENTS_END("End");
 }

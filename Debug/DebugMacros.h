@@ -18,16 +18,19 @@
 #define IMMED(x) qInfo() << x;
 
 //========== Enable or disable various debug prints here ==========
+//#define USE_MESSAGE_HANDLER	// Instructs to filter debug prints via Debug/MessageHandler.*
+
+//---------- Logging groups ---------
 #define DP_INIT(x) PRINT(x)						// Application initialization
 #define DP_PROCESSING_INIT(x) PRINT(x)			// Processing manager initialization
 #define DP_REQUESTMANAGER_INIT(x) PRINT(x)		// Request manager initialization
-#define DP_REQUESTMANAGER_PARSING(x) PRINT(x)	// Request manager parsing details
+#define DP_REQUESTMANAGER_PARSING(x) NO(x)	// Request manager parsing details
 #define DP_REQUESTMANAGER_ERROR(x) PRINT(x)		// Request manager errors
 #define DP_PROCESSING_REQUEST(x) PRINT(x)			// Processing of Modbus request
 #define DP_MODBUS_INIT(x) PRINT(x)				// ModbusSerialMaster init
 #define DP_MODBUS_ERROR(x) PRINT(x)				// Modbus protocol errors
 #define DP_LOGGING_INIT(x) PRINT(x)				// LogServer init
-#define DP_LOGGING_ACTION(x) PRINT(x)			// LogServer record trace
+#define DP_LOGGING_ACTION(x) NO(x)			// LogServer record trace
 #define DP_LOGGING_ERROR(x) IMMED(x)				// LogServer errors
 #define DP_COMMANDS_LIST(x) PRINT(x)				// CommandsList activity
 #define DP_COMMANDS_PROCESSOR(x) PRINT(x)			// CommandsProcessor activation
@@ -36,9 +39,9 @@
 #define DP_NET_POSTING_INIT(x) PRINT(x)			// PostParsingProcessor initialization
 #define DP_NET_SENDER_SEND(x) PRINT(x)			// NetworkSender send action
 #define DP_NET_SENDER_ERROR(x) PRINT(x)			// NetworkSender errors
-#define DP_NET_SENDER_DETAILS(x) PRINT(x)		// NetworkSender details
+#define DP_NET_SENDER_DETAILS(x) NO(x)		// NetworkSender details
 #define DP_NET_HTTP_REPLY(x) PRINT(x)				// HTTP response arrival
-#define DP_NET_HTTP_REPLY_DETAILS(x) PRINT(x)	// HTTP response details
+#define DP_NET_HTTP_REPLY_DETAILS(x) NO(x)	// HTTP response details
 #define DP_NET_HTTP_REPLY_ERRORS(x) PRINT(x)	// HTTP response details
 #define DP_CMD_LOG_READER(x) PRINT(x)				// LogReader object major actions
 #define DP_CMD_LOG_READER_ERROR(x) PRINT(x)		// LogReader object errors
@@ -50,43 +53,36 @@
 #define DP_CMD_LOG_FRAGMENT_ERROR(x) PRINT(x)		// LogFragment object errors
 #define DP_CMD_LOG_FRAGMENT_DETAILS(x) NO(x)	// LogFragment object details
 #define DP_KEYPRES_DEBUG(x) NO(x)			// Emition of keypress event
-//#define DP_EVENTS_DEBUG(x)	MARK(x)			// Entering and exiting of event processing
+#define DP_DELAYED_COUNT(x) NO(x)			// Delayed count event
+#define DP_NONDELAYED_COUNT(x) NO(x)		// Event ehen passing without delay
+#define DP_LOGWRITER_ERROR(x) MARK(x)		// connect failure to deleteLater in LogWritter
 
 //--- Object instancing debug prints ---
 #define DP_DEBUGHTTPMULTIPART(x) NO(x)
+#define DP_LOGWRITTER_INSTANCES(x) NO(x)
 
 //--- Temporary debug prints ---
-#define DP_DELAYED_COUNT(x) PRINT(x)
-#define DP_NONDELAYED_COUNT(x) NO(x)
 #define DP_PANIC(x) PRINT(x)
-#define DP_LOGGING_DEBUG(x) NO(x)
 
 //--- Specialized debug print related macros
+#ifdef USE_MESSAGE_HANDLER
 #include "Debug/MemoryAnalytics.h"
 #include "Debug/MessageHandler.h"
 
-//#define DP_EVENTS_COMMON(x)	DP_EVENTS_DEBUG(++Debug::eventIndex << ";" << x << ";"<< Debug::snapMemory() << ";" << Q_FUNC_INFO);
-//#define DP_EVENTS_START(x) FUNC("START");
-//#define DP_EVENTS_END(x) FUNC("END");
-
 #define DP_MEMORY_CLEAR globalMessageHandler.clear();
 #define DP_MEMORY_CHECK D_P("------ EVENTS:" << globalMessageHandler.getEvents(); Debug::checkMemory());
+#else
+#define DP_MEMORY_CLEAR
+#define DP_MEMORY_CHECK
+#endif
 
-
-#define DP_EVENTS_START(x) PRINT(Q_FUNC_INFO << "START");
-#define DP_EVENTS_END(x) PRINT(Q_FUNC_INFO << x);
+//#define DP_EVENTS_START(x) PRINT(Q_FUNC_INFO << "START");
+#define DP_EVENTS_START(x) NODEBUG(x);
+//#define DP_EVENTS_END(x) PRINT(Q_FUNC_INFO << x);
+#define DP_EVENTS_END(x) NODEBUG(x);
 
 //--- Specialized analytics
-
-#define DC_COUNT(x) globalMessageHandler.countEvent(x);
-
-/*
-extern int httpRequestBalance;
-#define REQUEST_SENT IMMED("[" << ++httpRequestBalance << "]");
-#define REPLY_RECEIVED IMMED("[" << --httpRequestBalance << "]");
-*/
-#define REQUEST_SENT
-#define REPLY_RECEIVED
-
+//#define DC_COUNT(x) globalMessageHandler.countEvent(x);
+#define DC_COUNT(x) NODEBUG(x);
 
 #endif // DEBUGMACROS_H

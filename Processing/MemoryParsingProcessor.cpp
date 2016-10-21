@@ -5,7 +5,7 @@
 
 #include "Globals.h"
 #include "Processing/RequestManager.h"
-//#include "Processing/ProcessingManager.h"
+#include "Debug/MemoryAnalytics.h"
 
 /// @file
 

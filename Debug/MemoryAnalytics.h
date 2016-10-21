@@ -10,7 +10,9 @@ namespace Debug {
 	int diffRef();
 	bool printAllwaysCriterion(int mem, int lastMem, int refMem);
 	void printMemory(bool snap = true);
+#ifdef USE_MESSAGE_HANDLER
 	void checkMemory();
+#endif
 
 	extern int eventIndex;
 

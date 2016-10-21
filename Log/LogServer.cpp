@@ -46,7 +46,6 @@ void LogServer::log(QString filename, QString record) {
 	LogMaintenanceLocker locker(this);
 
 	LogWritter *writter = new LogWritter(pathname(filename), record, this);
-	DP_LOGGING_DEBUG("-LogWritter created-" << writter);
 
 //#warning DEBUG ONLY !!!!!!!!!!!!!!!!!!!!!!!
 	writter->start();
@@ -67,12 +66,10 @@ LogWritter::LogWritter(QString pathname, QString record, QObject *parent) :
 	_pathname(pathname),
 	_record(record)
 {
-	/*
 	if(!connect(this, &LogWritter::finished, this, &LogWritter::deleteLater)) {
-		DP_LOGGING_DEBUG("CONNECT FAILED LogWritter::finished");
+		DP_LOGWRITER_ERROR("CONNECT FAILED LogWritter::finished");
 	};
-	*/
-	IMMED("(" << ++_instanceCount << ")");
+	DP_LOGWRITTER_INSTANCES("(" << ++_instanceCount << ")");
 /*
 #warning DEBUG ONLY
 	connect(this, &LogWritter::finished, this, [this]() {
@@ -83,7 +80,7 @@ LogWritter::LogWritter(QString pathname, QString record, QObject *parent) :
 
 LogWritter::~LogWritter()
 {
-	IMMED("~(" <<--_instanceCount << ")~");
+	DP_LOGWRITTER_INSTANCES("~(" <<--_instanceCount << ")~");
 }
 
 void LogWritter::run() {
@@ -97,10 +94,11 @@ void LogWritter::run() {
 		file.flush();
 		DP_LOGGING_ACTION("Log WRITTEN:" << _pathname);
 	}
-	else
+	else {
 		DP_LOGGING_ERROR("Log ERROR:" << _pathname << file.errorString());
-	deleteLater();
+	}
 }
+
 
 LogMaintenanceLocker::LogMaintenanceLocker(LogServer *logServer):
 	_logServer(logServer)

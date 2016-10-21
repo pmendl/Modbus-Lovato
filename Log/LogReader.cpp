@@ -142,6 +142,12 @@ void LogReader::sendReadyFragment() {
 	DP_CMD_LOG_READER_DETAILS("\tPosting new HTTP multipart send signal...");
 	bool result(QMetaObject::invokeMethod(&_sender, "sendMultipart", \
 											 Q_ARG(QHttpMultiPart *, static_cast<QHttpMultiPart*>(_multipart))));
+
+	// Ensures no "result variable unused" warning when DP_CMD_LOG_READER_DETAILSl
+	// is defined as NODEBUG() and as such generates no code.
+	// In no case generates any code itself.
+	(void)result;
+
 	DP_CMD_LOG_READER_DETAILS("\tQMetaObject::invokeMethod(sendMultipart...)" << (result ? "Succeeded" : "Failed"));
 
 

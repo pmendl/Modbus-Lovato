@@ -1,3 +1,5 @@
+#ifdef USE_MESSAGE_HANDLER
+
 #include "MessageHandler.h"
 
 #include <QByteArray>
@@ -61,6 +63,7 @@ QHash<QString,int> MessageHandler::getEvents() {
 }
 
 MessageHandler globalMessageHandler;
+#endif
 
 
 // 	return eventPrintFlag = (q_func_info == "void RequestManager::onResponse(PDUSharedPtr_t)");

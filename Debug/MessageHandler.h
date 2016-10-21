@@ -27,6 +27,8 @@ private:
 	QHash<QString,int> _events;
 };
 
+#ifdef USE_MESSAGE_HANDLER
 extern MessageHandler globalMessageHandler;
+#endif
 
 #endif // MESSAGEHANDLER_H

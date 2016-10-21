@@ -77,7 +77,9 @@ int main(int argc, char *argv[])
 {
 	DP_INIT("Modbus application initializing:");
 
+#ifdef USE_MESSAGE_HANDLER
 	qInstallMessageHandler(Debug::myMessageOutput);
+#endif
 
 	/// @warning The code assumes Linux OS to be used, as QSettings::setDefaultFormat(...INI...)
 	/// does not behave properly - at least it reads no groups/values on construction.
