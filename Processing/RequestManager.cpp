@@ -269,7 +269,11 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	}
 
 	foreach (QSharedPointer<ParsingProcessor> processor, _parsingProcessors) {
+		DP_REQUESTMANAGER_PARSING("Request manager calls parsing processor:"
+								  << processor->metaObject()->className());
+
 		processor->process(this);
 	}
 	DP_EVENTS_END("End")
+	DP_MEMORY_CHECK
 }

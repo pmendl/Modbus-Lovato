@@ -26,6 +26,7 @@ bool LogParsingProcessor::isValid() const {
 }
 
 void LogParsingProcessor::process(RequestManager *rm){
+//#warning ONLY FOR DEBUG - UNCOMMENT IMMEDIATELY
 	if(nextOccurance())
 		return;
 

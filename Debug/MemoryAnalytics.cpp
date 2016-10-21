@@ -1,11 +1,15 @@
 #include "Debug/MemoryAnalytics.h"
 
 #include <QProcess>
+#include <QHash>
 
 #include "Debug/DebugMacros.h"
 namespace Debug {
 
 int actualMem, lastMem, refMem;
+
+
+
 
 int snapMemory()
 {
@@ -50,6 +54,12 @@ void printMemory(bool snap)
 	}
 	lastMem=actualMem;
 	refMem=-1;
+}
+
+void checkMemory() {
+		Debug::snapMemory();
+		globalMessageHandler.dispatchMessage(Debug::diffRef() < -100);
+		Debug::setMemoryRef(false);
 }
 
 } // namespace

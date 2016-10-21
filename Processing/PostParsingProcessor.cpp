@@ -32,7 +32,7 @@ bool PostParsingProcessor::isValid() const
 
 void PostParsingProcessor::process(RequestManager *rm)
 {
-
+//#warning ONLY FOR DEBUG - UNCOMMENT IMMEDIATELY
 	if(nextOccurance())
 		return;
 
@@ -65,6 +65,8 @@ void PostParsingProcessor::process(RequestManager *rm)
 	if(_inProcess) {
 		++_delayedCount;
 		DP_DELAYED_COUNT("RequestManager" << rm << ": _delayedCount=" << _delayedCount);
+		delete multiPart;
+		DC_COUNT("_delayedCount");
 		return;
 	}
 

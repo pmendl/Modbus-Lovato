@@ -55,8 +55,7 @@
 #define DP_DEBUGHTTPMULTIPART(x) NO(x)
 
 //--- Temporary debug prints ---
-#define DP_DELAYED_COUNT(x) NO(x)
-#define DP_MEMORY(x) PRINT(x)
+#define DP_DELAYED_COUNT(x) PRINT(x)
 #define DP_PANIC(x) PRINT(x)
 
 //--- Specialized debug print related macros
@@ -67,16 +66,14 @@
 //#define DP_EVENTS_START(x) FUNC("START");
 //#define DP_EVENTS_END(x) FUNC("END");
 
+#define DP_MEMORY_CLEAR globalMessageHandler.clear();
+#define DP_MEMORY_CHECK D_P("------ EVENTS:" << globalMessageHandler.getEvents(); Debug::checkMemory());
 
-#define DP_EVENTS_START(x) \
-	FUNC("START");\
-	if(QString(Q_FUNC_INFO) == "void NetworkSender::onReplyFinished()") {\
-	   Debug::snapMemory();\
-	   globalMessageHandler.dispatchMessage(Debug::diffRef() < -100);\
-	   Debug::setMemoryRef(false);\
-	};
 
-#define DP_EVENTS_END(x) FUNC("END");
+#define DP_EVENTS_START(x) FUNC("START");
+#define DP_EVENTS_END(x) FUNC(x);
+
+#define DC_COUNT(x) globalMessageHandler.countEvent(x);
 
 
 #endif // DEBUGMACROS_H
