@@ -6,7 +6,6 @@
 namespace Debug {
 
 int actualMem, lastMem, refMem;
-int eventIndex = 0;
 
 int snapMemory()
 {
@@ -18,10 +17,14 @@ int snapMemory()
 	return actualMem;
 }
 
-void setMemoryRef()
+void setMemoryRef(bool snap)
 {
-//	D_P("---- Memory ref");
-	refMem=snapMemory();
+	if(snap) {
+		refMem = snapMemory();
+	}
+	else {
+		refMem =  actualMem;
+	}
 }
 
 int diffLast()
@@ -48,18 +51,5 @@ void printMemory(bool snap)
 	lastMem=actualMem;
 	refMem=-1;
 }
-
-// --------------- VERY SPECIAL FUNCTIONS FOR FOCUS ON OBSERVED EVENT ------------------
-
-bool eventPrintFlag;
-
-bool checkPrint(QString q_func_info) {
-	if(++eventIndex<100) {
-		qDebug() << eventIndex;
-		return false;
-	}
-	return eventPrintFlag = (q_func_info == "void RequestManager::onResponse(PDUSharedPtr_t)");
-}
-
 
 } // namespace

@@ -16,6 +16,7 @@ public:
 	MessageHandler();
 
 	void handleMessage(const QString &msg);
+	void dispatchMessage(bool doPrint = true);
 
 private:
 	QByteArray _buffer;

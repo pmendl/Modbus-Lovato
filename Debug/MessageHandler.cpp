@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 
+#include "Debug/MemoryAnalytics.h"
+
 void Debug::myMessageOutput(QtMsgType, const QMessageLogContext &, const QString &msg)
 {
 	globalMessageHandler.handleMessage(msg);
@@ -16,8 +18,23 @@ MessageHandler::MessageHandler()
 
 void MessageHandler::handleMessage(const QString &msg)
 {
-	_buffer = msg.toLocal8Bit();
-	fprintf(stderr,	"%s\n", _buffer.constData());
+	std::putc('.',stderr);
+	_buffer.append(QString(QStringLiteral("<%1>")).arg(Debug::snapMemory()));
+	_buffer.append(msg);
+	_buffer.append('\n');
+}
+
+void MessageHandler::dispatchMessage(bool doPrint) {
+	if(doPrint) {
+		fprintf(stderr,	"%u \n", _buffer.size());
+		fprintf(stderr,	"%s", _buffer.constData());
+	}
+	fprintf(stderr,	"<%u>", Debug::snapMemory());
+	//std::putc('x',stderr);
+	_buffer.truncate(0);
 }
 
 MessageHandler globalMessageHandler;
+
+
+// 	return eventPrintFlag = (q_func_info == "void RequestManager::onResponse(PDUSharedPtr_t)");

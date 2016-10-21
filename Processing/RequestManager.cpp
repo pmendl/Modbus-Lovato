@@ -196,7 +196,6 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 //	response->operator [](2) = 2;
 /******************************************************************************/
 	DP_EVENTS_START()
-	DP_EVENTS_MEMORY_FROM
 	if(!response.isNull())
 		DP_PROCESSING_REQUEST("\tRESPONSE: " << response->toHex());
 
@@ -272,6 +271,5 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 	foreach (QSharedPointer<ParsingProcessor> processor, _parsingProcessors) {
 		processor->process(this);
 	}
-	DP_EVENTS_MEMORY_TO
 	DP_EVENTS_END("End")
 }

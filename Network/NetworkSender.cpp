@@ -129,7 +129,9 @@ QNetworkReply *NetworkSender::send(QNetworkRequest request, QHttpMultiPart *mult
 	DP_NET_SENDER_DETAILS("\tNetworkSender: transmitted to " << request.url() << "; reply.isRunning()=" << reply->isRunning());
 	connect(reply, &QNetworkReply::finished, this, &NetworkSender::onReplyFinished);
 	_timerIds.insert(reply, startTimer(timeout));
+	DP_NET_SENDER_DETAILS("NetworkSender: emit multipartSent(multiPart, reply);");
 	emit multipartSent(multiPart, reply);
+	DP_NET_SENDER_DETAILS("NetworkSender: end");
 	return reply;
 }
 
