@@ -100,7 +100,6 @@ void PostParsingProcessor::process(RequestManager *rm)
 
  void PostParsingProcessor::onReplyFinished() {
 	 DP_EVENTS_START(onReplyFinished)
-	 QNetworkReply *reply(static_cast<QNetworkReply *>(sender()));
 	 {
 		 _inProcess = false;
 		 _priority = nullRequestPriority;
