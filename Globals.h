@@ -152,9 +152,6 @@
 typedef QSharedPointer<class ProtocolDataUnit> PDUSharedPtr_t;
 typedef QSharedPointer<class ApplicationDataUnitSerial> ADUSharedPtr_t;
 
-// === Global functions ===
-extern void printMemory();
-
 // === Macro stringification helpers ===
 #define xstr(s) str(s)
 #define str(s) #s

@@ -1,6 +1,6 @@
 #include "NetworkSender.h"
 
-#include "Debug/DebugMacros.h"
+#include "DebugMacros.h"
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QEventLoop>
@@ -129,14 +129,12 @@ QNetworkReply *NetworkSender::send(QNetworkRequest request, QHttpMultiPart *mult
 	DP_NET_SENDER_DETAILS("\tNetworkSender: transmitted to " << request.url() << "; reply.isRunning()=" << reply->isRunning());
 	connect(reply, &QNetworkReply::finished, this, &NetworkSender::onReplyFinished);
 	_timerIds.insert(reply, startTimer(timeout));
-	DP_NET_SENDER_DETAILS("NetworkSender: emit multipartSent(multiPart, reply);");
 	emit multipartSent(multiPart, reply);
-	DP_NET_SENDER_DETAILS("NetworkSender: end");
 	return reply;
 }
 
 void NetworkSender::onReplyFinished() {
-	DP_EVENTS_START()
+	DP_EVENTS_START(onReplyFinished)
 	QNetworkReply *reply(dynamic_cast<QNetworkReply *>(sender()));
 	if(reply != 0) {
 		if(_timerIds.contains(reply)) {
@@ -150,7 +148,7 @@ void NetworkSender::onReplyFinished() {
 			reply->deleteLater();
 		}
 	}
-	DP_EVENTS_END("End")
+	DP_EVENTS_END
 }
 
 void NetworkSender::timerEvent(QTimerEvent *event) {

@@ -4,7 +4,7 @@
 #include <QFile>
 #include <QDateTime>
 
-#include "Debug/DebugMacros.h"
+#include "DebugMacros.h"
 
 
 ExtendedHttpMultiPart::ExtendedHttpMultiPart(QObject *parent) :

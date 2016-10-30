@@ -1,6 +1,6 @@
 #include "LogServer.h"
 
-#include "Debug/DebugMacros.h"
+#include "DebugMacros.h"
 #include <QCoreApplication>
 #include <QThread>
 #include <QDateTime>
@@ -13,17 +13,14 @@ class LogWritter : public QThread {
 public:
 	LogWritter(QString pathname, QString record, QObject *parent = 0);
 
-	virtual ~LogWritter();
+	virtual ~LogWritter() {}
 
 public slots:
 	void run();
 
 private:
 	QString _pathname, _record;
-	static int _instanceCount;
 };
-
-int LogWritter::_instanceCount = 0;
 
 LogServer::LogServer(QString defaultLogPath, QObject *parent) : QObject(parent)
 {
@@ -46,10 +43,7 @@ void LogServer::log(QString filename, QString record) {
 	LogMaintenanceLocker locker(this);
 
 	LogWritter *writter = new LogWritter(pathname(filename), record, this);
-
-//#warning DEBUG ONLY !!!!!!!!!!!!!!!!!!!!!!!
 	writter->start();
-//	delete writter;
 }
 
 QString LogServer::pathname(QString filename) const {
@@ -66,22 +60,9 @@ LogWritter::LogWritter(QString pathname, QString record, QObject *parent) :
 	_pathname(pathname),
 	_record(record)
 {
-	if(!connect(this, &LogWritter::finished, this, &LogWritter::deleteLater)) {
-		DP_LOGWRITER_ERROR("CONNECT FAILED LogWritter::finished");
-	};
-	DP_LOGWRITTER_INSTANCES("(" << ++_instanceCount << ")");
-/*
-#warning DEBUG ONLY
-	connect(this, &LogWritter::finished, this, [this]() {
-		DP_LOGGING_DEBUG("-LogWritter finished-" << this);
-	});
-*/
+	connect(this, &LogWritter::finished, this, &LogWritter::deleteLater);
 }
 
-LogWritter::~LogWritter()
-{
-	DP_LOGWRITTER_INSTANCES("~(" <<--_instanceCount << ")~");
-}
 
 void LogWritter::run() {
 	QFile file(_pathname);
@@ -94,11 +75,9 @@ void LogWritter::run() {
 		file.flush();
 		DP_LOGGING_ACTION("Log WRITTEN:" << _pathname);
 	}
-	else {
-		DP_LOGGING_ERROR("Log ERROR:" << _pathname << file.errorString());
-	}
+	else
+		DP_LOGGING_ERROR(_pathname << file.errorString());
 }
-
 
 LogMaintenanceLocker::LogMaintenanceLocker(LogServer *logServer):
 	_logServer(logServer)

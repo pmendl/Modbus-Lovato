@@ -1,7 +1,7 @@
 #include "NetworkAccessBase.h"
 #include "Globals.h"
 
-#include "Debug/DebugMacros.h"
+#include "DebugMacros.h"
 #include <QUrl>
 #include <QSettings>
 #include <QTimerEvent>

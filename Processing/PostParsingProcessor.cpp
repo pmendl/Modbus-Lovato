@@ -1,7 +1,7 @@
 #include "PostParsingProcessor.h"
 
 #include <QProcess>
-#include "Debug/DebugMacros.h"
+#include "DebugMacros.h"
 #include <QSettings>
 #include HTTP_MULTI_PART_INCLUDE
 #include <QNetworkReply>
@@ -32,7 +32,6 @@ bool PostParsingProcessor::isValid() const
 
 void PostParsingProcessor::process(RequestManager *rm)
 {
-//#warning ONLY FOR DEBUG - UNCOMMENT IMMEDIATELY
 	if(nextOccurance())
 		return;
 
@@ -53,6 +52,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 		return;
 
 	_priority = priority;
+
 	// Adapted from http://doc.qt.io/qt-5/qhttpmultipart.html#details
 	HTTP_MULTI_PART_USED *multiPart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
 
@@ -62,15 +62,12 @@ void PostParsingProcessor::process(RequestManager *rm)
 		multiPart->appendFormData(item.def->name, item.value);
 	}
 	// Adapted code end
+
 	if(_inProcess) {
 		++_delayedCount;
 		DP_DELAYED_COUNT("RequestManager" << rm << ": _delayedCount=" << _delayedCount);
-		delete multiPart;
-		DC_COUNT("_delayedCount");
 		return;
 	}
-
-	DP_NONDELAYED_COUNT("Delayed count = " << _delayedCount);
 
 	_inProcess = true;
 
@@ -78,31 +75,35 @@ void PostParsingProcessor::process(RequestManager *rm)
 		multiPart->appendFormData("delayedCount", QString(QStringLiteral("%1").arg(_delayedCount)));
 		_delayedCount = 0;
 	}
-
+/*
+	QProcess p;
+	p.start("awk", QStringList() << "/MemFree/ { print $0 }" << "/proc/meminfo");
+	p.waitForFinished();
+	DP_MEMORY(Object_id << ":" << p.readAllStandardOutput());
+	p.close();
+*/
 	_multipart = multiPart;
 	_sender.send(_url, multiPart);
 }
 
  void PostParsingProcessor::onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply) {
-	 DP_EVENTS_START();
+	 DP_EVENTS_START(onMultipartSent)
 	 if(multiPart != _multipart) {
-		 DP_EVENTS_END("multiPart != _multipart")
+		 DP_EVENTS_COND("multiPart != _multipart")
 		 return;
 	 }
-	 DC_COUNT("onMultipartSent")
 
 	 connect(reply, &QNetworkReply::finished, this, &PostParsingProcessor::onReplyFinished);
-	 _multipart->setParent(reply);
 	 _multipart=0;
-	 DP_EVENTS_END("End")
+	 DP_EVENTS_END
  }
 
  void PostParsingProcessor::onReplyFinished() {
-	 DP_EVENTS_START()
+	 DP_EVENTS_START(onReplyFinished)
+	 QNetworkReply *reply(static_cast<QNetworkReply *>(sender()));
 	 {
 		 _inProcess = false;
 		 _priority = nullRequestPriority;
 	 }
-	 DC_COUNT("onReplyFinished")
-	 DP_EVENTS_END("End");
+	 DP_EVENTS_END
 }

@@ -1,7 +1,7 @@
 #include "ProcessingManager.h"
 
 #include<QCoreApplication>
-#include "Debug/DebugMacros.h"
+#include "DebugMacros.h"
 #include <QSettings>
 #include <QDir>
 

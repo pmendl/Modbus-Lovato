@@ -1,6 +1,6 @@
 #include "CommandsProcessor.h"
 
-#include "Debug/DebugMacros.h"
+#include "DebugMacros.h"
 #include <QNetworkReply>
 #include <QRegularExpression>
 #include <QFileInfo>

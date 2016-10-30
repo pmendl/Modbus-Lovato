@@ -2,7 +2,7 @@
 
 #include <QStorageInfo>
 
-#include "Debug/DebugMacros.h"
+#include "DebugMacros.h"
 #include <QSettings>
 #include <QDir>
 #include <QRegularExpression>
@@ -33,7 +33,6 @@
 #include "Log/LogCopier.h"
 #include "Commands/CommandsProcessor.h"
 #include "Commands/CommandsList.h"
-#include "Debug/MessageHandler.h"
 
 
 #define STR(X) #X
@@ -76,10 +75,6 @@ const QSet<QString> trueCandidates = {
 int main(int argc, char *argv[])
 {
 	DP_INIT("Modbus application initializing:");
-
-#ifdef USE_MESSAGE_HANDLER
-	qInstallMessageHandler(Debug::myMessageOutput);
-#endif
 
 	/// @warning The code assumes Linux OS to be used, as QSettings::setDefaultFormat(...INI...)
 	/// does not behave properly - at least it reads no groups/values on construction.
@@ -224,29 +219,25 @@ void onCommandReceived(CommandDescriptor descriptor) {
 			D_P("\tRemoved temporary:" << temp);
 
 		if(QFile::exists(target)) {
-			if(QFile::rename(target, temp)) {
+			if(QFile::rename(target, temp))
 				D_P("\tRenamed" << target << "->" << temp);
-			}
 			else {
 				D_P("\tRenaming" << target << "->" << temp << "FAILED!\n\tAborting...");
 				return;
 			}
 		}
 
-		if(QFile::rename(source,target)) {
+		if(QFile::rename(source,target))
 			D_P("\tRenamed" << source << "->" << target);
-		}
 		else {
 			D_P("\tRenaming" << source << "->" << target << "FAILED!\n\tAborting...");
 			return;
 		}
 
-		if(QFile::remove(temp)) {
+		if(QFile::remove(temp))
 			D_P("\tRemoved temporary:" << temp);
-		}
-		else {
+		else
 			D_P("\tFAILED temporary removal!!! File may remain on disk:" << temp);
-		}
 	} else if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_DELETE_VALUE)) {
 		// --- DELETE COMMAND ---
 		QString source(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))));
@@ -258,12 +249,10 @@ void onCommandReceived(CommandDescriptor descriptor) {
 
 		QSharedPointer<LogMaintenanceLocker> lock(processingManager->logServer()->fileMaintenanceLocker());
 
-		if(QFile::remove(source)) {
+		if(QFile::remove(source))
 			D_P("\tRemoved:" << source);
-		}
-		else {
+		else
 			D_P("\tRemoval FAILED !!! File may remain on disk:" << source);
-		}
 	}
 }
 
@@ -586,4 +575,3 @@ void fKeypressFunction(char c) {
 
 	}
 }
-

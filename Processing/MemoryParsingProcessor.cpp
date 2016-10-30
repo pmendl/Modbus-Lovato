@@ -1,15 +1,15 @@
 #include "MemoryParsingProcessor.h"
 
-#include "Debug/DebugMacros.h"
+#include "DebugMacros.h"
 #include <QProcess>
 
 #include "Globals.h"
 #include "Processing/RequestManager.h"
-#include "Debug/MemoryAnalytics.h"
+//#include "Processing/ProcessingManager.h"
 
 /// @file
 
-/// @class MemoryParsingProcessor
+/// @class LogParsingProcessor
 /// @brief Pseudoparser used for reporting free system memory
 ///
 /// In fact usefull only for debugging. Set to some reasonable period to check,
@@ -23,5 +23,9 @@ void MemoryParsingProcessor::process(RequestManager *){
 	if(nextOccurance())
 		return;
 
-	Debug::printMemory();
+	QProcess p;
+	p.start("awk", QStringList() << "/MemFree/ { print $0 }" << "/proc/meminfo");
+	p.waitForFinished();
+	D_P("***" << p.readAllStandardOutput());
+	p.close();
 }
