@@ -27,12 +27,24 @@ public:
 	template <typename T>
 	void appendFormData(QString itemKey, T itemValue);
 
-	void appendFormData(QString itemKey, QString itemValue);
 
 };
+
+template <typename T>
+void ExtendedHttpMultiPart::appendFormData(QString itemKey, T itemValue)
+{
+	appendFormData<QString>(itemKey, QVariant(itemValue).toString());
+}
+
+
+
+template<>
+void ExtendedHttpMultiPart::appendFormData<QString>(QString itemKey, QString itemValue);
+
+
 /*
-template <>
-void ExtendedHttpMultiPart::appendFormData(QString itemKey, QString itemValue) {
+template<>
+void ExtendedHttpMultiPart::appendFormData<QString>(QString itemKey, QString itemValue) {
 	QHttpPart textPart;
 	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
 					   QString(QStringLiteral("form-data; name="))+itemKey);
@@ -40,14 +52,4 @@ void ExtendedHttpMultiPart::appendFormData(QString itemKey, QString itemValue) {
 	append(textPart);
 }
 */
-
-template <typename T>
-void ExtendedHttpMultiPart::appendFormData(QString itemKey, T itemValue)
-{
-	appendFormData(itemKey, QVariant(itemValue).toString());
-//	appendFormData(itemKey, itemValue.toString());
-}
-
-
-
 #endif // EXTENDEDHTTPMULTIPART_H

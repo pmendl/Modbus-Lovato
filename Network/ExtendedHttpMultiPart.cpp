@@ -48,7 +48,8 @@ void ExtendedHttpMultiPart::appendFile(QString itemKey, QIODevice *device, QStri
 	append(part);
 }
 
-void ExtendedHttpMultiPart::appendFormData(QString itemKey, QString itemValue)
+template <>
+void ExtendedHttpMultiPart::appendFormData<QString>(QString itemKey, QString itemValue)
 {
 	QHttpPart textPart;
 	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
@@ -57,6 +58,15 @@ void ExtendedHttpMultiPart::appendFormData(QString itemKey, QString itemValue)
 	append(textPart);
 }
 
+/*
+
+template <typename T>
+void ExtendedHttpMultiPart::appendFormData(QString itemKey, T itemValue)
+{
+	appendFormData<QString>(itemKey, QVariant(itemValue).toString());
+//	appendFormData(itemKey, itemValue.toString());
+}
+*/
 /*
 void ExtendedHttpMultiPart::appendFormData(QString itemKey, QDateTime itemValue) {
 	appendFormData(itemKey, itemValue.toString());

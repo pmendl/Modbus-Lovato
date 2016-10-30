@@ -57,9 +57,9 @@ void PostParsingProcessor::process(RequestManager *rm)
 	HTTP_MULTI_PART_USED *multiPart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
 
 	multiPart->appendFormData("groupName", rm->groupName());
-	multiPart->appendFormData<>("responseTime", QDateTime::currentDateTimeUtc());
+	multiPart->appendFormData("responseTime", QDateTime::currentDateTimeUtc());
 	for ( RequestManager::parsedItem_t item : rm->parsedItems()) {
-		multiPart->appendFormData<>(item.def->name, item.value);
+		multiPart->appendFormData(item.def->name, item.value);
 	}
 	// Adapted code end
 	if(_inProcess) {

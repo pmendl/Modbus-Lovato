@@ -119,23 +119,23 @@ void LogReader::sendReadyFragment() {
 	}
 
 	if(_readyFragment->from().isValid()) {
-		_multiPart->appendFormData<>(POST_ELEMENT_LOG_FROM_NAME, _readyFragment->from());
+		_multiPart->appendFormData(POST_ELEMENT_LOG_FROM_NAME, _readyFragment->from());
 	}
 
 	if(_readyFragment->to().isValid()) {
-		_multiPart->appendFormData<>(POST_ELEMENT_LOG_TO_NAME, _readyFragment->to());
+		_multiPart->appendFormData(POST_ELEMENT_LOG_TO_NAME, _readyFragment->to());
 	}
 
-	_multiPart->appendFormData<>(POST_ELEMENT_LOG_START_INDEX_NAME, _readyFragment->startIndex());
-	_multiPart->appendFormData<>(POST_ELEMENT_LOG_END_INDEX_NAME, _readyFragment->endIndex());
-	_multiPart->appendFormData<>(POST_ELEMENT_LOG_RECORD_COUNT_NAME, _readyFragment->recordCnt());
+	_multiPart->appendFormData(POST_ELEMENT_LOG_START_INDEX_NAME, _readyFragment->startIndex());
+	_multiPart->appendFormData(POST_ELEMENT_LOG_END_INDEX_NAME, _readyFragment->endIndex());
+	_multiPart->appendFormData(POST_ELEMENT_LOG_RECORD_COUNT_NAME, _readyFragment->recordCnt());
 
 	if(_readyFragment->firstFound() != _readyFragment->startIndex()) {
-		_multiPart->appendFormData<>(POST_ELEMENT_LOG_FIRST_FOUND_NAME, _readyFragment->firstFound());
+		_multiPart->appendFormData(POST_ELEMENT_LOG_FIRST_FOUND_NAME, _readyFragment->firstFound());
 	}
 
 	if(_readyFragment->lastFound() != _readyFragment->endIndex()) {
-		_multiPart->appendFormData<>(POST_ELEMENT_LOG_LAST_FOUND_NAME, _readyFragment->lastFound());
+		_multiPart->appendFormData(POST_ELEMENT_LOG_LAST_FOUND_NAME, _readyFragment->lastFound());
 	}
 
 	_sendPending = true;
