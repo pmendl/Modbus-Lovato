@@ -47,7 +47,7 @@ private:
 	NetworkSender _sender;
 	LogFragment *_readyFragment;
 	bool _lastFragment;
-	HTTP_MULTI_PART_USED *_multipart;
+	HTTP_MULTI_PART_USED *_multiPart;
 	bool _sendPending;
 	bool _postFileContent;
 };
