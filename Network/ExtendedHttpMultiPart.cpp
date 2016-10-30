@@ -6,7 +6,6 @@
 
 #include "DebugMacros.h"
 
-
 ExtendedHttpMultiPart::ExtendedHttpMultiPart(QObject *parent) :
 	QHttpMultiPart(parent)
 {
@@ -69,3 +68,16 @@ void ExtendedHttpMultiPart::appendFormData(itemPairsList_t pairList)
 		appendFormData(pair);
 	}
 }
+
+void ExtendedHttpMultiPart::appendToGlobalData(QString itemKey, QVariant itemValue)
+{
+	_globalHttpPairs.append(itemPair_t(itemKey, itemValue));
+}
+
+void ExtendedHttpMultiPart::appendFromGlobalData()
+{
+	appendFormData(_globalHttpPairs);
+	_globalHttpPairs.clear();
+}
+
+ExtendedHttpMultiPart::itemPairsList_t ExtendedHttpMultiPart::_globalHttpPairs;

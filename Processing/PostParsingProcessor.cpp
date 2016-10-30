@@ -70,6 +70,8 @@ void PostParsingProcessor::process(RequestManager *rm)
 
 	_inProcess = true;
 
+	multiPart->appendFromGlobalData();
+
 	if(_delayedCount > 0) {
 		multiPart->appendFormData("delayedCount", QString(QStringLiteral("%1").arg(_delayedCount)));
 		_delayedCount = 0;
