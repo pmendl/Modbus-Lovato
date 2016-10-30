@@ -18,9 +18,6 @@ public:
 	void appendFile(QString itemKey, QIODevice *device,
 					QString fileName = QString(), QString contentTypeHeader = QStringLiteral("text/plain; charset=utf-8"));
 
-
-//	void appendFormData(QString itemKey, QDateTime itemValue);
-//	void appendFormData(QString itemKey, QVariant itemValue);
 	void appendFormData(itemPair_t pair);
 	void appendFormData(itemPairsList_t pairList);
 

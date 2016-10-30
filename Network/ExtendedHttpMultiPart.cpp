@@ -58,24 +58,14 @@ void ExtendedHttpMultiPart::appendFormData<QString>(QString itemKey, QString ite
 	append(textPart);
 }
 
-/*
-
-template <typename T>
-void ExtendedHttpMultiPart::appendFormData(QString itemKey, T itemValue)
+void ExtendedHttpMultiPart::appendFormData(itemPair_t pair)
 {
-	appendFormData<QString>(itemKey, QVariant(itemValue).toString());
-//	appendFormData(itemKey, itemValue.toString());
-}
-*/
-/*
-void ExtendedHttpMultiPart::appendFormData(QString itemKey, QDateTime itemValue) {
-	appendFormData(itemKey, itemValue.toString());
+	appendFormData(pair.first, pair.second);
 }
 
-void ExtendedHttpMultiPart::appendFormData(QString itemKey, QVariant itemValue) {
-	appendFormData(itemKey, itemValue.toString());
+void ExtendedHttpMultiPart::appendFormData(itemPairsList_t pairList)
+{
+	foreach (itemPair_t pair, pairList) {
+		appendFormData(pair);
+	}
 }
-*/
-
-void ExtendedHttpMultiPart::appendFormData(itemPair_t pair) {}
-void ExtendedHttpMultiPart::appendFormData(itemPairsList_t pairList) {}
