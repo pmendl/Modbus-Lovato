@@ -58,10 +58,8 @@
 
 //--- Specialized debug print related macros
 #include "Debug/MemoryAnalytics.h"
-#define DP_EVENTS_START(x) DP_EVENTS_DEBUG(metaObject()->className() << "::" #x "start");\
-	Debug::setMemoryRef();
-#define DP_EVENTS_END(x) DP_EVENTS_DEBUG(metaObject()->className() << "end (" << x << ")");\
-	Debug::printMemory();
+#define DP_EVENTS_START(x) PRINT(Q_FUNC_INFO << "START");
+#define DP_EVENTS_END(x) PRINT(Q_FUNC_INFO << x);
 
 
 

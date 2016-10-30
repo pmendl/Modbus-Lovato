@@ -4,11 +4,19 @@
 
 #include "Globals.h"
 
+ParsingProcessor::ParsingProcessor(QSettings *settings) :
+	_occurance(settings->value(REQUEST_PARSING_OCCURANCE_KEY, REQUEST_PARSING_OCCURANCE_DEFAULT).toUInt()),
+	_actualOccurance(0)
+{}
+
+/*
+
 void ParsingProcessor::setOccurance(QSettings *settings)
 {
 	_occurance = settings->value(REQUEST_PARSING_OCCURANCE_KEY, REQUEST_PARSING_OCCURANCE_DEFAULT).toUInt();
 	_actualOccurance = 0;
 }
+*/
 
 bool ParsingProcessor::nextOccurance() {
 	if(++_actualOccurance < _occurance)

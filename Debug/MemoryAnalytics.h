@@ -3,8 +3,8 @@
 
 namespace Debug {
 	int getMemory();
-	void setMemoryRef();
-	void printMemory();
+	int setMemoryRef(bool doRead = true);
+	int printMemory(bool doRead = true);
 } // Debug
 
 #endif // MEMORYANALYTICS_H

@@ -9,11 +9,11 @@
 #include "Processing/ProcessingManager.h"
 
 LogParsingProcessor::LogParsingProcessor(QSettings *settings, QString group, QSharedPointer<LogServer> logServer) :
+	ParsingProcessor(settings),
 	_logServer(logServer),
 	_logName(settings->value(REQUEST_PARSING_LOG_FILENAME_KEY).toString())
 {
 	setObjectName(ProcessingManager::objectNameFromGroup(LOG_PARSING_PROCESSOR_PREFIX, group));
-	setOccurance(settings);
 
 	if(_logName.isEmpty())
 		_logName = group + QStringLiteral(".log");

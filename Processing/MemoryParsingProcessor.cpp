@@ -5,8 +5,7 @@
 
 #include "Globals.h"
 #include "Processing/RequestManager.h"
-//#include "Processing/ProcessingManager.h"
-
+#include "Network/ExtendedHttpMultiPart.h"
 /// @file
 
 /// @class MemoryParsingProcessor
@@ -15,13 +14,18 @@
 /// In fact usefull only for debugging. Set to some reasonable period to check,
 /// if system lockups are not due to some memory leakage.
 
+MemoryParsingProcessor::MemoryParsingProcessor(QSettings *settings) :
+	ParsingProcessor(settings)
+{}
+
 bool MemoryParsingProcessor::isValid() const {
 	return true;
 }
 
 void MemoryParsingProcessor::process(RequestManager *){
-	if(nextOccurance())
+	if(nextOccurance()) {
 		return;
+	}
 
-	Debug::printMemory();
+	ExtendedHttpMultiPart::appendToGlobalData("memFree", Debug::printMemory());
 }

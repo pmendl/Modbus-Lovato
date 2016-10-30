@@ -20,23 +20,26 @@ int getMemory()
 	return mem;
 }
 
-void setMemoryRef()
+int setMemoryRef(bool doRead)
 {
-	refMem=Debug::getMemory();
+	return refMem=Debug::getMemory();
 }
 
 
-void printMemory()
+int printMemory(bool doRead)
 {
-	int mem(getMemory());
+	int mem;
+	if(doRead) {
+		mem=getMemory();
+	}
 	if(refMem < 0) {
 		D_P("--------- Memory change:" << (mem - lastMem) << "(MemFree:" << mem << "Kb) ---------");
 	}
 	else {
 		D_P("--------- Memory change:" << (mem - lastMem) << "Ref change:" << (mem-refMem) << "(MemFree:" << mem << "Kb) ---------");
 	}
-	lastMem=mem;
 	refMem=-1;
+	return lastMem=mem;
 }
 
 } // namespace

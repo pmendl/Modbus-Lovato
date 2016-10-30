@@ -18,13 +18,13 @@ public:
 	void appendFile(QString itemKey, QIODevice *device,
 					QString fileName = QString(), QString contentTypeHeader = QStringLiteral("text/plain; charset=utf-8"));
 
-	void appendFormData(itemPair_t pair);
-	void appendFormData(itemPairsList_t pairList);
-
 	template <typename T>
 	void appendFormData(QString itemKey, T itemValue);
 
-	void appendToGlobalData(QString itemKey, QVariant itemValue);
+	void appendFormData(itemPair_t pair);
+	void appendFormData(itemPairsList_t pairList);
+
+	static void appendToGlobalData(QString itemKey, QVariant itemValue);
 	void appendFromGlobalData();
 
 

@@ -13,6 +13,7 @@
 #include "Processing/ProcessingManager.h"
 
 PostParsingProcessor::PostParsingProcessor(QSettings *settings, QString group, quint64 timeout) :
+	ParsingProcessor(settings),
 	_url(NetworkSender::parseUrl(settings->value(REQUEST_PARSING_POST_URL_KEY).toString())),
 	_inProcess(false),
 	_priority(nullRequestPriority),
@@ -20,7 +21,6 @@ PostParsingProcessor::PostParsingProcessor(QSettings *settings, QString group, q
 	_timeout(settings->value(REQUEST_PARSING_POST_TIMEOUT_KEY, timeout).toUInt())
 {
 	setObjectName(ProcessingManager::objectNameFromGroup(POST_PARSING_PROCESSOR_PREFIX, group));
-	setOccurance(settings);
 	DP_NET_POSTING_INIT("\t\tParsingProcessor will post to" << _url.url());
 	connect(&_sender, &NetworkSender::multipartSent, this, &PostParsingProcessor::onMultipartSent);
 }
