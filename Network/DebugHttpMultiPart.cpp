@@ -1,7 +1,7 @@
 #include "DebugHttpMultiPart.h"
 
 #include <QProcess>
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 
 
 DebugHttpMultiPart::DebugHttpMultiPart(QObject *parent) :

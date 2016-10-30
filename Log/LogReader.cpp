@@ -6,7 +6,7 @@
 #include <QNetworkReply>
 #include <QBuffer>
 
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include HTTP_MULTI_PART_INCLUDE
 
 #include "Network/NetworkSender.h"
@@ -30,7 +30,7 @@ LogReader::LogReader(QString url, QString pathname, bool postFileContent, QStrin
 	_sender(this, url),
 	_readyFragment(0),
 	_lastFragment(false),
-	_multipart(0),
+	_multiPart(0),
 	_sendPending(false),
 	_postFileContent(postFileContent)
 {
@@ -58,7 +58,7 @@ void LogReader::onFragmentReady(LogFragment *fragment)
 	DP_CMD_LOG_READER_DETAILS("LogReader has new fragment" << fragment << "ready for sending ...");
 	_readyFragment = fragment;
 	checkSending();
-	DP_EVENTS_END
+	DP_EVENTS_END("")
 }
 
 void LogReader::onReplyFinished()
@@ -67,7 +67,7 @@ void LogReader::onReplyFinished()
 	DP_CMD_LOG_READER_DETAILS("LogReader finished HTTP transmit" << static_cast<QNetworkReply*>(sender())->url().url());
 	_sendPending = false;
 	checkSending();
-	DP_EVENTS_END
+	DP_EVENTS_END("")
 }
 
 void LogReader::checkSending()
@@ -87,7 +87,7 @@ void LogReader::checkSending()
 
 void LogReader::onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply) {
 	DP_EVENTS_START(onMultipartSent)
-	if(multiPart != _multipart)
+	if(multiPart != _multiPart)
 		return;
 	connect(reply, &QNetworkReply::finished, this, &LogReader::onReplyFinished);
 }
@@ -96,7 +96,7 @@ void LogReader::sendReadyFragment() {
 	DP_CMD_LOG_READER_DETAILS("LogReader::sendReadyFragment starts HTTP transmit ...");
 	if(_readyFragment == 0) {
 		DP_CMD_LOG_READER_ERROR("LogReader::sendReadyFragment called with zero pointer! ERROR!");
-		DP_EVENTS_COND("LogReader::sendReadyFragment called with zero pointer! ERROR!");
+		DP_EVENTS_END("LogReader::sendReadyFragment called with zero pointer! ERROR!");
 		return;
 	}
 
@@ -104,48 +104,54 @@ void LogReader::sendReadyFragment() {
 		DP_CMD_LOG_READER_ERROR("LogReader::sendReadyFragment aborts as it can not open _readyFragment for reading...");
 		_readyFragment->deleteLater();
 		_readyFragment=0;
-		DP_EVENTS_COND("LogReader::sendReadyFragment aborts as it can not open _readyFragment for reading...");
+		DP_EVENTS_END("LogReader::sendReadyFragment aborts as it can not open _readyFragment for reading...");
 		return;
 	}
 
-	_multipart = new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType, _readyFragment);
+	_multiPart = new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType, _readyFragment);
 
 	if(_postFileContent) {
-		_multipart->appendFile(POST_ELEMENT_LOG_FILE_NAME,_readyFragment, _readyFragment->logfile()->fileName());
+		_multiPart->appendFile(POST_ELEMENT_LOG_FILE_NAME,_readyFragment, _readyFragment->logfile()->fileName());
 	}
 
 	if(!_readyFragment->id().isEmpty()) {
-		_multipart->appendFormData(POST_ELEMENT_LOG_ID_NAME, _readyFragment->id());
+		_multiPart->appendFormData(POST_ELEMENT_LOG_ID_NAME, _readyFragment->id());
 	}
 
 	if(_readyFragment->from().isValid()) {
-		_multipart->appendFormData(POST_ELEMENT_LOG_FROM_NAME, _readyFragment->from());
+		_multiPart->appendFormData(POST_ELEMENT_LOG_FROM_NAME, _readyFragment->from());
 	}
 
 	if(_readyFragment->to().isValid()) {
-		_multipart->appendFormData(POST_ELEMENT_LOG_TO_NAME, _readyFragment->to());
+		_multiPart->appendFormData(POST_ELEMENT_LOG_TO_NAME, _readyFragment->to());
 	}
 
-	_multipart->appendFormData(POST_ELEMENT_LOG_START_INDEX_NAME, _readyFragment->startIndex());
-	_multipart->appendFormData(POST_ELEMENT_LOG_END_INDEX_NAME, _readyFragment->endIndex());
-	_multipart->appendFormData(POST_ELEMENT_LOG_RECORD_COUNT_NAME, _readyFragment->recordCnt());
+	_multiPart->appendFormData(POST_ELEMENT_LOG_START_INDEX_NAME, _readyFragment->startIndex());
+	_multiPart->appendFormData(POST_ELEMENT_LOG_END_INDEX_NAME, _readyFragment->endIndex());
+	_multiPart->appendFormData(POST_ELEMENT_LOG_RECORD_COUNT_NAME, _readyFragment->recordCnt());
 
 	if(_readyFragment->firstFound() != _readyFragment->startIndex()) {
-		_multipart->appendFormData(POST_ELEMENT_LOG_FIRST_FOUND_NAME, _readyFragment->firstFound());
+		_multiPart->appendFormData(POST_ELEMENT_LOG_FIRST_FOUND_NAME, _readyFragment->firstFound());
 	}
 
 	if(_readyFragment->lastFound() != _readyFragment->endIndex()) {
-		_multipart->appendFormData(POST_ELEMENT_LOG_LAST_FOUND_NAME, _readyFragment->lastFound());
+		_multiPart->appendFormData(POST_ELEMENT_LOG_LAST_FOUND_NAME, _readyFragment->lastFound());
 	}
 
 	_sendPending = true;
 	DP_CMD_LOG_READER_DETAILS("\tPosting new HTTP multipart send signal...");
 	bool result(QMetaObject::invokeMethod(&_sender, "sendMultipart", \
-											 Q_ARG(QHttpMultiPart *, static_cast<QHttpMultiPart*>(_multipart))));
+											 Q_ARG(QHttpMultiPart *, static_cast<QHttpMultiPart*>(_multiPart))));
+
+	// Ensures no "result variable unused" warning when DP_CMD_LOG_READER_DETAILS
+	// is defined as NODEBUG() and as such generates no code.
+	// In no case generates any code itself.
+	(void)result;
+
 	DP_CMD_LOG_READER_DETAILS("\tQMetaObject::invokeMethod(sendMultipart...)" << (result ? "Succeeded" : "Failed"));
 
 	processFragment((_readyFragment->nextFragment()));
-	DP_EVENTS_END
+	DP_EVENTS_END("")
 }
 
 void LogReader::processFragment(LogFragment *fragment) {

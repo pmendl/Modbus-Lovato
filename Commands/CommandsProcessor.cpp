@@ -1,6 +1,6 @@
 #include "CommandsProcessor.h"
 
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QNetworkReply>
 #include <QRegularExpression>
 #include <QFileInfo>
@@ -48,7 +48,12 @@ void CommandsProcessor::processHttpReply(QNetworkReply *reply)
 				return;
 			}
 			qint64 count(file.write(buff));
-//			qint64 count(42);
+
+			// Ensures no "result variable unused" warning when DP_CMD_LOG_READER_DETAILS
+			// is defined as NODEBUG() and as such generates no code.
+			// In no case generates any code itself.
+			(void)count;
+
 			DP_COMMANDS_PROCESSOR_DETAILS("\tWritten" << count << "bytes.");
 			file.close();
 		}

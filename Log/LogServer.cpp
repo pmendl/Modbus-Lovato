@@ -1,6 +1,6 @@
 #include "LogServer.h"
 
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QCoreApplication>
 #include <QThread>
 #include <QDateTime>

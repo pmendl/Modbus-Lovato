@@ -1,6 +1,6 @@
 #include "LogFragment.h"
 
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QFile>
 #include <QRegularExpression>
 

@@ -1,6 +1,6 @@
 #include "KeyboardScanner.h"
 
-#include "DebugMacros.h"
+#include "Debug/DebugMacros.h"
 #include <QCoreApplication>
 
 #include <iostream>

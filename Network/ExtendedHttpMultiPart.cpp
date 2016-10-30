@@ -4,8 +4,7 @@
 #include <QFile>
 #include <QDateTime>
 
-#include "DebugMacros.h"
-
+#include "Debug/DebugMacros.h"
 
 ExtendedHttpMultiPart::ExtendedHttpMultiPart(QObject *parent) :
 	QHttpMultiPart(parent)
@@ -48,7 +47,8 @@ void ExtendedHttpMultiPart::appendFile(QString itemKey, QIODevice *device, QStri
 	append(part);
 }
 
-void ExtendedHttpMultiPart::appendFormData(QString itemKey, QString itemValue)
+template <>
+void ExtendedHttpMultiPart::appendFormData<QString>(QString itemKey, QString itemValue)
 {
 	QHttpPart textPart;
 	textPart.setHeader(QNetworkRequest::ContentDispositionHeader,
@@ -57,10 +57,27 @@ void ExtendedHttpMultiPart::appendFormData(QString itemKey, QString itemValue)
 	append(textPart);
 }
 
-void ExtendedHttpMultiPart::appendFormData(QString itemKey, QDateTime itemValue) {
-	appendFormData(itemKey, itemValue.toString());
+void ExtendedHttpMultiPart::appendFormData(itemPair_t pair)
+{
+	appendFormData(pair.first, pair.second);
 }
 
-void ExtendedHttpMultiPart::appendFormData(QString itemKey, QVariant itemValue) {
-	appendFormData(itemKey, itemValue.toString());
+void ExtendedHttpMultiPart::appendFormData(itemPairsList_t pairList)
+{
+	foreach (itemPair_t pair, pairList) {
+		appendFormData(pair);
+	}
 }
+
+void ExtendedHttpMultiPart::appendToGlobalData(QString itemKey, QVariant itemValue)
+{
+	_globalHttpPairs.append(itemPair_t(itemKey, itemValue));
+}
+
+void ExtendedHttpMultiPart::appendFromGlobalData()
+{
+	appendFormData(_globalHttpPairs);
+	_globalHttpPairs.clear();
+}
+
+ExtendedHttpMultiPart::itemPairsList_t ExtendedHttpMultiPart::_globalHttpPairs;
