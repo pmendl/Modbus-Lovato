@@ -39,7 +39,7 @@
 #define XSTR(X) STR(X)
 
 
-ProcessingManager *processingManager;
+QSharedPointer<ProcessingManager> processingManager;
 KeyboardScanner keyboardScanner;
 CommandsProcessor commandsProcessor;
 //NetworkSender sender(TEST_SERVER_HTTP);
@@ -112,9 +112,9 @@ int main(int argc, char *argv[])
 
 #ifdef NO_AUTOMATIC_PROCESSING
 	#warning TESTING ONLY - managed by setting NO_AUTOMATIC_PROCESSING in Globals.h
-	processingManager = new ProcessingManager(&a, true);
+	processingManager.reset(new ProcessingManager(&a, true));
 #else
-	processingManager = new ProcessingManager(&a);
+	processingManager.reset(new ProcessingManager(&a));
 #endif
 
 	QObject::connect(&keyboardScanner, &KeyboardScanner::KeyPressed, &a, &onKeypress);
@@ -183,7 +183,7 @@ void onCommandReceived(CommandDescriptor descriptor) {
 		if(trueCandidates.contains(descriptor.value(QStringLiteral(COMMAND_LOG_PARAMETER_POSTCONTENT_NAME)).toLower())) {
 				postFileContent=true;
 		}
-
+		DP_MEMORY("****************** new LogReader");
 		new LogReader(descriptor.originatorUrl,
 					  processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))),
 					  postFileContent,
@@ -196,6 +196,7 @@ void onCommandReceived(CommandDescriptor descriptor) {
 		// --- COPY COMMAND ---
 		QSharedPointer<LogMaintenanceLocker> lock(processingManager->logServer()->fileMaintenanceLocker());
 
+		DP_MEMORY("****************** new LogCopier");
 		new LogCopier(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))),
 					  processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TARGET_FILE_NAME))),
 					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_PARAMETER_FROM_NAME))),
