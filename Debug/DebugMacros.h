@@ -53,7 +53,7 @@
 
 //--- Temporary debug prints ---
 #define DP_DELAYED_COUNT(x) NO(x)
-#define DP_MEMORY(x) PRINT(x)
+#define DP_MEMORY(x) MARK(x)
 #define DP_PANIC(x) PRINT(x)
 
 //--- Specialized debug print related macros

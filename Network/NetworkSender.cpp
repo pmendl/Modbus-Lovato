@@ -129,12 +129,15 @@ QNetworkReply *NetworkSender::send(QNetworkRequest request, QHttpMultiPart *mult
 	DP_NET_SENDER_DETAILS("\tNetworkSender: transmitted to " << request.url() << "; reply.isRunning()=" << reply->isRunning());
 	connect(reply, &QNetworkReply::finished, this, &NetworkSender::onReplyFinished);
 	_timerIds.insert(reply, startTimer(timeout));
+	DP_MEMORY("NetworkSender::_timerIds size=" << _timerIds.size());
 	emit multipartSent(multiPart, reply);
 	return reply;
 }
 
 void NetworkSender::onReplyFinished() {
 	DP_EVENTS_START(onReplyFinished)
+	DP_MEMORY("NetworkSender::_timerIds size=" << _timerIds.size());
+
 	QNetworkReply *reply(dynamic_cast<QNetworkReply *>(sender()));
 	if(reply != 0) {
 		if(_timerIds.contains(reply)) {
@@ -148,6 +151,7 @@ void NetworkSender::onReplyFinished() {
 			reply->deleteLater();
 		}
 	}
+	DP_MEMORY("NetworkSender::_timerIds size=" << _timerIds.size());
 	DP_EVENTS_END("")
 }
 
