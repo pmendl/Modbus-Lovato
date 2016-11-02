@@ -4,6 +4,7 @@
 
 
 
+
 InstanceCounterBase::InstanceCounterBase(QString classId) :
 	_classId(classId)
 {

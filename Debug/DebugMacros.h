@@ -50,6 +50,7 @@
 
 //--- Object instancing debug prints ---
 #define DP_DEBUGHTTPMULTIPART(x) NO(x)
+#define DP_INSTANCE_COUNTER_BASE(x) PRINT(x)
 
 //--- Temporary debug prints ---
 #define DP_DELAYED_COUNT(x) NO(x)

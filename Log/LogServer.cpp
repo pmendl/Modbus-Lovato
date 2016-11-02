@@ -1,13 +1,15 @@
 #include "LogServer.h"
 
-#include "Debug/DebugMacros.h"
 #include <QCoreApplication>
 #include <QThread>
 #include <QDateTime>
 
 #include "Globals.h"
+#include "Debug/DebugMacros.h"
+#include "Debug/InstanceCounterBase.h"
 
-class LogWritter : public QThread {
+class LogWritter : public QThread, public InstanceCounterBase
+{
 	Q_OBJECT
 
 public:
@@ -57,6 +59,7 @@ bool LogServer::isValid() const
 
 LogWritter::LogWritter(QString pathname, QString record, QObject *parent) :
 	QThread(parent),
+	InstanceCounterBase("LogWritter"),
 	_pathname(pathname),
 	_record(record)
 {
