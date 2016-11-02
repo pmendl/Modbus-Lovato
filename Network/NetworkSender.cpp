@@ -136,7 +136,7 @@ QNetworkReply *NetworkSender::send(QNetworkRequest request, QHttpMultiPart *mult
 
 void NetworkSender::onReplyFinished() {
 	DP_EVENTS_START(onReplyFinished)
-	DP_MEMORY("NetworkSender::_timerIds size=" << _timerIds.size());
+//	DP_MEMORY("NetworkSender::_timerIds size=" << _timerIds.size());
 
 	QNetworkReply *reply(dynamic_cast<QNetworkReply *>(sender()));
 	if(reply != 0) {
@@ -151,13 +151,14 @@ void NetworkSender::onReplyFinished() {
 			reply->deleteLater();
 		}
 	}
-	DP_MEMORY("NetworkSender::_timerIds size=" << _timerIds.size());
+//	DP_MEMORY("NetworkSender::_timerIds size=" << _timerIds.size());
+//	Debug::printMemory();
 	DP_EVENTS_END("")
 }
 
 void NetworkSender::timerEvent(QTimerEvent *event) {
-/*
 	NetworkAccessBase::timerEvent(event);
+/*
 	if(event->isAccepted()) {
 		DP_NETSENDER_TIMEREVENT("TIMER EVENT skipped as accepted !");
 		return;

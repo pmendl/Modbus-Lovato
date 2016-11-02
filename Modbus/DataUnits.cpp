@@ -8,15 +8,31 @@
 
 // ----------------------- Modbus PDU --------------------------------------
 
+ProtocolDataUnit::ProtocolDataUnit(ProtocolDataUnit &pdu) :
+	QByteArray(static_cast<QByteArray>(pdu)),
+	InstanceCounterBase("ProtocolDataUnit")
+{
+	qDebug() << "^^^^^^^^^^^^ PDU 1";
+}
+
 ProtocolDataUnit::ProtocolDataUnit(std::initializer_list<char> l) :
-	QByteArray(l.begin(), l.size())
-{}
+	QByteArray(l.begin(), l.size()),
+	InstanceCounterBase("ProtocolDataUnit")
+{
+	qDebug() << "^^^^^^^^^^^^ PDU 2";
+}
 
 ProtocolDataUnit::ProtocolDataUnit(QByteArray byteArray) :
-	QByteArray(byteArray)
-{}
+	QByteArray(byteArray),
+	InstanceCounterBase("ProtocolDataUnit")
+{
+	qDebug() << "^^^^^^^^^^^^ PDU 3";
 
-ProtocolDataUnit::ProtocolDataUnit(quint8 fn, quint16 address, quint8 regCount) {
+}
+
+ProtocolDataUnit::ProtocolDataUnit(quint8 fn, quint16 address, quint8 regCount) :
+	InstanceCounterBase("ProtocolDataUnit")
+{
 	switch(fn) {
 	case 0x03:
 		append(fn);
@@ -28,7 +44,11 @@ ProtocolDataUnit::ProtocolDataUnit(quint8 fn, quint16 address, quint8 regCount) 
 	}
 }
 
-ProtocolDataUnit::~ProtocolDataUnit() {}
+ProtocolDataUnit::~ProtocolDataUnit()
+{
+	qDebug() << "~~~~~~~~~~~~~~~~~~~~~; PDU";
+
+}
 
 
 qint16 ProtocolDataUnit::commandResolutionSize() const
@@ -94,12 +114,19 @@ qint16 ProtocolDataUnit::aduPostfixSize() const
 // ----------------------- Modbus ADU - serial -----------------------------
 
 ApplicationDataUnitSerial::ApplicationDataUnitSerial(std::initializer_list<char> l) :
-	ProtocolDataUnit(l)
-{}
+	ProtocolDataUnit(l),
+	InstanceCounterBase("ApplicationDataUnitSerial")
+{
+	qDebug() << "^^^^^^^^^^^^ ADU 1";
+
+}
 
 ApplicationDataUnitSerial::ApplicationDataUnitSerial(quint8 address, PDUSharedPtr_t pdu) :
-	ProtocolDataUnit(*pdu)
+	ProtocolDataUnit(*pdu),
+	InstanceCounterBase("ApplicationDataUnitSerial")
 {
+	qDebug() << "^^^^^^^^^^^^ ADU 2";
+
 	prepend(address);
 	quint16 crc(computeCrc());
 	append(crc & 0xFF);
@@ -107,10 +134,16 @@ ApplicationDataUnitSerial::ApplicationDataUnitSerial(quint8 address, PDUSharedPt
 }
 
 ApplicationDataUnitSerial::ApplicationDataUnitSerial(QByteArray qba) :
-	ProtocolDataUnit(qba)
-{}
+	ProtocolDataUnit(qba),
+	InstanceCounterBase("ApplicationDataUnitSerial")
+{
+	qDebug() << "^^^^^^^^^^^^ ADU 3";
 
-ApplicationDataUnitSerial::~ApplicationDataUnitSerial() {}
+}
+
+ApplicationDataUnitSerial::~ApplicationDataUnitSerial() {
+	qDebug() << "~~~~~~ ADU";
+}
 
 bool ApplicationDataUnitSerial::isValid() {
 	return (bytesToRead() == 0) && isCrcValid() ;

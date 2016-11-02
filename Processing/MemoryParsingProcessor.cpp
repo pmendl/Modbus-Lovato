@@ -4,8 +4,11 @@
 #include <QProcess>
 
 #include "Globals.h"
+#include "Debug/MemoryAnalytics.h"
 #include "Processing/RequestManager.h"
 #include "Network/ExtendedHttpMultiPart.h"
+#include "Debug/InstanceCounterBase.h"
+
 /// @file
 
 /// @class MemoryParsingProcessor
@@ -28,4 +31,6 @@ void MemoryParsingProcessor::process(RequestManager *){
 	}
 
 	ExtendedHttpMultiPart::appendToGlobalData("memFree", Debug::printMemory());
+	InstanceCounterBase::print();
+
 }
