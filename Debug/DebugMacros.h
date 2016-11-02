@@ -50,7 +50,6 @@
 
 //--- Object instancing debug prints ---
 #define DP_DEBUGHTTPMULTIPART(x) NO(x)
-#define DP_INSTANCE_COUNTER_BASE(x) MARK(x)
 
 //--- Temporary debug prints ---
 #define DP_DELAYED_COUNT(x) NO(x)
@@ -58,12 +57,10 @@
 #define DP_PANIC(x) PRINT(x)
 
 //--- Specialized debug print related macros
-//#include "Debug/MemoryAnalytics.h"
-//#define DP_EVENTS_START(x) PRINT(Q_FUNC_INFO << "START");
-//#define DP_EVENTS_END(x) PRINT(Q_FUNC_INFO << x);
+#include "Debug/MemoryAnalytics.h"
+#define DP_EVENTS_START(x) PRINT(Q_FUNC_INFO << "START");
+#define DP_EVENTS_END(x) PRINT(Q_FUNC_INFO << x);
 
-#define DP_EVENTS_START(x) NO(x);
-#define DP_EVENTS_END(x) NO(x);
 
 
 #endif // DEBUGMACROS_H

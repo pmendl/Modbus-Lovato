@@ -2,7 +2,6 @@
 #define DATAUNITS_H
 
 #include "Debug/DebugMacros.h"
-#include "Debug/InstanceCounterBase.h"
 #include <QByteArray>
 
 #include <initializer_list>
@@ -11,14 +10,9 @@
 
 class RequestManager;
 
-class ProtocolDataUnit : public QByteArray, public InstanceCounterBase
+class ProtocolDataUnit : public QByteArray
 {
 public:
-
-	explicit ProtocolDataUnit(const ProtocolDataUnit&pdu) = delete;
-	explicit ProtocolDataUnit(ProtocolDataUnit&);
-	explicit ProtocolDataUnit(const volatile ProtocolDataUnit&) = delete;
-	explicit ProtocolDataUnit(volatile ProtocolDataUnit&) = delete;
 	explicit ProtocolDataUnit(std::initializer_list<char> l);
 	explicit ProtocolDataUnit(QByteArray byteArray);
 	explicit ProtocolDataUnit(quint8 fn, quint16 address, quint8 regCount);
@@ -33,7 +27,7 @@ protected:
 	qint16 commandResponseSize() const;
 };
 
-class  ApplicationDataUnitSerial : public ProtocolDataUnit, public InstanceCounterBase
+class  ApplicationDataUnitSerial : public ProtocolDataUnit
 {
 public:
 	explicit ApplicationDataUnitSerial(std::initializer_list<char> l);

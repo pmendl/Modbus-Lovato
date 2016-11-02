@@ -44,7 +44,6 @@ quint8 bytesPerType(RequestManager::itemType_t t, quint8 deflt = sizeof(quint16)
  * @param parent
  */
 RequestManager::RequestManager(QSettings &settings, ProcessingManager *processingManager) :
-	InstanceCounterBase("RequestManager"),
 	QObject(processingManager),
 	_groupName(settings.group().remove(QRegularExpression(".*/"))),
 	_command(0x03),

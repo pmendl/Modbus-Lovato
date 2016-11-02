@@ -9,9 +9,8 @@
 
 #include "Globals.h"
 #include "Modbus/DataUnits.h"
-#include "Debug/InstanceCounterBase.h"
 
-class RequestManager : public QObject, public InstanceCounterBase
+class RequestManager : public QObject
 {
 	Q_OBJECT
 
