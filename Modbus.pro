@@ -49,7 +49,8 @@ SOURCES += main.cpp \
     Network/DebugHttpMultiPart.cpp \
     Network/ExtendedHttpMultiPart.cpp \
     Processing/MemoryParsingProcessor.cpp \
-    Debug/MemoryAnalytics.cpp
+    Debug/MemoryAnalytics.cpp \
+    Debug/InstanceCounterBase.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \
@@ -77,7 +78,8 @@ HEADERS += \
     Network/ExtendedHttpMultiPart.h \
     Processing/MemoryParsingProcessor.h \
     Debug/DebugMacros.h \
-    Debug/MemoryAnalytics.h
+    Debug/MemoryAnalytics.h \
+    Debug/InstanceCounterBase.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \

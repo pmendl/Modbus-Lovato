@@ -3,6 +3,7 @@
 #include <QProcess>
 
 #include "Debug/DebugMacros.h"
+
 namespace Debug {
 
 int lastMem;
