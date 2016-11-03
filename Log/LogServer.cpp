@@ -8,7 +8,7 @@
 #include "Debug/DebugMacros.h"
 #include "Debug/InstanceCounterBase.h"
 
-class LogWritter : public QThread, public InstanceCounterBase
+class LogWritter : public QThread
 {
 	Q_OBJECT
 
@@ -59,7 +59,6 @@ bool LogServer::isValid() const
 
 LogWritter::LogWritter(QString pathname, QString record, QObject *parent) :
 	QThread(parent),
-	InstanceCounterBase("LogWritter"),
 	_pathname(pathname),
 	_record(record)
 {
