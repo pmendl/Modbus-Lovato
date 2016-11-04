@@ -59,6 +59,9 @@ RequestManager::RequestManager(QSettings &settings, ProcessingManager *processin
 		quint8 bytesPerItem= settings.value(REQUEST_BYTES_PER_ITEM, bytesPerType(type)).toUInt();
 		int arraySize = settings.beginReadArray(REQUEST_ARRAY_ITEM_KEY);
 		_registerCount = settings.value(REQUEST_REGISTER_COUNT, arraySize*bytesPerItem/2).toUInt();
+		if(_registerCount) {
+			_request.reset(new ProtocolDataUnit(_command, _address, _registerCount));
+		}
 
 		for (int i = 0; i < arraySize; ++i) {
 			QSharedPointer<dataItemDefinition_t> item(new dataItemDefinition_t);
@@ -129,7 +132,8 @@ quint8 RequestManager::device() const
 }
 
 PDUSharedPtr_t RequestManager::request() {
-	return PDUSharedPtr_t(new ProtocolDataUnit(_command, _address, _registerCount));
+//	return PDUSharedPtr_t(new ProtocolDataUnit(_command, _address, _registerCount));
+	return _request;
 }
 
 QVariant RequestManager::responseItemRaw(QSharedPointer<const dataItemDefinition_t> def) const {
@@ -175,6 +179,7 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 //	response->operator [](2) = 2;
 /******************************************************************************/
 	DP_EVENTS_START(onResponse)
+	qDebug() << "*** RequestManager::onResponse()";
 	if(!response.isNull())
 		DP_PROCESSING_REQUEST("\tRESPONSE: " << response->toHex());
 

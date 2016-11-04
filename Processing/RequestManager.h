@@ -66,6 +66,7 @@ private:
 	PDUSharedPtr_t _response;
 	QBasicTimer _timer;
 	QHash<QString, parsedItem_t> _parsedItems;
+	PDUSharedPtr_t _request;
 };
 
 #endif // REQUESTMANAGER_H

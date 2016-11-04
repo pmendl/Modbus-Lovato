@@ -42,6 +42,9 @@
 #define DEBUG_SUPPRESS_PERIODICAL_REQUESTING_KEY "SuppressPeriodicalRequesting"
 #define DEBUG_SERVER_HTTP_KEY "HttpServer"
 
+// --- Restart processing related ---
+#define RESTART_TIME_REGEXP_KEY "timeRegexp"
+
 // --- Server related ---
 #define SERVER_PANIC_CONNECTIONS_GROUP_KEY "PanicConnections"
 #define SERVER_PANIC_CONNECTIONS_URL_KEY "url"
@@ -84,6 +87,7 @@
 #define REQUEST_PARSING_TYPE_VALUE_POST post
 #define REQUEST_PARSING_TYPE_VALUE_LOG log
 #define REQUEST_PARSING_TYPE_VALUE_MEMORY memory
+#define REQUEST_PARSING_TYPE_VALUE_RESTART restart
 #define REQUEST_PARSING_OCCURANCE_KEY "occurance"
 #define REQUEST_PARSING_OCCURANCE_DEFAULT 1
 

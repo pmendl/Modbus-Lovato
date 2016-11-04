@@ -31,7 +31,7 @@ ProcessingManager::ProcessingManager(QObject *parent, bool suppressPeriodicalReq
 }
 
 void ProcessingManager::onQueryRequest() {
-	// THIS ONE EVENT HANDLER IS SPECIAL in that ti does NOT provide start/end debug prints
+	// THIS ONE EVENT HANDLER IS SPECIAL in that it does NOT provide start/end debug prints
 	// (as it is called too often and produces many other prints)
 
 	// TESTING ONLY - managed by setting Test\SuppressPeriodicalRequesting=true in .INI file
@@ -41,15 +41,20 @@ void ProcessingManager::onQueryRequest() {
 	RequestManager *rm(static_cast<RequestManager*>(sender()));
 	DP_PROCESSING_REQUEST("PROCESSING" << rm->objectName() << ":" << rm);
 	ADUSharedPtr_t req(new ApplicationDataUnitSerial(rm->device(), rm->request()));
-	DP_PROCESSING_REQUEST("\tREQUEST: " << req->toHex());
-	ADUSharedPtr_t response(_serialMaster.process(req));
-	if(response.isNull())
-		DP_PROCESSING_REQUEST("\tNULL RESPONSE!");
-	// Command 0x03 hardwired for now; can get reimplemented more flexible later
-	else if(response->extractAt<char>(0) != 0x03) {
-			DP_PROCESSING_REQUEST("\tERROR RESPONSE!");
+	if(req->size()<=(req->aduPrefixSize()+req->aduPostfixSize())) {
+		rm->onResponse(PDUSharedPtr_t());
+	}
+	else {
+		DP_PROCESSING_REQUEST("\tREQUEST: " << req->toHex());
+		ADUSharedPtr_t response(_serialMaster.process(req));
+		if(response.isNull())
+			DP_PROCESSING_REQUEST("\tNULL RESPONSE!");
+		// Command 0x03 hardwired for now; can get reimplemented more flexible later
+		else if(response->extractAt<char>(0) != 0x03) {
+				DP_PROCESSING_REQUEST("\tERROR RESPONSE!");
+		};
+		rm->onResponse(response);
 	};
-	rm->onResponse(response);
 }
 
 bool ProcessingManager::suppressPeriodicalRequesting() const
@@ -77,6 +82,8 @@ QSharedPointer<ParsingProcessor> ProcessingManager::processor(QSettings *setting
 		p.reset(new LogParsingProcessor(settings, group, _logServer));
 	else if(settings->value(REQUEST_PARSING_TYPE_KEY) == xstr(REQUEST_PARSING_TYPE_VALUE_MEMORY))
 		p.reset(new MemoryParsingProcessor(settings));
+	else if(settings->value(REQUEST_PARSING_TYPE_KEY) == xstr(REQUEST_PARSING_TYPE_VALUE_RESTART))
+		p.reset(new RestartParsingProcessor(settings));
 
 	if(!p.isNull() && p->isValid()) {
 		DP_PROCESSING_INIT("\t\tProcessingManager::processor returns" << p);

@@ -98,8 +98,10 @@ ApplicationDataUnitSerial::ApplicationDataUnitSerial(std::initializer_list<char>
 {}
 
 ApplicationDataUnitSerial::ApplicationDataUnitSerial(quint8 address, PDUSharedPtr_t pdu) :
-	ProtocolDataUnit(*pdu)
-{
+	ProtocolDataUnit(pdu.isNull() ? QByteArray(reinterpret_cast<const char*>(&address), 1) : *pdu)
+{	
+	if(pdu.isNull()) return;
+
 	prepend(address);
 	quint16 crc(computeCrc());
 	append(crc & 0xFF);
