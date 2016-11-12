@@ -9,9 +9,7 @@
 RestartParsingProcessor::RestartParsingProcessor(QSettings *settings) :
 	ParsingProcessor(settings),
 	_regexp(settings->value(RESTART_TIME_REGEXP_KEY).toString())
-{
-	qDebug() << "***" << _regexp.pattern();
-}
+{}
 
 bool RestartParsingProcessor::isValid() const
 {

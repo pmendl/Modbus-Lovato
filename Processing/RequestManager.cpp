@@ -179,7 +179,6 @@ void RequestManager::onResponse(PDUSharedPtr_t response) {
 //	response->operator [](2) = 2;
 /******************************************************************************/
 	DP_EVENTS_START(onResponse)
-	qDebug() << "*** RequestManager::onResponse()";
 	if(!response.isNull())
 		DP_PROCESSING_REQUEST("\tRESPONSE: " << response->toHex());
 
