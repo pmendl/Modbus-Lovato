@@ -196,20 +196,7 @@ void onHTTPreply(QNetworkReply *reply) {
 }
 
 void onCommandReceived(CommandDescriptor descriptor) {	
-/*
-	if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_COPY_VALUE)) {
-		// --- COPY COMMAND ---
-		printCommandReceived(descriptor);
-		QSharedPointer<LogMaintenanceLocker> lock(processingManager->logServer()->fileMaintenanceLocker());
-
-		DP_MEMORY("****************** new LogCopier");
-		new LogCopier(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))),
-					  processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TARGET_FILE_NAME))),
-					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_PARAMETER_FROM_NAME))),
-					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TO_NAME))),
-					  descriptor.value(QStringLiteral(COMMAND_PARAMETER_GROUP_NAME))
-					  );
-	} else */ if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_REPLACE_VALUE)) {
+	if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_REPLACE_VALUE)) {
 		// --- REPLACE COMMAND ---
 		printCommandReceived(descriptor);
 		QString source(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME)))),

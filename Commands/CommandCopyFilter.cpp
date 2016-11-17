@@ -9,7 +9,6 @@
 
 CommandCopyFilter::CommandCopyFilter(QSharedPointer<LogServer> logServer, QObject *parent,
 						  void (*preprocessValidCommand)(CommandDescriptor &descriptor)) :
-//CommandLogFilter::CommandLogFilter(QSharedPointer<LogServer> logServer, QObject *parent) :
 	QObject(parent),
 	_logServer(logServer),
 	_preprocessValidCommand(preprocessValidCommand)
