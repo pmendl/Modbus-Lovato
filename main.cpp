@@ -34,6 +34,8 @@
 #include "Commands/CommandsList.h"
 #include "Commands/CommandLogFilter.h"
 #include "Commands/CommandCopyFilter.h"
+#include "Commands/CommandReplaceFilter.h"
+#include "Commands/CommandDeleteFilter.h"
 
 
 #define STR(X) #X
@@ -50,7 +52,6 @@ CommandsProcessor commandsProcessor;
 // Early declaration of various signal-processing functions, defined below main()
 void onKeypress(char c);
 void onHTTPreply(QNetworkReply *reply);
-void onCommandReceived(CommandDescriptor descriptor);
 void defaultKeypressFunction(char c);
 
 
@@ -91,6 +92,15 @@ void constructCommandFilters(QObject *parent)
 															printCommandReceived));
 	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
 					 commandCopyFilter, &CommandCopyFilter::onCommandReceived);
+	CommandReplaceFilter *commandReplaceFilter(new CommandReplaceFilter(processingManager->logServer(), parent,
+															printCommandReceived));
+	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
+					 commandReplaceFilter, &CommandReplaceFilter::onCommandReceived);
+	CommandDeleteFilter *commandDeleteFilter(new CommandDeleteFilter(processingManager->logServer(), parent,
+															printCommandReceived));
+	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
+					 commandDeleteFilter, &CommandDeleteFilter::onCommandReceived);
+
 }
 
 int main(int argc, char *argv[])
@@ -145,8 +155,6 @@ int main(int argc, char *argv[])
 					 &onHTTPreply);
 	QObject::connect(NetworkSender::commandsDistributor(), &CommandsDistributor::commandReplyReceived,
 					 &commandsProcessor, &CommandsProcessor::processHttpReply);
-	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
-					 &onCommandReceived);
 
 	DP_PROCESSING_INIT("------------------------------");
 
@@ -191,64 +199,6 @@ void onHTTPreply(QNetworkReply *reply) {
 
 		DP_NET_HTTP_REPLY_DETAILS("End of HTTP response data");
 
-	}
-
-}
-
-void onCommandReceived(CommandDescriptor descriptor) {	
-	if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_REPLACE_VALUE)) {
-		// --- REPLACE COMMAND ---
-		printCommandReceived(descriptor);
-		QString source(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME)))),
-				target(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TARGET_FILE_NAME)))),
-				temp(target.section(QChar('.'),0,-2)+QStringLiteral(".old"));
-
-		if((source.isEmpty() || target.isEmpty())) {
-			D_P("\tSource and/or target parameter missing or invalid:" << source << "->" << target << "\n\tAborting...");
-			return;
-		}
-
-		QSharedPointer<LogMaintenanceLocker> lock(processingManager->logServer()->fileMaintenanceLocker());
-
-		if(QFile::remove(temp))
-			D_P("\tRemoved temporary:" << temp);
-
-		if(QFile::exists(target)) {
-			if(QFile::rename(target, temp))
-				D_P("\tRenamed" << target << "->" << temp);
-			else {
-				D_P("\tRenaming" << target << "->" << temp << "FAILED!\n\tAborting...");
-				return;
-			}
-		}
-
-		if(QFile::rename(source,target))
-			D_P("\tRenamed" << source << "->" << target);
-		else {
-			D_P("\tRenaming" << source << "->" << target << "FAILED!\n\tAborting...");
-			return;
-		}
-
-		if(QFile::remove(temp))
-			D_P("\tRemoved temporary:" << temp);
-		else
-			D_P("\tFAILED temporary removal!!! File may remain on disk:" << temp);
-	} else if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_DELETE_VALUE)) {
-		// --- DELETE COMMAND ---
-		printCommandReceived(descriptor);
-		QString source(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))));
-
-		if(source.isEmpty()) {
-			D_P("\tSource parameter missing or invalid:" << source << "\n\tAborting...");
-			return;
-		}
-
-		QSharedPointer<LogMaintenanceLocker> lock(processingManager->logServer()->fileMaintenanceLocker());
-
-		if(QFile::remove(source))
-			D_P("\tRemoved:" << source);
-		else
-			D_P("\tRemoval FAILED !!! File may remain on disk:" << source);
 	}
 
 }
