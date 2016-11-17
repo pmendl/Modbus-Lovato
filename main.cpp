@@ -84,22 +84,22 @@ void printCommandReceived(CommandDescriptor &descriptor)
 // and commandsProcessor got initialized.
 void constructCommandFilters(QObject *parent)
 {
-	CommandLogFilter *commandLogFilter(new CommandLogFilter(processingManager->logServer(), parent,
-															printCommandReceived));
 	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
-					 commandLogFilter, &CommandLogFilter::onCommandReceived);
-	CommandCopyFilter *commandCopyFilter(new CommandCopyFilter(processingManager->logServer(), parent,
-															printCommandReceived));
+					 new CommandLogFilter(processingManager->logServer(), parent,
+										  printCommandReceived),
+					 &CommandLogFilter::onCommandReceived);
 	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
-					 commandCopyFilter, &CommandCopyFilter::onCommandReceived);
-	CommandReplaceFilter *commandReplaceFilter(new CommandReplaceFilter(processingManager->logServer(), parent,
-															printCommandReceived));
+					 new CommandCopyFilter(processingManager->logServer(), parent,
+										   printCommandReceived),
+					 &CommandCopyFilter::onCommandReceived);
 	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
-					 commandReplaceFilter, &CommandReplaceFilter::onCommandReceived);
-	CommandDeleteFilter *commandDeleteFilter(new CommandDeleteFilter(processingManager->logServer(), parent,
-															printCommandReceived));
+					 new CommandReplaceFilter(processingManager->logServer(), parent,
+											  printCommandReceived),
+					 &CommandReplaceFilter::onCommandReceived);
 	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
-					 commandDeleteFilter, &CommandDeleteFilter::onCommandReceived);
+					 new CommandDeleteFilter(processingManager->logServer(), parent,
+											  printCommandReceived),
+					 &CommandDeleteFilter::onCommandReceived);
 
 }
 
