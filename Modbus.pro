@@ -52,7 +52,8 @@ SOURCES += main.cpp \
     Debug/MemoryAnalytics.cpp \
     Debug/InstanceCounterBase.cpp \
     Processing/RestartParsingProcessor.cpp \
-    Commands/CommandLogFilter.cpp
+    Commands/CommandLogFilter.cpp \
+    Commands/CommandCopyFilter.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \
@@ -83,7 +84,8 @@ HEADERS += \
     Debug/MemoryAnalytics.h \
     Debug/InstanceCounterBase.h \
     Processing/RestartParsingProcessor.h \
-    Commands/CommandLogFilter.h
+    Commands/CommandLogFilter.h \
+    Commands/CommandCopyFilter.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \

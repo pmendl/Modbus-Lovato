@@ -33,6 +33,7 @@
 #include "Commands/CommandsProcessor.h"
 #include "Commands/CommandsList.h"
 #include "Commands/CommandLogFilter.h"
+#include "Commands/CommandCopyFilter.h"
 
 
 #define STR(X) #X
@@ -82,11 +83,14 @@ void printCommandReceived(CommandDescriptor &descriptor)
 // and commandsProcessor got initialized.
 void constructCommandFilters(QObject *parent)
 {
-	CHECKPOINT("Alpha");
 	CommandLogFilter *commandLogFilter(new CommandLogFilter(processingManager->logServer(), parent,
 															printCommandReceived));
 	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
 					 commandLogFilter, &CommandLogFilter::onCommandReceived);
+	CommandCopyFilter *commandCopyFilter(new CommandCopyFilter(processingManager->logServer(), parent,
+															printCommandReceived));
+	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
+					 commandCopyFilter, &CommandCopyFilter::onCommandReceived);
 }
 
 int main(int argc, char *argv[])
@@ -192,7 +196,7 @@ void onHTTPreply(QNetworkReply *reply) {
 }
 
 void onCommandReceived(CommandDescriptor descriptor) {	
-
+/*
 	if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_COPY_VALUE)) {
 		// --- COPY COMMAND ---
 		printCommandReceived(descriptor);
@@ -205,7 +209,7 @@ void onCommandReceived(CommandDescriptor descriptor) {
 					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TO_NAME))),
 					  descriptor.value(QStringLiteral(COMMAND_PARAMETER_GROUP_NAME))
 					  );
-	} else if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_REPLACE_VALUE)) {
+	} else */ if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_REPLACE_VALUE)) {
 		// --- REPLACE COMMAND ---
 		printCommandReceived(descriptor);
 		QString source(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME)))),
