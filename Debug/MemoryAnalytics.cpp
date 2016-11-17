@@ -1,8 +1,8 @@
 #include "Debug/MemoryAnalytics.h"
 
-#include <QProcess>
 
 #include "Debug/DebugMacros.h"
+#include "System/Memory.h"
 
 namespace Debug {
 
@@ -11,27 +11,16 @@ int refMem;
 
 using namespace Debug;
 
-int getMemory()
-{
-	QProcess p;
-	p.start("awk", QStringList() << "/MemFree/ { print $2 }" << "/proc/meminfo");
-	p.waitForFinished();
-	int mem(QString::fromUtf8(p.readLine()).toInt());
-	p.close();
-	return mem;
-}
-
 int setMemoryRef(bool doRead)
 {
-	return refMem=Debug::getMemory();
+	return refMem=System::getMemory();
 }
-
 
 int printMemory(bool doRead)
 {
 	int mem;
 	if(doRead) {
-		mem=getMemory();
+		mem=System::getMemory();
 	}
 	if(refMem < 0) {
 		D_P("--------- Memory change:" << (mem - lastMem) << "(MemFree:" << mem << "Kb) ---------");

@@ -55,7 +55,8 @@ SOURCES += main.cpp \
     Commands/CommandLogFilter.cpp \
     Commands/CommandCopyFilter.cpp \
     Commands/CommandReplaceFilter.cpp \
-    Commands/CommandDeleteFilter.cpp
+    Commands/CommandDeleteFilter.cpp \
+    System/Memory.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \
@@ -89,7 +90,8 @@ HEADERS += \
     Commands/CommandLogFilter.h \
     Commands/CommandCopyFilter.h \
     Commands/CommandReplaceFilter.h \
-    Commands/CommandDeleteFilter.h
+    Commands/CommandDeleteFilter.h \
+    System/Memory.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \
