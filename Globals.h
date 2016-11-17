@@ -35,6 +35,15 @@
 #define HTTP_MULTI_PART_INCLUDE "Network/ExtendedHttpMultiPart.h"
 #define HTTP_MULTI_PART_USED ExtendedHttpMultiPart
 
+/******************************************************************************
+ * Key responseType removed from other then null response postings
+ * as it is context-deducible.
+ *
+ * To make it appear again comment following #define line.
+ ******************************************************************************/
+#define NO_RESPONSE_TYPE_KEY_USED
+
+
 // === Settings keys ===
 // --- Debugging and testing ---
 #define DEBUG_SERVER_HTTP_DEFAULT "http://mirtes.wz.cz/import.php"
@@ -163,13 +172,11 @@ extern void printMemory();
 #define xstr(s) str(s)
 #define str(s) #s
 
-/******************************************************************************
- * Key responseType removed from other then null response postings
- * as it is context-deducible.
- *
- * To make it appear again comment following #define line.
- ******************************************************************************/
-#define NO_RESPONSE_TYPE_KEY_USED
+
+// Used for .INI to bool transformations/checking
+extern const QSet<QString> trueCandidates;
+
+
 
 
 #endif // GLOBALS_H

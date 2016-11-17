@@ -14,6 +14,8 @@
 #define MARK(x) D_P("*** " << x)
 #define NO(x) NODEBUG(x)
 
+#define CHECKPOINT(x) D_P("*** CHECKPOINT " x);
+
 //========== Enable or disable various debug prints here ==========
 #define DP_INIT(x) PRINT(x)						// Application initialization
 #define DP_PROCESSING_INIT(x) PRINT(x)			// Processing manager initialization
@@ -30,6 +32,7 @@
 #define DP_COMMANDS_PROCESSOR(x) PRINT(x)			// CommandsProcessor activation
 #define DP_COMMANDS_PROCESSOR_DETAILS(x) NO(x)	// CommandsProcessor details
 #define DP_COMMANDS_PROCESSOR_ERROR(x) PRINT(x)	// CommandsProcessor errors
+#define DP_COMMAND(x) PRINT(x)						// Command implementing object activation
 #define DP_NET_POSTING_INIT(x) PRINT(x)			// PostParsingProcessor initialization
 #define DP_NET_SENDER_SEND(x) PRINT(x)			// NetworkSender send action
 #define DP_NET_SENDER_ERROR(x) PRINT(x)			// NetworkSender errors

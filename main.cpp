@@ -2,14 +2,12 @@
 
 #include <QStorageInfo>
 
-#include "Debug/DebugMacros.h"
 #include <QSettings>
 #include <QDir>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QBuffer>
 #include <Globals.h>
-#include HTTP_MULTI_PART_INCLUDE
 #include <QDateTime>
 #include <QNetworkReply>
 #include <QSharedPointer>
@@ -19,10 +17,11 @@
 #include <limits>
 #include <unistd.h>
 
-#include "Console/KeyboardScanner.h"
 
+#include "Debug/DebugMacros.h"
 #include "Globals.h"
 #include HTTP_MULTI_PART_INCLUDE
+#include "Console/KeyboardScanner.h"
 #include "Modbus/DataUnits.h"
 #include "Modbus/ModbusSerialMaster.h"
 #include "Processing/ProcessingManager.h"
@@ -33,6 +32,7 @@
 #include "Log/LogCopier.h"
 #include "Commands/CommandsProcessor.h"
 #include "Commands/CommandsList.h"
+#include "Commands/CommandLogFilter.h"
 
 
 #define STR(X) #X
@@ -41,10 +41,10 @@
 
 QSharedPointer<ProcessingManager> processingManager;
 KeyboardScanner keyboardScanner;
-CommandsProcessor commandsProcessor;
 //NetworkSender sender(TEST_SERVER_HTTP);
 NetworkSender sender;
 
+CommandsProcessor commandsProcessor;
 
 // Early declaration of various signal-processing functions, defined below main()
 void onKeypress(char c);
@@ -71,6 +71,23 @@ const QSet<QString> trueCandidates = {
 	QStringLiteral("yes")
 };
 
+#warning Adapt later according to http://stackoverflow.com/questions/40652599/invalid-conversion-from-const-parameter-to-parameter-seems-to-be-nonsense
+void printCommandReceived(CommandDescriptor &descriptor)
+{
+	DP_COMMAND("\n--------------- COMMAND:" << descriptor.value(QStringLiteral(COMMAND_NAME)).toUpper() << "---------------");
+	DP_COMMAND("\tFull command descriptor:"<< descriptor);
+}
+
+// Has to be called (exactly) once, after processingManager
+// and commandsProcessor got initialized.
+void constructCommandFilters(QObject *parent)
+{
+	CHECKPOINT("Alpha");
+	CommandLogFilter *commandLogFilter(new CommandLogFilter(processingManager->logServer(), parent,
+															printCommandReceived));
+	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
+					 commandLogFilter, &CommandLogFilter::onCommandReceived);
+}
 
 int main(int argc, char *argv[])
 {
@@ -116,6 +133,8 @@ int main(int argc, char *argv[])
 #else
 	processingManager.reset(new ProcessingManager(&a));
 #endif
+
+	constructCommandFilters(&a);
 
 	QObject::connect(&keyboardScanner, &KeyboardScanner::KeyPressed, &a, &onKeypress);
 	QObject::connect(NetworkSender::commandsDistributor(), &CommandsDistributor::commandReplyReceived,
@@ -172,28 +191,11 @@ void onHTTPreply(QNetworkReply *reply) {
 
 }
 
-void onCommandReceived(CommandDescriptor descriptor) {
-	D_P("\n--------------- COMMAND:" << descriptor.value(QStringLiteral(COMMAND_NAME)).toUpper() << "---------------");
+void onCommandReceived(CommandDescriptor descriptor) {	
 
-	D_P("\tFull command descriptor:"<< descriptor);
-
-	if(descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_LOG_VALUE)) {
-		// --- LOG COMMAND ---
-		bool postFileContent(false);
-		if(trueCandidates.contains(descriptor.value(QStringLiteral(COMMAND_LOG_PARAMETER_POSTCONTENT_NAME)).toLower())) {
-				postFileContent=true;
-		}
-		DP_MEMORY("****************** new LogReader");
-		new LogReader(descriptor.originatorUrl,
-					  processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))),
-					  postFileContent,
-					  descriptor.value(QStringLiteral(COMMAND_LOG_PARAMETER_ID_NAME)),
-					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_PARAMETER_FROM_NAME))),
-					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TO_NAME))),
-					  descriptor.value(QStringLiteral(COMMAND_PARAMETER_GROUP_NAME))
-					  );
-	} else if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_COPY_VALUE)) {
+	if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_COPY_VALUE)) {
 		// --- COPY COMMAND ---
+		printCommandReceived(descriptor);
 		QSharedPointer<LogMaintenanceLocker> lock(processingManager->logServer()->fileMaintenanceLocker());
 
 		DP_MEMORY("****************** new LogCopier");
@@ -205,6 +207,7 @@ void onCommandReceived(CommandDescriptor descriptor) {
 					  );
 	} else if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_REPLACE_VALUE)) {
 		// --- REPLACE COMMAND ---
+		printCommandReceived(descriptor);
 		QString source(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME)))),
 				target(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TARGET_FILE_NAME)))),
 				temp(target.section(QChar('.'),0,-2)+QStringLiteral(".old"));
@@ -241,6 +244,7 @@ void onCommandReceived(CommandDescriptor descriptor) {
 			D_P("\tFAILED temporary removal!!! File may remain on disk:" << temp);
 	} else if (descriptor.value(QStringLiteral(COMMAND_NAME)) == QStringLiteral(COMMAND_DELETE_VALUE)) {
 		// --- DELETE COMMAND ---
+		printCommandReceived(descriptor);
 		QString source(processingManager->logServer()->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))));
 
 		if(source.isEmpty()) {
@@ -255,6 +259,7 @@ void onCommandReceived(CommandDescriptor descriptor) {
 		else
 			D_P("\tRemoval FAILED !!! File may remain on disk:" << source);
 	}
+
 }
 
 void onKeypress(char c) {
