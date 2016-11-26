@@ -21,7 +21,6 @@ void CommandLogFilter::onCommandReceived(CommandDescriptor descriptor)
 		if(trueCandidates.contains(descriptor.value(QStringLiteral(COMMAND_LOG_PARAMETER_POSTCONTENT_NAME)).toLower())) {
 				postFileContent=true;
 		}
-		DP_MEMORY("----------------------> new LogReader");
 		new LogReader(descriptor.originatorUrl,
 					  _logServer->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))),
 					  postFileContent,

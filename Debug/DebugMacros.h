@@ -17,6 +17,7 @@
 #define CHECKPOINT(x) D_P("*** CHECKPOINT " x);
 
 //========== Enable or disable various debug prints here ==========
+#define DP_SHOULD_NOT_OCCURE_ERROR(x) MARK(x)	// Condidions that should never be met
 #define DP_INIT(x) PRINT(x)						// Application initialization
 #define DP_PROCESSING_INIT(x) PRINT(x)			// Processing manager initialization
 #define DP_REQUESTMANAGER_INIT(x) PRINT(x)		// Request manager initialization
@@ -41,7 +42,7 @@
 #define DP_NET_HTTP_REPLY_DETAILS(x) NO(x)	// HTTP response details
 #define DP_CMD_LOG_READER(x) PRINT(x)				// LogReader object major actions
 #define DP_CMD_LOG_READER_ERROR(x) PRINT(x)		// LogReader object errors
-#define DP_CMD_LOG_READER_DETAILS(x) NO(x)	// LogReader object details
+#define DP_CMD_LOG_READER_DETAILS(x) PRINT(x)	// LogReader object details
 #define DP_CMD_LOG_COPIER(x) PRINT(x)				// LogCopier object instantiation
 #define DP_CMD_LOG_COPIER_ERROR(x) PRINT(x)		// LogCopier object errors
 #define DP_CMD_LOG_COPIER_DETAILS(x) NO(x)	// LogCopier object details
@@ -49,7 +50,7 @@
 #define DP_CMD_LOG_FRAGMENT_ERROR(x) PRINT(x)		// LogFragment object errors
 #define DP_CMD_LOG_FRAGMENT_DETAILS(x) NO(x)	// LogFragment object details
 #define DP_KEYPRES_DEBUG(x) NO(x)			// Emition of keypress event
-#define DP_EVENTS_DEBUG(x)	MARK(x)			// Entering and exiting of event processing
+#define DP_RESET_ERROR(x) MARK(x)						// Reset protection associated errors
 
 //--- Object instancing debug prints ---
 #define DP_DEBUGHTTPMULTIPART(x) NO(x)

@@ -93,7 +93,7 @@ void LogReader::onMultipartSent(QHttpMultiPart *multiPart, QNetworkReply *reply)
 }
 
 void LogReader::sendReadyFragment() {
-	DP_CMD_LOG_READER_DETAILS("LogReader::sendReadyFragment starts HTTP transmit ...");
+	DP_CMD_LOG_READER_DETAILS("LogReader::sendReadyFragment starts new fragment processing:" << _readyFragment);
 	if(_readyFragment == 0) {
 		DP_CMD_LOG_READER_ERROR("LogReader::sendReadyFragment called with zero pointer! ERROR!");
 		DP_EVENTS_END("LogReader::sendReadyFragment called with zero pointer! ERROR!");
@@ -108,6 +108,16 @@ void LogReader::sendReadyFragment() {
 		return;
 	}
 
+	DP_CMD_LOG_READER_DETAILS("bytesAvailable =" << _readyFragment->bytesAvailable());
+	if(_readyFragment->bytesAvailable() <= 0) {
+		DP_CMD_LOG_READER_DETAILS("LogReader::sendReadyFragment not sending empty fragment:" << _readyFragment);
+		_readyFragment->deleteLater();
+		_readyFragment=0;
+		return;
+	}
+
+
+	DP_CMD_LOG_READER_DETAILS("LogReader::sendReadyFragment starts HTTP transmit ...");
 	_multiPart = new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType, _readyFragment);
 
 	if(_postFileContent) {
@@ -156,17 +166,20 @@ void LogReader::sendReadyFragment() {
 
 void LogReader::processFragment(LogFragment *fragment) {
 	_readyFragment = 0;
-	if(!fragment) {
+	if(!fragment || fragment->bytesAvailable() <= 0) {
 		_lastFragment = true;
+		DP_CMD_LOG_READER_DETAILS("\tNo more fragments to process...");
 		checkSending();
 		return;
 	}
 	DP_CMD_LOG_READER_DETAILS("\tStarting processing of new fragment...");
 	connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
+/*
 	connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
 		DP_CMD_LOG_READER_ERROR("LogReader detected fragmentFailed on" << fragment);
 		fragment->deleteLater();
 		deleteLater();
 	});
+*/
 	QMetaObject::invokeMethod(fragment, "fillFragment");
 }

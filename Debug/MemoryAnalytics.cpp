@@ -13,12 +13,15 @@ using namespace Debug;
 
 int setMemoryRef(bool doRead)
 {
-	return refMem=System::getMemory();
+	if(doRead)
+		return refMem=System::getMemory();
+	else
+		return refMem=lastMem;
 }
 
 int printMemory(bool doRead)
 {
-	int mem;
+	int mem(lastMem);
 	if(doRead) {
 		mem=System::getMemory();
 	}

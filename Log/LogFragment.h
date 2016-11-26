@@ -16,7 +16,7 @@ public slots:
 
 signals:
 	void fragmentReady(LogFragment *);
-	void fragmentFailed(LogFragment *);
+//	void fragmentFailed(LogFragment *);
 
 public:
 	LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QString id,
@@ -33,6 +33,8 @@ public:
 			QString group, QObject *parent = 0, QThread *workingThread = 0);
 
 	LogFragment *nextFragment(QThread *workingThread = 0);
+
+	~LogFragment();
 
 /* Getters */
 	QDateTime from() const;

@@ -1,10 +1,11 @@
 #include "LogFragment.h"
 
-#include "Debug/DebugMacros.h"
 #include <QFile>
 #include <QRegularExpression>
 
+#include "Debug/DebugMacros.h"
 #include "Globals.h"
+#include "System/Reset.h"
 
 LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent,
 		QDateTime from, QDateTime to,
@@ -44,7 +45,12 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QS
 
 	if(!_logFile->isOpen()) {
 		DP_CMD_LOG_FRAGMENT_ERROR("LogFragment aborted as log file could not get opened...");
-		emit fragmentFailed(this);
+		return;
+	}
+
+	if(!System::startResetSensitiveProcess(RESET_PRIORITY_BULK)) {
+		DP_RESET_ERROR("NOT CONSTRUCTING NEW LOG FRAGMENT: Reset protection in progress.");
+		_lastFragment=true;
 		return;
 	}
 
@@ -52,6 +58,10 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QS
 		DP_CMD_LOG_FRAGMENT("LogFragment moving to thread" << _workingThread);
 		moveToThread(_workingThread);
 	}
+}
+
+LogFragment::~LogFragment() {
+	System::endResetSensitiveProcess(RESET_PRIORITY_BULK);
 }
 
 void LogFragment::fillFragment(void)

@@ -34,17 +34,20 @@ LogCopier::LogCopier(QString sourceFile, QString targetFile, QDateTime from, QDa
 }
 
 void LogCopier::processFragment(LogFragment *fragment) {
-	if(!fragment) {
+	if(!fragment || fragment->bytesAvailable() <= 0) {
+		DP_CMD_LOG_READER_DETAILS("\tNo more fragments to process...");
 		deleteLater();
 		return;
 	}
 	DP_CMD_LOG_COPIER_DETAILS("\tStarting processing of new fragment...");
 	connect(fragment, &LogFragment::fragmentReady, this, &LogCopier::onFragmentReady);
+/*
 	connect(fragment, &LogFragment::fragmentFailed, [this](LogFragment *fragment){
 		DP_CMD_LOG_COPIER_ERROR("LogCopier detected fragmentFailed on" << fragment);
 		fragment->deleteLater();
 		deleteLater();
 	});
+*/
 	QMetaObject::invokeMethod(fragment, "fillFragment");
 }
 
