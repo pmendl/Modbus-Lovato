@@ -1,6 +1,10 @@
 #include "Reset.h"
 
+#include <QCoreApplication>
+
+#include "Debug/DebugMacros.h"
 #include "System/PrioritiesCountingHash.h"
+
 
 namespace System {
 
@@ -8,7 +12,8 @@ PrioritiesCountingHash resetBlockers;
 bool _resetInProgress(false);
 
 void initiateReset(void) {
-	_resetInProgress=true;
+	InitiateResetEvent event;
+	qApp->sendEvent(qApp, &event);
 }
 
 bool startResetSensitiveProcess(int priority) {
@@ -23,5 +28,22 @@ void endResetSensitiveProcess(int priority) {
 	resetBlockers.endPriority(priority);
 }
 
+const int initiateResetEventType(QEvent::registerEventType());
+
 } // System
+
+
+InitiateResetEvent::InitiateResetEvent() :
+	QEvent(static_cast<QEvent::Type>(System::initiateResetEventType))
+{}
+
+bool InitiateResetEventFilter::eventFilter(QObject *, QEvent *event) {
+	if(event->type() == System::initiateResetEventType) {
+		System::_resetInProgress=true;
+		MARK("RESET INITED");
+		return true; // Stop event processing
+	}
+	return false;
+}
+
 
