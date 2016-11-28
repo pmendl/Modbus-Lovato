@@ -5,6 +5,7 @@
 #include "Log/LogReader.h"
 #include "Log/LogServer.h"
 #include "Commands/CommandDescriptor.h"
+#include "System/TrueCandidates.h"
 
 CommandLogFilter::CommandLogFilter(QSharedPointer<LogServer> logServer, QObject *parent,
 						  void (*preprocessValidCommand)(CommandDescriptor &descriptor)) :

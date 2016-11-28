@@ -37,6 +37,7 @@
 #include "Commands/CommandReplaceFilter.h"
 #include "Commands/CommandDeleteFilter.h"
 #include "System/Reset.h"
+#include "System/TrueCandidates.h"
 
 
 #define STR(X) #X
@@ -66,13 +67,6 @@ void testFileQueryActual();
 // Test files selection stuff
 QFileInfoList testFilesList;
 int testFilesIndex;
-
-// Used for .INI to bool transformations/checking
-const QSet<QString> trueCandidates = {
-	QStringLiteral("1"),
-	QStringLiteral("true"),
-	QStringLiteral("yes")
-};
 
 #warning Adapt later according to http://stackoverflow.com/questions/40652599/invalid-conversion-from-const-parameter-to-parameter-seems-to-be-nonsense
 void printCommandReceived(CommandDescriptor &descriptor)

@@ -50,6 +50,7 @@
 #define DEBUG_GROUP_KEY "Debug"
 #define DEBUG_SUPPRESS_PERIODICAL_REQUESTING_KEY "SuppressPeriodicalRequesting"
 #define DEBUG_SERVER_HTTP_KEY "HttpServer"
+#define DEBUG_SUPPRESS_RESET_KEY "SuppressResetExecution"
 
 // --- Restart processing related ---
 #define RESTART_GROUP_NAME "Restart"
@@ -179,12 +180,5 @@ extern void printMemory();
 // === Macro stringification helpers ===
 #define xstr(s) str(s)
 #define str(s) #s
-
-
-// Used for .INI to bool transformations/checking
-extern const QSet<QString> trueCandidates;
-
-
-
 
 #endif // GLOBALS_H

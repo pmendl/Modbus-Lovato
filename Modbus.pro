@@ -58,7 +58,8 @@ SOURCES += main.cpp \
     Commands/CommandDeleteFilter.cpp \
     System/Memory.cpp \
     System/Reset.cpp \
-    System/PrioritiesCountingHash.cpp
+    System/PrioritiesCountingHash.cpp \
+    System/TrueCandidates.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \
@@ -95,7 +96,8 @@ HEADERS += \
     Commands/CommandDeleteFilter.h \
     System/Memory.h \
     System/Reset.h \
-    System/PrioritiesCountingHash.h
+    System/PrioritiesCountingHash.h \
+    System/TrueCandidates.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \

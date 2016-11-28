@@ -1,9 +1,14 @@
 #include "Reset.h"
 
 #include <QCoreApplication>
+#include <QSettings>
 
+#include <cstdlib>
+
+#include "Globals.h"
 #include "Debug/DebugMacros.h"
 #include "System/PrioritiesCountingHash.h"
+#include "System/TrueCandidates.h"
 
 
 namespace System {
@@ -17,19 +22,25 @@ void resetInitiate(void) {
 }
 
 void resetExecute(void)	{
-	MARK("RESET EXECUTE");
-	exit(1);
+	DP_RESET("RESET EXECUTE");
+
+	QSettings settings;
+	if(!trueCandidates.contains(settings.value(QStringLiteral(DEBUG_GROUP_KEY "/" DEBUG_SUPPRESS_RESET_KEY)).toString().toLower())) {
+		system("sudo reboot");
+		exit(1);
+	}
 }
 
 void resetEnforce(void) {
-	MARK("RESET ENFORCE");
+	DP_RESET_DETAILS("RESET ENFORCE");
 	resetExecute();
 }
 
 bool startResetSensitiveProcess(int priority) {
 	if((!_resetInProgress) || resetBlockers.maxPriority() > priority) {
 		resetBlockers.startPriority(priority);
-		MARK(resetBlockers);
+		if(_resetInProgress)
+			DP_RESET_DETAILS(resetBlockers);
 		return true;
 	}
 	return false;
@@ -37,9 +48,11 @@ bool startResetSensitiveProcess(int priority) {
 
 void endResetSensitiveProcess(int priority) {
 	resetBlockers.endPriority(priority);
-	MARK(resetBlockers);
-	if(_resetInProgress && resetBlockers.isEmpty())
-		resetExecute();
+	if(_resetInProgress) {
+		DP_RESET_DETAILS(resetBlockers);
+		if(resetBlockers.isEmpty())
+			resetExecute();
+	}
 }
 
 const int initiateResetEventType(QEvent::registerEventType());

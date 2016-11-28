@@ -108,7 +108,7 @@ QString ProcessingManager::objectNameFromGroup(QString prefix, QString group) {
 bool ProcessingManager::eventFilter(QObject *, QEvent *event)
 {
 	if(event->type() == System::initiateResetEventType) {
-		MARK("RESET NOTED in ProcessingManager" << _timeoutValue);
+		DP_RESET_DETAILS("RESET NOTED in ProcessingManager" << _timeoutValue);
 		_suppressPeriodicalRequesting = true;
 		if(_timeoutValue > 0) {
 			_timeoutTimer.start(_timeoutValue, this);
