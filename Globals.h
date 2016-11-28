@@ -161,7 +161,8 @@
 
 // === Reset protection priority levels ===
 #define RESET_PRIORITY_IMMEDIATE 1
-#define RESET_PRIORITY_BULK 2
+#define RESET_PRIORITY_NETWORK 2
+#define RESET_PRIORITY_BULK 3
 
 
 // === Global datatypes ===

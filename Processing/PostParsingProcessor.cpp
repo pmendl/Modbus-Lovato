@@ -11,6 +11,7 @@
 #include "Globals.h"
 #include "Processing/RequestManager.h"
 #include "Processing/ProcessingManager.h"
+#include "System/Reset.h"
 
 PostParsingProcessor::PostParsingProcessor(QSettings *settings, QString group, quint64 timeout) :
 	ParsingProcessor(settings),
@@ -78,6 +79,7 @@ void PostParsingProcessor::process(RequestManager *rm)
 	}
 
 	_multipart = multiPart;
+	System::startResetSensitiveProcess(RESET_PRIORITY_NETWORK);
 	_sender.send(_url, multiPart);
 }
 
@@ -96,9 +98,11 @@ void PostParsingProcessor::process(RequestManager *rm)
 
  void PostParsingProcessor::onReplyFinished() {
 	 DP_EVENTS_START(onReplyFinished)
-	 {
-		 _inProcess = false;
-		 _priority = nullRequestPriority;
-	 }
+
+	 _inProcess = false;
+	 _priority = nullRequestPriority;
+
+	 System::endResetSensitiveProcess(RESET_PRIORITY_NETWORK);
+
 	 DP_EVENTS_END("")
 }
