@@ -22,34 +22,34 @@ void CommandReplaceFilter::onCommandReceived(CommandDescriptor descriptor) {
 				temp(target.section(QChar('.'),0,-2)+QStringLiteral(".old"));
 
 		if((source.isEmpty() || target.isEmpty())) {
-			D_P("\tSource and/or target parameter missing or invalid:" << source << "->" << target << "\n\tAborting...");
+			DP_CMD_LOG_REPLACE_ERROR("\tSource and/or target parameter missing or invalid:" << source << "->" << target << "\n\tAborting...");
 			return;
 		}
 
 		QSharedPointer<LogMaintenanceLocker> lock(_logServer->fileMaintenanceLocker());
 
 		if(QFile::remove(temp))
-			D_P("\tRemoved temporary:" << temp);
+			DP_CMD_LOG_REPLACE("\tRemoved temporary:" << temp);
 
 		if(QFile::exists(target)) {
 			if(QFile::rename(target, temp))
-				D_P("\tRenamed" << target << "->" << temp);
+				DP_CMD_LOG_REPLACE("\tRenamed" << target << "->" << temp);
 			else {
-				D_P("\tRenaming" << target << "->" << temp << "FAILED!\n\tAborting...");
+				DP_CMD_LOG_REPLACE_ERROR("\tRenaming" << target << "->" << temp << "FAILED!\n\tAborting...");
 				return;
 			}
 		}
 
 		if(QFile::rename(source,target))
-			D_P("\tRenamed" << source << "->" << target);
+			DP_CMD_LOG_REPLACE("\tRenamed" << source << "->" << target);
 		else {
-			D_P("\tRenaming" << source << "->" << target << "FAILED!\n\tAborting...");
+			DP_CMD_LOG_REPLACE_ERROR("\tRenaming" << source << "->" << target << "FAILED!\n\tAborting...");
 			return;
 		}
 
 		if(QFile::remove(temp))
-			D_P("\tRemoved temporary:" << temp);
+			DP_CMD_LOG_REPLACE("\tRemoved temporary:" << temp);
 		else
-			D_P("\tFAILED temporary removal!!! File may remain on disk:" << temp);
+			DP_CMD_LOG_REPLACE_ERROR("\tFAILED temporary removal!!! File may remain on disk:" << temp);
 	}
 }

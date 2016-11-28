@@ -46,6 +46,12 @@
 #define DP_CMD_LOG_COPIER(x) PRINT(x)				// LogCopier object instantiation
 #define DP_CMD_LOG_COPIER_ERROR(x) PRINT(x)		// LogCopier object errors
 #define DP_CMD_LOG_COPIER_DETAILS(x) NO(x)	// LogCopier object details
+#define DP_CMD_LOG_DELETE(x) PRINT(x)				// LogCopier object instantiation
+#define DP_CMD_LOG_DELETE_ERROR(x) PRINT(x)		// LogCopier object errors
+//#define DP_CMD_LOG_DELETE_DETAILS(x) NO(x)	// LogCopier object details
+#define DP_CMD_LOG_REPLACE(x) PRINT(x)				// LogCopier object instantiation
+#define DP_CMD_LOG_REPLACE_ERROR(x) PRINT(x)		// LogCopier object errors
+//#define DP_CMD_LOG_REPLACE_DETAILS(x) NO(x)	// LogCopier object details
 #define DP_CMD_LOG_FRAGMENT(x) PRINT(x)			// LogFragment object major actions
 #define DP_CMD_LOG_FRAGMENT_ERROR(x) PRINT(x)		// LogFragment object errors
 #define DP_CMD_LOG_FRAGMENT_DETAILS(x) NO(x)	// LogFragment object details
@@ -57,8 +63,8 @@
 #define DP_INSTANCE_COUNTER_BASE(x) PRINT(x)
 
 //--- Temporary debug prints ---
+#define DP_MEMORY(x) NO(x)
 #define DP_DELAYED_COUNT(x) NO(x)
-#define DP_MEMORY(x) MARK(x)
 #define DP_PANIC(x) PRINT(x)
 
 //--- Specialized debug print related macros

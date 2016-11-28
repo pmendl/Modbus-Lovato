@@ -21,7 +21,6 @@ void CommandCopyFilter::onCommandReceived(CommandDescriptor descriptor)
 		_preprocessValidCommand(descriptor);
 		QSharedPointer<LogMaintenanceLocker> lock(_logServer->fileMaintenanceLocker());
 
-		DP_MEMORY("----------------------> new LogCopier");
 		new LogCopier(_logServer->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_SOURCE_FILE_NAME))),
 					  _logServer->pathname(descriptor.value(QStringLiteral(COMMAND_PARAMETER_TARGET_FILE_NAME))),
 					  QDateTime::fromString(descriptor.value(QStringLiteral(COMMAND_PARAMETER_FROM_NAME))),

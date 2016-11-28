@@ -26,10 +26,10 @@ int printMemory(bool doRead)
 		mem=System::getMemory();
 	}
 	if(refMem < 0) {
-		D_P("--------- Memory change:" << (mem - lastMem) << "(MemFree:" << mem << "Kb) ---------");
+		qDebug() << "--------- Memory change:" << (mem - lastMem) << "(MemFree:" << mem << "Kb) ---------";
 	}
 	else {
-		D_P("--------- Memory change:" << (mem - lastMem) << "Ref change:" << (mem-refMem) << "(MemFree:" << mem << "Kb) ---------");
+		qDebug() << "--------- Memory change:" << (mem - lastMem) << "Ref change:" << (mem-refMem) << "(MemFree:" << mem << "Kb) ---------";
 	}
 	refMem=-1;
 	return lastMem=mem;
