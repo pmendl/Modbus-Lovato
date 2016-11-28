@@ -35,7 +35,7 @@ LogCopier::LogCopier(QString sourceFile, QString targetFile, QDateTime from, QDa
 
 void LogCopier::processFragment(LogFragment *fragment) {
 	if(!fragment || fragment->bytesAvailable() <= 0) {
-		DP_CMD_LOG_READER_DETAILS("\tNo more fragments to process...");
+		DP_CMD_LOG_COPIER_DETAILS("\tNo more fragments to process...");
 		deleteLater();
 		return;
 	}

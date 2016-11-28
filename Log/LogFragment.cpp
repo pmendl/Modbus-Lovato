@@ -36,7 +36,8 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QS
 	_recordCnt(0),
 	_lastFragment(false),
 	_parentThread(thread()),
-	_workingThread(workingThread)
+	_workingThread(workingThread),
+	_valid(false)
 
 {
 	if(!_logFile->isReadable())
@@ -58,10 +59,16 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QS
 		DP_CMD_LOG_FRAGMENT("LogFragment moving to thread" << _workingThread);
 		moveToThread(_workingThread);
 	}
+	_valid=true;
 }
 
 LogFragment::~LogFragment() {
 	System::endResetSensitiveProcess(RESET_PRIORITY_BULK);
+}
+
+bool LogFragment::isValid() const
+{
+	return _valid;
 }
 
 void LogFragment::fillFragment(void)

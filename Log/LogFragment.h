@@ -37,6 +37,7 @@ public:
 	~LogFragment();
 
 /* Getters */
+	bool isValid() const;
 	QDateTime from() const;
 	QDateTime to() const;
 	QString group() const;
@@ -49,7 +50,6 @@ public:
 	qint64 recordCnt() const;
 	bool lastFragment() const;
 
-
 private:
 	QSharedPointer<QFile> _logFile;
 	bool _postFileContent;
@@ -58,6 +58,7 @@ private:
 	qint64 _startIndex, _endIndex, _firstFound, _lastFound, _recordCnt;
 	bool _lastFragment;
 	QThread *_parentThread, *_workingThread;
+	bool _valid;
 
 
 
