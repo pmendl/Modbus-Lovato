@@ -31,7 +31,7 @@ LogReader::LogReader(QString url, QString pathname, bool postFileContent, QStrin
 	_readyFragment(0),
 	_lastFragment(false),
 	_multiPart(0),
-	_sendPending(false),
+	_sendPendingFragment(0),
 	_postFileContent(postFileContent)
 {
 	start();
@@ -65,14 +65,15 @@ void LogReader::onReplyFinished()
 {
 	DP_EVENTS_START(onReplyFinished)
 	DP_CMD_LOG_READER_DETAILS("LogReader finished HTTP transmit" << static_cast<QNetworkReply*>(sender())->url().url());
-	_sendPending = false;
+	_sendPendingFragment->deleteLater();
+	_sendPendingFragment = 0;
 	checkSending();
 	DP_EVENTS_END("")
 }
 
 void LogReader::checkSending()
 {
-	if(_sendPending)
+	if(_sendPendingFragment)
 		return;
 
 	if(_readyFragment != 0) {
@@ -116,6 +117,8 @@ void LogReader::sendReadyFragment() {
 		return;
 	}
 
+	_readyFragment->setParent(this);
+
 	DP_CMD_LOG_READER_DETAILS("LogReader::sendReadyFragment starts HTTP transmit ...");
 	_multiPart = new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType, _readyFragment);
 
@@ -147,7 +150,7 @@ void LogReader::sendReadyFragment() {
 		_multiPart->appendFormData(POST_ELEMENT_LOG_LAST_FOUND_NAME, _readyFragment->lastFound());
 	}
 
-	_sendPending = true;
+	_sendPendingFragment = _readyFragment;
 	DP_CMD_LOG_READER_DETAILS("\tPosting new HTTP multipart send signal...");
 	bool result(QMetaObject::invokeMethod(&_sender, "sendMultipart", \
 											 Q_ARG(QHttpMultiPart *, static_cast<QHttpMultiPart*>(_multiPart))));

@@ -45,10 +45,10 @@ protected:
 
 private:
 	NetworkSender _sender;
-	LogFragment *_readyFragment;
+	LogFragment *_readyFragment, *_sendPendingFragment;
 	bool _lastFragment;
 	HTTP_MULTI_PART_USED *_multiPart;
-	bool _sendPending;
+//	bool _sendPending;
 	bool _postFileContent;
 };
 
