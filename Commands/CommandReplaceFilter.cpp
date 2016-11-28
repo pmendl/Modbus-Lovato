@@ -4,6 +4,7 @@
 #include "Debug/DebugMacros.h"
 #include "Log/LogServer.h"
 #include "Commands/CommandDescriptor.h"
+#include "System/Reset.h"
 
 
 CommandReplaceFilter::CommandReplaceFilter(QSharedPointer<LogServer> logServer, QObject *parent,
@@ -23,6 +24,11 @@ void CommandReplaceFilter::onCommandReceived(CommandDescriptor descriptor) {
 
 		if((source.isEmpty() || target.isEmpty())) {
 			DP_CMD_LOG_REPLACE_ERROR("\tSource and/or target parameter missing or invalid:" << source << "->" << target << "\n\tAborting...");
+			return;
+		}
+
+		if(!System::startResetSensitiveProcess(RESET_PRIORITY_BULK)) {
+			DP_CMD_LOG_REPLACE_ERROR("NOT EXECUTING REPLACE COMMAND: Reset protection in progress.");
 			return;
 		}
 
