@@ -63,7 +63,6 @@ LogFragment::LogFragment(QSharedPointer<QFile> logfile, bool postFileContent, QS
 }
 
 LogFragment::~LogFragment() {
-	CHECKPOINT("LogFragment::~LogFragment()");
 	System::endResetSensitiveProcess(RESET_PRIORITY_BULK);
 }
 

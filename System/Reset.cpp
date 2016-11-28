@@ -40,7 +40,7 @@ bool startResetSensitiveProcess(int priority) {
 	if((!_resetInProgress) || resetBlockers.maxPriority() > priority) {
 		resetBlockers.startPriority(priority);
 		if(_resetInProgress)
-			DP_RESET_DETAILS(resetBlockers);
+			DP_RESET_SHOW_BLOCKERS(resetBlockers);
 		return true;
 	}
 	return false;
@@ -49,7 +49,7 @@ bool startResetSensitiveProcess(int priority) {
 void endResetSensitiveProcess(int priority) {
 	resetBlockers.endPriority(priority);
 	if(_resetInProgress) {
-		DP_RESET_DETAILS(resetBlockers);
+		DP_RESET_SHOW_BLOCKERS(resetBlockers);
 		if(resetBlockers.isEmpty())
 			resetExecute();
 	}
