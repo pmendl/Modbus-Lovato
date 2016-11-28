@@ -45,6 +45,7 @@ void LogServer::log(QString filename, QString record) {
 	LogMaintenanceLocker locker(this);
 
 	LogWritter *writter = new LogWritter(pathname(filename), record, this);
+	connect(writter, &LogWritter::finished, writter, &QObject::deleteLater);
 	writter->start();
 }
 
