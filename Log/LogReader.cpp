@@ -72,13 +72,11 @@ void LogReader::onReplyFinished()
 
 void LogReader::checkSending()
 {
-	CHECKPOINT("Alpha");
 	if(_sendPending)
 		return;
 
 	if(_readyFragment != 0) {
 		sendReadyFragment();
-		CHECKPOINT("Bravo");
 	}
 	else {
 		if(_lastFragment) {
@@ -168,17 +166,12 @@ void LogReader::sendReadyFragment() {
 void LogReader::processFragment(LogFragment *fragment) {
 	_readyFragment = 0;
 
-	CHECKPOINT ("Charlie");
 	if((!fragment) || (!(fragment->isValid()))) {
-		CHECKPOINT ("Echo");
 		_lastFragment = true;
 		DP_CMD_LOG_READER_DETAILS("\tNo more fragments to process...");
-		CHECKPOINT ("Foxtrot");
 		checkSending();
 		return;
 	}
-	CHECKPOINT ("Delta");
-
 	DP_CMD_LOG_READER_DETAILS("\tStarting processing of new fragment...");
 	connect(fragment, &LogFragment::fragmentReady, this, &LogReader::onFragmentReady);
 /*
