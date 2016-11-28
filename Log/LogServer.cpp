@@ -87,6 +87,7 @@ void LogWritter::run() {
 	}
 	else
 		DP_LOGGING_ERROR(_pathname << file.errorString());
+	System::endResetSensitiveProcess(RESET_PRIORITY_IMMEDIATE);
 }
 
 LogMaintenanceLocker::LogMaintenanceLocker(LogServer *logServer):
