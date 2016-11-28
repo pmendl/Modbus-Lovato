@@ -33,7 +33,7 @@ void NetworkAccessBase::timerEvent(QTimerEvent *event) {
 	}
 }
 
-void NetworkAccessBase::readPanicConnections(void) {
+void NetworkAccessBase::readPanicConnections() {
 	QSettings settings;
 
 	int size(settings.beginReadArray(QStringLiteral(SERVER_PANIC_CONNECTIONS_GROUP_KEY)));

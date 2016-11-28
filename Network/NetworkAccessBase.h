@@ -17,7 +17,7 @@ public:
 	 *
 	 * Has to be called once before start of using of any NetworkAccessBase descendant
 	 */
-	static void readPanicConnections(void);
+	static void readPanicConnections();
 
 	/**
 	 * @brief This class SHOULD NOT be directly instantiated

@@ -11,9 +11,19 @@ namespace System {
 PrioritiesCountingHash resetBlockers;
 bool _resetInProgress(false);
 
-void initiateReset(void) {
+void resetInitiate(void) {
 	InitiateResetEvent event;
 	qApp->sendEvent(qApp, &event);
+}
+
+void resetExecute(void)	{
+	MARK("RESET EXECUTE");
+	exit(1);
+}
+
+void resetEnforce(void) {
+	MARK("RESET ENFORCE");
+	resetExecute();
 }
 
 bool startResetSensitiveProcess(int priority) {
@@ -29,7 +39,7 @@ void endResetSensitiveProcess(int priority) {
 	resetBlockers.endPriority(priority);
 	MARK(resetBlockers);
 	if(_resetInProgress && resetBlockers.isEmpty())
-		MARK("RESET EXECUTE");
+		resetExecute();
 }
 
 const int initiateResetEventType(QEvent::registerEventType());

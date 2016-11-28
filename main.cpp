@@ -395,7 +395,7 @@ GROUP=\"Gr.*_.?\"\n\
 
 	case 'I': // Initiate reset
 	{
-		System::initiateReset();
+		System::resetInitiate();
 	}
 		break;
 

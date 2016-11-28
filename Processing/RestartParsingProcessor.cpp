@@ -8,7 +8,7 @@
 
 RestartParsingProcessor::RestartParsingProcessor(QSettings *settings) :
 	ParsingProcessor(settings),
-	_regexp(settings->value(RESTART_TIME_REGEXP_KEY).toString())
+	_regexp(settings->value(REQUEST_RESTART_TIME_REGEXP_KEY).toString())
 {}
 
 bool RestartParsingProcessor::isValid() const

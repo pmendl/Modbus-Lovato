@@ -15,10 +15,14 @@ ProcessingManager::ProcessingManager(QObject *parent, bool suppressPeriodicalReq
 	QObject(parent),
 	_serialMaster("/dev/ttyRPC0"),
 	_logServer(new LogServer(REQUEST_PARSING_LOG_PATH_DEFAULT))
+
 {
 	setSuppressPeriodicalRequesting(suppressPeriodicalRequesting);
 
 	QSettings settings;
+
+	_timeoutValue=settings.value(QStringLiteral(RESTART_GROUP_NAME"/" RESTART_FORCED_TIMEOUT_KEY),
+								 QVariant(0)).toInt() * 1000; // [ms]
 
 	settings.beginGroup(REQUEST_GROUPS_KEY);
 	foreach(QString group, settings.childGroups()) {
@@ -101,11 +105,21 @@ QString ProcessingManager::objectNameFromGroup(QString prefix, QString group) {
 		return prefix + OBJECT_NAME_PREPOSITION + group;
 }
 
-bool ProcessingManager::eventFilter(QObject *, QEvent *event) {
+bool ProcessingManager::eventFilter(QObject *, QEvent *event)
+{
 	if(event->type() == System::initiateResetEventType) {
-		MARK("RESET NOTED in ProcessingManager");
+		MARK("RESET NOTED in ProcessingManager" << _timeoutValue);
 		_suppressPeriodicalRequesting = true;
+		if(_timeoutValue > 0) {
+			_timeoutTimer.start(_timeoutValue, this);
+		}
+
 	}
 
 	return false;
+}
+
+void ProcessingManager::timerEvent(QTimerEvent *)
+{
+	System::resetEnforce();
 }

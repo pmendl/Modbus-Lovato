@@ -7,7 +7,8 @@
 
 namespace System {
 
-void initiateReset(void);
+void resetInitiate(void);
+void resetEnforce(void);
 bool startResetSensitiveProcess(int priority);
 void endResetSensitiveProcess(int priority);
 
@@ -20,9 +21,7 @@ class InitiateResetEvent : public QEvent
 {
 public:
 	InitiateResetEvent();
-
 };
-
 
 class InitiateResetEventFilter : public QObject
 {
