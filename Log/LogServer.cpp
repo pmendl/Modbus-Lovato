@@ -7,6 +7,7 @@
 #include "Globals.h"
 #include "Debug/DebugMacros.h"
 #include "Debug/InstanceCounterBase.h"
+#include "System/Reset.h"
 
 class LogWritter : public QThread
 {
@@ -44,6 +45,11 @@ LogServer::LogServer(QString defaultLogPath, QObject *parent) : QObject(parent)
 void LogServer::log(QString filename, QString record) {
 	LogMaintenanceLocker locker(this);
 
+	if(!System::startResetSensitiveProcess(RESET_PRIORITY_IMMEDIATE)) {
+		DP_LOGGING_ERROR("NOT WRITTING LOG RECORD: Reset protection in progress.");
+		return;
+	}
+
 	LogWritter *writter = new LogWritter(pathname(filename), record, this);
 	connect(writter, &LogWritter::finished, writter, &QObject::deleteLater);
 	writter->start();
@@ -68,6 +74,7 @@ LogWritter::LogWritter(QString pathname, QString record, QObject *parent) :
 
 
 void LogWritter::run() {
+	LogMaintenanceLocker locker(dynamic_cast<LogServer *>(parent()));
 	QFile file(_pathname);
 	if (file.open(QIODevice::ReadWrite | QIODevice::Append | QIODevice::Text)) {
 		file.write((QDateTime::currentDateTimeUtc().toString()
