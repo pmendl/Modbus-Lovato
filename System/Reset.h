@@ -11,6 +11,8 @@ void initiateReset(void);
 bool startResetSensitiveProcess(int priority);
 void endResetSensitiveProcess(int priority);
 
+extern const int initiateResetEventType;
+
 } // System
 
 class InitiateResetEvent : public QEvent

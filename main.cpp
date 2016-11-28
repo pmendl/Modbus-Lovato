@@ -151,6 +151,7 @@ int main(int argc, char *argv[])
 #else
 	processingManager.reset(new ProcessingManager(&a));
 #endif
+	qApp->installEventFilter(processingManager.data());
 
 	constructCommandFilters(&a);
 

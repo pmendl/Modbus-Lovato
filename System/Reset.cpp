@@ -41,7 +41,6 @@ bool InitiateResetEventFilter::eventFilter(QObject *, QEvent *event) {
 	if(event->type() == System::initiateResetEventType) {
 		System::_resetInProgress=true;
 		MARK("RESET INITED");
-		return true; // Stop event processing
 	}
 	return false;
 }

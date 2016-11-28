@@ -9,6 +9,7 @@
 #include "Processing/RequestManager.h"
 #include "Processing/AllParsingProcessors.h"
 #include "Modbus/ModbusSerialMaster.h"
+#include "System/Reset.h"
 
 ProcessingManager::ProcessingManager(QObject *parent, bool suppressPeriodicalRequesting) :
 	QObject(parent),
@@ -98,4 +99,13 @@ QString ProcessingManager::objectNameFromGroup(QString prefix, QString group) {
 		return prefix;
 	else
 		return prefix + OBJECT_NAME_PREPOSITION + group;
+}
+
+bool ProcessingManager::eventFilter(QObject *, QEvent *event) {
+	if(event->type() == System::initiateResetEventType) {
+		MARK("RESET NOTED in ProcessingManager");
+		_suppressPeriodicalRequesting = true;
+	}
+
+	return false;
 }

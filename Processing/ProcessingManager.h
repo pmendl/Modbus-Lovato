@@ -10,6 +10,7 @@
 class ProcessingManager : public QObject
 {
 	Q_OBJECT
+
 public:
 	explicit ProcessingManager(QObject *parent = 0, bool suppressPeriodicalRequesting = false);
 	QSharedPointer<class ParsingProcessor> processor(class QSettings *settings, QString group = QStringLiteral(""));
@@ -23,6 +24,9 @@ signals:
 
 public slots:
 	void onQueryRequest();
+
+protected:
+	bool eventFilter(QObject *, QEvent *event);
 
 private:
 	ModbusSerialMaster _serialMaster;
