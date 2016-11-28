@@ -12,6 +12,7 @@ bool startResetSensitiveProcess(int priority);
 void endResetSensitiveProcess(int priority);
 
 extern const int initiateResetEventType;
+extern const int executeResetEventType;
 
 } // System
 

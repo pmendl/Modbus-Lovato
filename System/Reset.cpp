@@ -28,9 +28,13 @@ bool startResetSensitiveProcess(int priority) {
 void endResetSensitiveProcess(int priority) {
 	resetBlockers.endPriority(priority);
 	MARK(resetBlockers);
+	if(_resetInProgress && resetBlockers.isEmpty())
+		MARK("RESET EXECUTE");
 }
 
 const int initiateResetEventType(QEvent::registerEventType());
+const int executeResetEventType(QEvent::registerEventType());
+
 
 } // System
 
