@@ -34,7 +34,7 @@ LogCopier::LogCopier(QString sourceFile, QString targetFile, QDateTime from, QDa
 }
 
 void LogCopier::processFragment(LogFragment *fragment) {
-	if(!fragment || fragment->bytesAvailable() <= 0) {
+	if((!fragment )|| (!(fragment->isValid()))) {
 		DP_CMD_LOG_COPIER_DETAILS("\tNo more fragments to process...");
 		deleteLater();
 		return;
@@ -82,5 +82,6 @@ void LogCopier::onFragmentReady(LogFragment *fragment)
 	DP_CMD_LOG_COPIER_DETAILS("LogCopier finished file writting...");
 
 	processFragment((fragment->nextFragment()));
+	fragment->deleteLater();
 	DP_EVENTS_END("")
 }

@@ -45,7 +45,7 @@
 #define DP_CMD_LOG_READER_DETAILS(x) PRINT(x)	// LogReader object details
 #define DP_CMD_LOG_COPIER(x) PRINT(x)				// LogCopier object instantiation
 #define DP_CMD_LOG_COPIER_ERROR(x) PRINT(x)		// LogCopier object errors
-#define DP_CMD_LOG_COPIER_DETAILS(x) NO(x)	// LogCopier object details
+#define DP_CMD_LOG_COPIER_DETAILS(x) PRINT(x)	// LogCopier object details
 #define DP_CMD_LOG_DELETE(x) PRINT(x)				// LogCopier object instantiation
 #define DP_CMD_LOG_DELETE_ERROR(x) PRINT(x)		// LogCopier object errors
 //#define DP_CMD_LOG_DELETE_DETAILS(x) NO(x)	// LogCopier object details
@@ -54,7 +54,7 @@
 //#define DP_CMD_LOG_REPLACE_DETAILS(x) NO(x)	// LogCopier object details
 #define DP_CMD_LOG_FRAGMENT(x) PRINT(x)			// LogFragment object major actions
 #define DP_CMD_LOG_FRAGMENT_ERROR(x) PRINT(x)		// LogFragment object errors
-#define DP_CMD_LOG_FRAGMENT_DETAILS(x) NO(x)	// LogFragment object details
+#define DP_CMD_LOG_FRAGMENT_DETAILS(x) PRINT(x)	// LogFragment object details
 #define DP_KEYPRES_DEBUG(x) NO(x)			// Emition of keypress event
 #define DP_RESET(x) MARK(x)						// Reset main events
 #define DP_RESET_ERROR(x) MARK(x)				// Reset related errors
