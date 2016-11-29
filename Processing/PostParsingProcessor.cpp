@@ -79,7 +79,6 @@ void PostParsingProcessor::process(RequestManager *rm)
 	}
 
 	_multipart = multiPart;
-	System::startResetSensitiveProcess(RESET_PRIORITY_NETWORK);
 	_sender.send(_url, multiPart);
 }
 
@@ -101,8 +100,6 @@ void PostParsingProcessor::process(RequestManager *rm)
 
 	 _inProcess = false;
 	 _priority = nullRequestPriority;
-
-	 System::endResetSensitiveProcess(RESET_PRIORITY_NETWORK);
 
 	 DP_EVENTS_END("")
 }

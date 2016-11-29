@@ -8,7 +8,7 @@
 #include "Debug/DebugMacros.h"
 #include "System/PrioritiesCountingHash.h"
 #include "System/TrueCandidates.h"
-#include "Network/ExtendedHttpMultiPart.h"
+#include HTTP_MULTI_PART_INCLUDE
 #include "Network/NetworkSender.h"
 
 
@@ -38,7 +38,10 @@ void resetEnforce(void) {
 }
 
 bool startResetSensitiveProcess(int priority) {
-	if((!_resetInProgress) || resetBlockers.maxPriority() > priority) {
+	if(		(!_resetInProgress)							// No reset in progress => no problem
+			|| priority == RESET_PRIORITY_NETWORK		// NETWORK CAN TRANSMIT ALLWAYS
+			|| resetBlockers.maxPriority() > priority)  // While waiting for slower process faster can still start
+	{
 		resetBlockers.startPriority(priority);
 		if(_resetInProgress)
 			DP_RESET_SHOW_BLOCKERS(resetBlockers);
@@ -85,13 +88,14 @@ bool InitiateResetEventFilter::eventFilter(QObject *, QEvent *event)
 		System::_resetInProgress=true;
 		DP_RESET("RESET INITED: reason=" << reason);
 
-		ExtendedHttpMultiPart multipart;
-		multipart.appendFormData(QStringLiteral(POST_ELEMENT_RESET_INIT_KEY), reason);
-		MARK(RESET_GROUP_KEY "/" RESET_NOTIFICATION_URL_KEY "="
-			 << _sender->defaultSlotUrl().url());
+		HTTP_MULTI_PART_USED *multipart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
+		MARK(QStringLiteral(POST_ELEMENT_RESET_INIT_KEY) << reason);
+		multipart->appendFormData(QStringLiteral(POST_ELEMENT_RESET_INIT_KEY), reason);
+#warning Server does NOT work with (ignores) values containing apostrophe
+		multipart->appendFormData(QStringLiteral("apostropheTest"), "O 'K'");
 		if(_sender) {
-			MARK("RESET NOTIFICATION:" << reason  << _sender->defaultSlotUrl().url());
-			_sender->sendMultipart(&multipart);
+			MARK("RESET NOTIFICATION:" << reason << _sender->defaultSlotUrl().url());
+			D_P(_sender->sendMultipart(multipart));
 		}
 	}
 	return false;

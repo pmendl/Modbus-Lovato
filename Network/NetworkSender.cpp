@@ -9,6 +9,7 @@
 #include <QSettings>
 
 #include "Network/DebugHttpMultiPart.h"
+#include "System/Reset.h"
 
 NetworkSender::NetworkSender(QObject * parent, QString defaultSlotUrl, quint64 defaultSlotTimeout) :
 	NetworkAccessBase(parent),
@@ -129,6 +130,7 @@ QNetworkReply *NetworkSender::send(QNetworkRequest request, QHttpMultiPart *mult
 	DP_NET_SENDER_DETAILS("\tNetworkSender: transmitted to " << request.url() << "; reply.isRunning()=" << reply->isRunning());
 	connect(reply, &QNetworkReply::finished, this, &NetworkSender::onReplyFinished);
 	_timerIds.insert(reply, startTimer(timeout));
+	System::startResetSensitiveProcess(RESET_PRIORITY_NETWORK);
 	emit multipartSent(multiPart, reply);
 	return reply;
 }
@@ -137,13 +139,18 @@ void NetworkSender::onReplyFinished() {
 	DP_EVENTS_START(onReplyFinished)
 
 	QNetworkReply *reply(dynamic_cast<QNetworkReply *>(sender()));
+	bool wasRegistered(false);
 	if(reply != 0) {
 		if(_timerIds.contains(reply)) {
 			killTimer(_timerIds.value(reply));
 			_timerIds.remove(reply);
+			wasRegistered = true;
 		}
 
 		_commandsDistributor.emitCommandReply(reply);
+
+		if(wasRegistered)
+			System::endResetSensitiveProcess(RESET_PRIORITY_NETWORK);
 
 		if((reply->parent() == 0) || (reply->parent() == this)) {
 			reply->deleteLater();
