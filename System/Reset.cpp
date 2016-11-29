@@ -89,13 +89,12 @@ bool InitiateResetEventFilter::eventFilter(QObject *, QEvent *event)
 		DP_RESET("RESET INITED: reason=" << reason);
 
 		HTTP_MULTI_PART_USED *multipart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
-		MARK(QStringLiteral(POST_ELEMENT_RESET_INIT_KEY) << reason);
 		multipart->appendFormData(QStringLiteral(POST_ELEMENT_RESET_INIT_KEY), reason);
 #warning Server does NOT work with (ignores) values containing apostrophe
 		multipart->appendFormData(QStringLiteral("apostropheTest"), "O 'K'");
 		if(_sender) {
-			MARK("RESET NOTIFICATION:" << reason << _sender->defaultSlotUrl().url());
-			D_P(_sender->sendMultipart(multipart));
+			DP_RESET_DETAILS("RESET NOTIFICATION:" << reason << "->" << _sender->defaultSlotUrl().url());
+			_sender->sendMultipart(multipart);
 		}
 	}
 	return false;
