@@ -21,7 +21,7 @@ ProcessingManager::ProcessingManager(QObject *parent, bool suppressPeriodicalReq
 
 	QSettings settings;
 
-	_timeoutValue=settings.value(QStringLiteral(RESTART_GROUP_NAME"/" RESTART_FORCED_TIMEOUT_KEY),
+	_timeoutValue=settings.value(QStringLiteral(RESET_GROUP_NAME"/" RESET_FORCED_TIMEOUT_KEY),
 								 QVariant(0)).toInt() * 1000; // [ms]
 
 	settings.beginGroup(REQUEST_GROUPS_KEY);

@@ -52,9 +52,9 @@
 #define DEBUG_SERVER_HTTP_KEY "HttpServer"
 #define DEBUG_SUPPRESS_RESET_KEY "SuppressResetExecution"
 
-// --- Restart processing related ---
-#define RESTART_GROUP_NAME "Restart"
-#define RESTART_FORCED_TIMEOUT_KEY "timeout" // in seconds
+// --- Reset processing related ---
+#define RESET_GROUP_NAME "Reset"
+#define RESET_FORCED_TIMEOUT_KEY "timeout" // in seconds
 
 // --- Server related ---
 #define SERVER_PANIC_CONNECTIONS_GROUP_KEY "PanicConnections"

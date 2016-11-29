@@ -27,11 +27,11 @@ LogReader::LogReader(QString url, QString pathname, bool postFileContent,
 LogReader::LogReader(QString url, QString pathname, bool postFileContent, QString id, QDateTime from, QDateTime to,
 					 QString group, QObject *parent) :
 	QThread(parent),
-	_sender(this, url),
+	_sender(url),
 	_readyFragment(0),
+	_sendPendingFragment(0),
 	_lastFragment(false),
 	_multiPart(0),
-	_sendPendingFragment(0),
 	_postFileContent(postFileContent)
 {
 	start();
