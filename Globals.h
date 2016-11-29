@@ -53,8 +53,9 @@
 #define DEBUG_SUPPRESS_RESET_KEY "SuppressResetExecution"
 
 // --- Reset processing related ---
-#define RESET_GROUP_NAME "Reset"
+#define RESET_GROUP_KEY "Reset"
 #define RESET_FORCED_TIMEOUT_KEY "timeout" // in seconds
+#define RESET_NOTIFICATION_URL_KEY "notificationUrl"
 
 // --- Server related ---
 #define SERVER_PANIC_CONNECTIONS_GROUP_KEY "PanicConnections"
@@ -118,7 +119,8 @@
 #define POST_PARSING_PROCESSOR_PREFIX "PostParsingProcessor"
 #define LOG_PARSING_PROCESSOR_PREFIX "LogParsingProcessor"
 
-// === Special parsed items's names/values ===
+// === POST elements names and values ===
+// --- Special parsed items's names/values ---
 #define PARSED_ITEM_RESPONSE_TYPE_KEY	"responseType"
 #define PARSED_ITEM_RESPONSE_TYPE_NORMAL_RESPONSE_VALUE	"normalResponse"
 #define PARSED_ITEM_RESPONSE_TYPE_NULL_RESPONSE_VALUE "nullResponse"
@@ -126,7 +128,7 @@
 #define PARSED_ITEM_ERROR_RESPONSE_CODE_KEY	"errorResponseCode"
 #define PARSED_ITEM_ERROR_RESPONSE_EXCEPTION_KEY "errorResponseException"
 
-// === Other POST elements ===
+// --- LOG related elements ---
 #define POST_ELEMENT_LOG_FILE_NAME "logFile"
 //#define POST_ELEMENT_LOG_NO_ID_VALUE "unidentified"
 #define POST_ELEMENT_LOG_ID_NAME "id"
@@ -137,6 +139,9 @@
 #define POST_ELEMENT_LOG_FIRST_FOUND_NAME "firstFound"
 #define POST_ELEMENT_LOG_LAST_FOUND_NAME "lastFound"
 #define POST_ELEMENT_LOG_RECORD_COUNT_NAME "recordCount"
+
+// --- RESET related elements ---
+#define POST_ELEMENT_RESET_INIT_KEY "resetInitiateReason"
 
 // === Commands and parameter names ===
 // --- Common definitions ---

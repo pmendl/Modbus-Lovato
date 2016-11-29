@@ -1,7 +1,6 @@
 #include "Reset.h"
 
 #include <QCoreApplication>
-#include <QSettings>
 
 #include <cstdlib>
 
@@ -9,6 +8,8 @@
 #include "Debug/DebugMacros.h"
 #include "System/PrioritiesCountingHash.h"
 #include "System/TrueCandidates.h"
+#include "Network/ExtendedHttpMultiPart.h"
+#include "Network/NetworkSender.h"
 
 
 namespace System {
@@ -16,14 +17,14 @@ namespace System {
 PrioritiesCountingHash resetBlockers;
 bool _resetInProgress(false);
 
-void resetInitiate(void) {
-	InitiateResetEvent event;
+
+void resetInitiate(QString reason) {
+	InitiateResetEvent event(reason);
 	qApp->sendEvent(qApp, &event);
 }
 
 void resetExecute(void)	{
 	DP_RESET("RESET EXECUTE");
-
 	QSettings settings;
 	if(!trueCandidates.contains(settings.value(QStringLiteral(DEBUG_GROUP_KEY "/" DEBUG_SUPPRESS_RESET_KEY)).toString().toLower())) {
 		system("sudo reboot");
@@ -62,14 +63,36 @@ const int executeResetEventType(QEvent::registerEventType());
 } // System
 
 
-InitiateResetEvent::InitiateResetEvent() :
-	QEvent(static_cast<QEvent::Type>(System::initiateResetEventType))
+InitiateResetEvent::InitiateResetEvent(QString reason) :
+	QEvent(static_cast<QEvent::Type>(System::initiateResetEventType)),
+	_reason(reason)
 {}
 
-bool InitiateResetEventFilter::eventFilter(QObject *, QEvent *event) {
+InitiateResetEventFilter::InitiateResetEventFilter() :
+	_sender(0)
+{
+	QSettings settings;
+	QUrl url=(NetworkSender::parseUrl(settings.value(RESET_GROUP_KEY "/" RESET_NOTIFICATION_URL_KEY).toString()));
+	if(url.isValid())
+		_sender = new NetworkSender(url);
+}
+
+bool InitiateResetEventFilter::eventFilter(QObject *, QEvent *event)
+{
 	if(event->type() == System::initiateResetEventType) {
+		QString reason(static_cast<InitiateResetEvent *>(event)->_reason);
+
 		System::_resetInProgress=true;
-		DP_RESET("RESET INITED");
+		DP_RESET("RESET INITED: reason=" << reason);
+
+		ExtendedHttpMultiPart multipart;
+		multipart.appendFormData(QStringLiteral(POST_ELEMENT_RESET_INIT_KEY), reason);
+		MARK(RESET_GROUP_KEY "/" RESET_NOTIFICATION_URL_KEY "="
+			 << _sender->defaultSlotUrl().url());
+		if(_sender) {
+			MARK("RESET NOTIFICATION:" << reason  << _sender->defaultSlotUrl().url());
+			_sender->sendMultipart(&multipart);
+		}
 	}
 	return false;
 }
