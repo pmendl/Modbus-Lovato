@@ -110,7 +110,9 @@
 #define REQUEST_PARSING_LOG_PATH_DEFAULT "Logs"
 #define REQUEST_PARSING_LOG_FILENAME_KEY "logName"
 
-#define REQUEST_RESTART_TIME_REGEXP_KEY "timeRegexp"
+#define REQUEST_RESET_TIME_REGEXP_KEY "dateTimeRegExp" // Against "dd-MM-yyyy HH:mm:ss"
+#define REQUEST_RESET_MEMORY_SIZE_KEY "memorySize" // minimal free memory size [bytes]
+#define REQUEST_RESET_MEMORY_PERCENTAGE_KEY "memoryPercentage" // minimal percents of inital free memory [%]
 
 
 // === Object names/prefixes ===

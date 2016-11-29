@@ -51,7 +51,6 @@ SOURCES += main.cpp \
     Processing/MemoryParsingProcessor.cpp \
     Debug/MemoryAnalytics.cpp \
     Debug/InstanceCounterBase.cpp \
-    Processing/RestartParsingProcessor.cpp \
     Commands/CommandLogFilter.cpp \
     Commands/CommandCopyFilter.cpp \
     Commands/CommandReplaceFilter.cpp \
@@ -59,7 +58,8 @@ SOURCES += main.cpp \
     System/Memory.cpp \
     System/Reset.cpp \
     System/PrioritiesCountingHash.cpp \
-    System/TrueCandidates.cpp
+    System/TrueCandidates.cpp \
+    Processing/ResetParsingProcessor.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \
@@ -89,7 +89,6 @@ HEADERS += \
     Debug/DebugMacros.h \
     Debug/MemoryAnalytics.h \
     Debug/InstanceCounterBase.h \
-    Processing/RestartParsingProcessor.h \
     Commands/CommandLogFilter.h \
     Commands/CommandCopyFilter.h \
     Commands/CommandReplaceFilter.h \
@@ -97,7 +96,8 @@ HEADERS += \
     System/Memory.h \
     System/Reset.h \
     System/PrioritiesCountingHash.h \
-    System/TrueCandidates.h
+    System/TrueCandidates.h \
+    Processing/ResetParsingProcessor.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \

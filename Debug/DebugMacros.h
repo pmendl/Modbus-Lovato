@@ -60,6 +60,7 @@
 #define DP_RESET_ERROR(x) MARK(x)				// Reset related errors
 #define DP_RESET_DETAILS(x) NO(x)				// Reset related details
 #define DP_RESET_SHOW_BLOCKERS(x) NO(x)			// Dump of reset blockers hash
+#define DP_RESET_PARSING_PROCESSOR_DETAILS(x) NO(x) // Memory values compared
 
 //--- Object instancing debug prints ---
 #define DP_DEBUGHTTPMULTIPART(x) NO(x)

@@ -1,5 +1,5 @@
-#ifndef RESTARTPARSINGPROCESSOR_H
-#define RESTARTPARSINGPROCESSOR_H
+#ifndef RESETPARSINGPROCESSOR_H
+#define RESETPARSINGPROCESSOR_H
 
 #include <QRegularExpression>
 
@@ -16,7 +16,10 @@ public:
 	virtual void process(class RequestManager *);
 
 private:
-	QRegularExpression _regexp;
+	QRegularExpression _dateTimeRegExp;
+	int _memorySize,
+		_memoryPercentage; // stored as absolute (recomputed!) memory limit [bytes]
+
 };
 
-#endif // RESTARTPARSINGPROCESSOR_H
+#endif // RESETPARSINGPROCESSOR_H
