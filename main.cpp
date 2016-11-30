@@ -38,6 +38,7 @@
 #include "Commands/CommandDeleteFilter.h"
 #include "System/Reset.h"
 #include "System/TrueCandidates.h"
+#include "System/WatchdogController.h"
 
 
 #define STR(X) #X
@@ -121,6 +122,8 @@ int main(int argc, char *argv[])
 		DP_INIT("\tHost complies to IEEE 754.");
 	else
 		DP_INIT("\tHost does not comply to IEEE 754.");
+
+	new WatchdogController(qApp);
 
 	DP_INIT("\nMounted filesystems:");
 	foreach (QStorageInfo storageInfo, QStorageInfo::mountedVolumes()) {

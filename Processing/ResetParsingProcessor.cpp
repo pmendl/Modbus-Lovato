@@ -13,15 +13,15 @@
  * @class RestartParsingProcessor
  * @brief Allows for activation of soft-reset based on date/time and free memory
  *
- * There are three possible values in the INI file:
+ * There are three possible values for the respective parser group in the INI file:
  * -# **dateTimeRegExp**<br>
  * If present, the following two memory requirements are only
- * evaluated, if the pattern matches against current date/time.
- * format used for comparison is "dd-MM-yyyy HH:mm:ss"
+ * evaluated, if the pattern given here matches against the current date/time
+ * represented in the "dd-MM-yyyy HH:mm:ss" format.
  * -# **memorySize**<br>
- * Requires minimal value of free memory, expressed as absolute value in bytes.
+ * If present, requires the minimal value of free memory, expressed as absolute value in bytes.
  * -# **memoryPercentage**<br>
- * Requires minimal relative amount of free memory,
+ * If present, requires the minimal relative amount of free memory,
  * expressed as percents of the free memory ammount measured when the application
  * starts.<br>
  * <br>

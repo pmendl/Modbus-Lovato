@@ -13,7 +13,7 @@ INCLUDEPATH += /mnt/raspberry-rootfs/usr/include
 INCLUDEPATH += /home/pavel/local_work-Pavel/Qt/Raspberry/Compile_from_source/raspberry/qt-everywhere-opensource-src-5.5.1/qtserialport/include
 LIBS += -L/mnt/raspberry-rootfs/usr/local/Qt-5.5.1-raspberry/lib/ -lQt5SerialPort
 
-INSTALLS += target config test
+INSTALLS += target config services test
 
 #target.path = /home/pavel/Modbus
 target.path = /usr/local/bin/Modbus_binaries
@@ -25,6 +25,10 @@ test.files = Data/Test/*
 TEST_COMMAND_FILES_PATH = /usr/local/bin/Modbus_binaries/Test
 test.path = $$TEST_COMMAND_FILES_PATH
 DEFINES += TEST_COMMAND_FILES_PATH=$$TEST_COMMAND_FILES_PATH
+
+services.files = Data/RPi_services/*
+services.path = /etc/init.d
+
 
 SOURCES += main.cpp \
     Network/NetworkAccessBase.cpp \
@@ -59,7 +63,10 @@ SOURCES += main.cpp \
     System/Reset.cpp \
     System/PrioritiesCountingHash.cpp \
     System/TrueCandidates.cpp \
-    Processing/ResetParsingProcessor.cpp
+    Processing/ResetParsingProcessor.cpp \
+    System/WatchdogController.cpp \
+    System/GpioPin.cpp \
+    System/SignalisationController.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \
@@ -97,7 +104,10 @@ HEADERS += \
     System/Reset.h \
     System/PrioritiesCountingHash.h \
     System/TrueCandidates.h \
-    Processing/ResetParsingProcessor.h
+    Processing/ResetParsingProcessor.h \
+    System/WatchdogController.h \
+    System/GpioPin.h \
+    System/SignalisationController.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \
@@ -109,4 +119,5 @@ DISTFILES += \
     Data/Test/Delete.cmd \
     Data/Test/Replace.cmd \
     Data/Test/User.ini \
-    Data/Test/System.ini
+    Data/Test/System.ini \
+    Data/RPi_Services/gpio_18_27_userspace.sh
