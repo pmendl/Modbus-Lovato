@@ -63,6 +63,10 @@
 #define WATCHDOG_HEARTBEAT_PERIOD_KEY "period"
 #define WATCHDOG_HEARTBEAT_PERIOD_DEFAULT 0 // [ms] Zero means run on each event loop idle
 
+// --- Signalization (LED to user) related ---
+#define SIGNALISATION_GROUP_KEY "Signalisation"
+#define SIGNALISATION_HEARTBEAT_GPIO_KEY "httpPin"
+
 // --- Server related ---
 #define SERVER_PANIC_CONNECTIONS_GROUP_KEY "PanicConnections"
 #define SERVER_PANIC_CONNECTIONS_URL_KEY "url"

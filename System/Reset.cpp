@@ -10,6 +10,7 @@
 #include "System/TrueCandidates.h"
 #include HTTP_MULTI_PART_INCLUDE
 #include "Network/NetworkSender.h"
+#include "System/SignalisationController.h"
 
 
 namespace System {
@@ -38,6 +39,9 @@ void resetEnforce(void) {
 }
 
 bool startResetSensitiveProcess(int priority) {
+	if(priority == RESET_PRIORITY_NETWORK)
+		SignalisationController::setHttpStatus(true);
+
 	if(		(!_resetInProgress)							// No reset in progress => no problem
 			|| priority == RESET_PRIORITY_NETWORK		// NETWORK CAN TRANSMIT ALLWAYS
 			|| resetBlockers.maxPriority() > priority)  // While waiting for slower process faster can still start
@@ -52,6 +56,8 @@ bool startResetSensitiveProcess(int priority) {
 
 void endResetSensitiveProcess(int priority) {
 	resetBlockers.endPriority(priority);
+	if(!resetBlockers.contains(RESET_PRIORITY_NETWORK))
+		SignalisationController::setHttpStatus(false);
 	if(_resetInProgress) {
 		DP_RESET_SHOW_BLOCKERS(resetBlockers);
 		if(resetBlockers.isEmpty())

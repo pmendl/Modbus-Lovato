@@ -45,7 +45,7 @@ void NetworkAccessBase::readPanicConnections() {
 	}
 	settings.endArray();
 
-	DP_PANIC("\tNetworkSender's panic connection URLs =" << _panicUrlList);
+	DP_PANIC("NetworkSender's panic connection URLs =" << _panicUrlList);
 }
 
 QNetworkAccessManager* NetworkAccessBase::_networkAccessManager = 0;
