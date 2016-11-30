@@ -55,6 +55,8 @@
 // --- Reset processing related ---
 #define RESET_GROUP_KEY "Reset"
 #define RESET_FORCED_TIMEOUT_KEY "timeout" // in seconds
+#define RESET_NOTIFICATION_LOG_KEY "log"
+#define RESET_NOTIFICATION_LOG_DEFAULT "Common.log"
 #define RESET_NOTIFICATION_URL_KEY "notificationUrl"
 
 // --- Watchdog related ---
@@ -109,7 +111,7 @@
 #define REQUEST_PARSING_TYPE_VALUE_POST post
 #define REQUEST_PARSING_TYPE_VALUE_LOG log
 #define REQUEST_PARSING_TYPE_VALUE_MEMORY memory
-#define REQUEST_PARSING_TYPE_VALUE_RESTART restart
+#define REQUEST_PARSING_TYPE_VALUE_RESET reset
 #define REQUEST_PARSING_OCCURANCE_KEY "occurance"
 #define REQUEST_PARSING_OCCURANCE_DEFAULT 1
 

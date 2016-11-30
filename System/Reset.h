@@ -39,14 +39,8 @@ protected:
 	virtual bool eventFilter(QObject *, QEvent *event);
 
 private:
-//	QSettings settings;
-//	QUrl _resetNotifyUrl;
+	QString _logName;
 	class NetworkSender *_sender;
-
-	//(NetworkSender::parseUrl(settings.value(QStringLiteral(RESET_GROUP_KEY "/" RESET_NOTIFICATION_URL_KEY)).toString().toLower()));
-
-
-
 };
 
 

@@ -87,7 +87,7 @@ QSharedPointer<ParsingProcessor> ProcessingManager::processor(QSettings *setting
 		p.reset(new LogParsingProcessor(settings, group, _logServer));
 	else if(settings->value(REQUEST_PARSING_TYPE_KEY) == xstr(REQUEST_PARSING_TYPE_VALUE_MEMORY))
 		p.reset(new MemoryParsingProcessor(settings));
-	else if(settings->value(REQUEST_PARSING_TYPE_KEY) == xstr(REQUEST_PARSING_TYPE_VALUE_RESTART))
+	else if(settings->value(REQUEST_PARSING_TYPE_KEY) == xstr(REQUEST_PARSING_TYPE_VALUE_RESET))
 		p.reset(new RestartParsingProcessor(settings));
 
 	if(!p.isNull() && p->isValid()) {

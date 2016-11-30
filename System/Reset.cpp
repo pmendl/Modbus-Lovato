@@ -11,7 +11,11 @@
 #include HTTP_MULTI_PART_INCLUDE
 #include "Network/NetworkSender.h"
 #include "System/SignalisationController.h"
+#include "Processing/ProcessingManager.h"
 
+
+// Instantiated in main.h
+extern QSharedPointer<ProcessingManager> processingManager;
 
 namespace System {
 
@@ -81,7 +85,10 @@ InitiateResetEventFilter::InitiateResetEventFilter() :
 	_sender(0)
 {
 	QSettings settings;
+	_logName=settings.value(RESET_GROUP_KEY "/" RESET_NOTIFICATION_LOG_KEY).toString(),
+									  QStringLiteral(RESET_NOTIFICATION_LOG_DEFAULT);
 	QUrl url=(NetworkSender::parseUrl(settings.value(RESET_GROUP_KEY "/" RESET_NOTIFICATION_URL_KEY).toString()));
+
 	if(url.isValid())
 		_sender = new NetworkSender(url);
 }
@@ -94,10 +101,12 @@ bool InitiateResetEventFilter::eventFilter(QObject *, QEvent *event)
 		System::_resetInProgress=true;
 		DP_RESET("RESET INITED: reason=" << reason);
 
+		processingManager->logServer()->log(_logName, "RESET INITED: reason="+reason);
+
 		HTTP_MULTI_PART_USED *multipart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
 		multipart->appendFormData(QStringLiteral(POST_ELEMENT_RESET_INIT_KEY), reason);
 #warning Server does NOT work with (ignores) values containing apostrophe
-		multipart->appendFormData(QStringLiteral("apostropheTest"), "O 'K'");
+//		multipart->appendFormData(QStringLiteral("apostropheTest"), "O 'K'");
 		if(_sender) {
 			DP_RESET_DETAILS("RESET NOTIFICATION:" << reason << "->" << _sender->defaultSlotUrl().url());
 			_sender->sendMultipart(multipart);

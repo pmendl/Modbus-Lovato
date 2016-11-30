@@ -25,7 +25,6 @@ SignalisationController::SignalisationController(QObject *parent) : QObject(pare
 void SignalisationController::setHttpStatus(bool status) {
 	if(!_httpGpio.isNull()) {
 		_httpGpio->setValue(status);
-		MARK("HTTP status:" << status);
 	}
 }
 
