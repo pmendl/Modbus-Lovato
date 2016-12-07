@@ -75,7 +75,7 @@ void RestartParsingProcessor::process(class RequestManager *)
 		}
 
 		if(!reason.isEmpty()) {
-			System::resetInitiate(reason);
+			System::resetInitiate(System::normalReset, reason);
 		}
 	}
 }

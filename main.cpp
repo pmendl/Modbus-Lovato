@@ -394,7 +394,7 @@ GROUP=\"Gr.*_.?\"\n\
 
 	case 'I': // Initiate reset
 	{
-		System::resetInitiate("Keypress \"I\"");
+		System::resetInitiate(System::normalReset, "Keypress \"I\"");
 	}
 		break;
 

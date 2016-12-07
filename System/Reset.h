@@ -10,7 +10,13 @@
 
 namespace System {
 
-void resetInitiate(QString reason);
+typedef enum {
+	noReset,
+	normalReset,
+	powerdownReset
+} resetState_t;
+
+void resetInitiate(resetState_t state, QString reason);
 void resetEnforce(void);
 bool startResetSensitiveProcess(int priority);
 void endResetSensitiveProcess(int priority);
@@ -23,8 +29,9 @@ extern const int executeResetEventType;
 class InitiateResetEvent : public QEvent
 {
 public:
-	InitiateResetEvent(QString reason);
+	InitiateResetEvent(System::resetState_t state, QString reason);
 
+	const System::resetState_t _state;
 	const QString _reason;
 };
 

@@ -20,21 +20,39 @@ extern QSharedPointer<ProcessingManager> processingManager;
 namespace System {
 
 PrioritiesCountingHash resetBlockers;
-bool _resetInProgress(false);
+resetState_t _resetInProgressState(noReset);
 
 
-void resetInitiate(QString reason) {
-	InitiateResetEvent event(reason);
+void resetInitiate(resetState_t state, QString reason) {
+	InitiateResetEvent event(state, reason);
 	qApp->sendEvent(qApp, &event);
 }
 
 void resetExecute(void)	{
-	DP_RESET("RESET EXECUTE");
+	const char * command("sudo reboot");
 	QSettings settings;
-	if(!trueCandidates.contains(settings.value(QStringLiteral(DEBUG_GROUP_KEY "/" DEBUG_SUPPRESS_RESET_KEY)).toString().toLower())) {
-		system("sudo reboot");
-		exit(1);
+	switch ( _resetInProgressState) {
+	case noReset:
+		command = "";
+		break;
+
+	case normalReset:
+		if(trueCandidates.contains(settings.value(QStringLiteral(DEBUG_GROUP_KEY "/" DEBUG_SUPPRESS_RESET_KEY)).toString().toLower())) {
+			command= "";
+		};
+		break;
+
+	case powerdownReset:
+		command = "sudo poweroff";
+		break;
+
+	default:
+		break;
 	}
+	DP_RESET("RESET EXECUTE (" << _resetInProgressState << "):" << command);
+
+	system(command);
+	exit(1);
 }
 
 void resetEnforce(void) {
@@ -46,12 +64,12 @@ bool startResetSensitiveProcess(int priority) {
 	if(priority == RESET_PRIORITY_NETWORK)
 		SignalisationController::setHttpStatus(true);
 
-	if(		(!_resetInProgress)							// No reset in progress => no problem
+	if(		(!_resetInProgressState != noReset)							// No reset in progress => no problem
 			|| priority == RESET_PRIORITY_NETWORK		// NETWORK CAN TRANSMIT ALLWAYS
 			|| resetBlockers.maxPriority() > priority)  // While waiting for slower process faster can still start
 	{
 		resetBlockers.startPriority(priority);
-		if(_resetInProgress)
+		if(_resetInProgressState != noReset)
 			DP_RESET_SHOW_BLOCKERS(resetBlockers);
 		return true;
 	}
@@ -62,7 +80,7 @@ void endResetSensitiveProcess(int priority) {
 	resetBlockers.endPriority(priority);
 	if(!resetBlockers.contains(RESET_PRIORITY_NETWORK))
 		SignalisationController::setHttpStatus(false);
-	if(_resetInProgress) {
+	if(_resetInProgressState != noReset) {
 		DP_RESET_SHOW_BLOCKERS(resetBlockers);
 		if(resetBlockers.isEmpty())
 			resetExecute();
@@ -76,8 +94,9 @@ const int executeResetEventType(QEvent::registerEventType());
 } // System
 
 
-InitiateResetEvent::InitiateResetEvent(QString reason) :
+InitiateResetEvent::InitiateResetEvent(System::resetState_t state, QString reason) :
 	QEvent(static_cast<QEvent::Type>(System::initiateResetEventType)),
+	_state(state),
 	_reason(reason)
 {}
 
@@ -96,9 +115,10 @@ InitiateResetEventFilter::InitiateResetEventFilter() :
 bool InitiateResetEventFilter::eventFilter(QObject *, QEvent *event)
 {
 	if(event->type() == System::initiateResetEventType) {
-		QString reason(static_cast<InitiateResetEvent *>(event)->_reason);
+		InitiateResetEvent *resetEvent(static_cast<InitiateResetEvent *>(event));
+		QString reason(resetEvent->_reason);
 
-		System::_resetInProgress=true;
+		System::_resetInProgressState=resetEvent->_state;
 		DP_RESET("RESET INITED: reason=" << reason);
 
 		processingManager->logServer()->log(_logName, "RESET INITED: reason="+reason);
