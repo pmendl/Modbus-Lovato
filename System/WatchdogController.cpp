@@ -5,6 +5,7 @@
 #include "Debug/DebugMacros.h"
 #include "Globals.h"
 #include "System/GpioPin.h"
+#include "System/Reset.h"
 
 WatchdogController::WatchdogController(QObject *parent) :
 	QObject(parent)
@@ -56,8 +57,11 @@ void WatchdogController::onTimer()
 	if(!_watchdogGpio.isNull())
 		_watchdogGpio->setValue(_currentState);
 
-	if((!_powerdownGpio.isNull()) && (_powerdownGpio->read() == 0))
+	if((!_powerdownGpio.isNull()) && (_powerdownGpio->read() == 0)) {
 		CHECKPOINT("Powerdown ACTIVE");
+		System::resetInitiate(System::powerdownReset,"Watchdog powerdown reset");
+	}
+
 
 
 //	CHECKPOINT("Heartbeat" << _currentState);
