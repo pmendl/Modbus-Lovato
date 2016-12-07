@@ -24,6 +24,9 @@ resetState_t _resetInProgressState(noReset);
 
 
 void resetInitiate(resetState_t state, QString reason) {
+	if(state == _resetInProgressState)
+		return;
+
 	InitiateResetEvent event(state, reason);
 	qApp->sendEvent(qApp, &event);
 }
@@ -63,9 +66,10 @@ void resetEnforce(void) {
 bool startResetSensitiveProcess(int priority) {
 	if(priority == RESET_PRIORITY_NETWORK)
 		SignalisationController::setHttpStatus(true);
+	if(_resetInProgressState == powerdownReset)
+		return false; // No process may start during powerdown reset
 
-	if(		(!_resetInProgressState != noReset)							// No reset in progress => no problem
-			|| priority == RESET_PRIORITY_NETWORK		// NETWORK CAN TRANSMIT ALLWAYS
+	if(		(_resetInProgressState == noReset)			// No reset in progress => no problem
 			|| resetBlockers.maxPriority() > priority)  // While waiting for slower process faster can still start
 	{
 		resetBlockers.startPriority(priority);
@@ -118,11 +122,6 @@ bool InitiateResetEventFilter::eventFilter(QObject *, QEvent *event)
 		InitiateResetEvent *resetEvent(static_cast<InitiateResetEvent *>(event));
 		QString reason(resetEvent->_reason);
 
-		System::_resetInProgressState=resetEvent->_state;
-		DP_RESET("RESET INITED: reason=" << reason);
-
-		processingManager->logServer()->log(_logName, "RESET INITED: reason="+reason);
-
 		HTTP_MULTI_PART_USED *multipart(new HTTP_MULTI_PART_USED(QHttpMultiPart::FormDataType));
 		multipart->appendFormData(QStringLiteral(POST_ELEMENT_RESET_INIT_KEY), reason);
 #warning Server does NOT work with (ignores) values containing apostrophe
@@ -131,6 +130,12 @@ bool InitiateResetEventFilter::eventFilter(QObject *, QEvent *event)
 			DP_RESET_DETAILS("RESET NOTIFICATION:" << reason << "->" << _sender->defaultSlotUrl().url());
 			_sender->sendMultipart(multipart);
 		}
+
+		System::_resetInProgressState=resetEvent->_state;
+		DP_RESET("RESET INITED: reason=" << reason);
+
+		processingManager->logServer()->log(_logName, "RESET INITED: reason="+reason);
+
 	}
 	return false;
 }
