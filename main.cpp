@@ -36,6 +36,7 @@
 #include "Commands/CommandCopyFilter.h"
 #include "Commands/CommandReplaceFilter.h"
 #include "Commands/CommandDeleteFilter.h"
+#include "Commands/CommandResetFilter.h"
 #include "System/Reset.h"
 #include "System/TrueCandidates.h"
 #include "System/WatchdogController.h"
@@ -96,6 +97,10 @@ void constructCommandFilters(QObject *parent)
 					 new CommandDeleteFilter(processingManager->logServer(), parent,
 											  printCommandReceived),
 					 &CommandDeleteFilter::onCommandReceived);
+	QObject::connect(&commandsProcessor, &CommandsProcessor::commandReceived,
+					 new CommandResetFilter(parent,
+											  printCommandReceived),
+					 &CommandResetFilter::onCommandReceived);
 
 }
 

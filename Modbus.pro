@@ -66,7 +66,8 @@ SOURCES += main.cpp \
     Processing/ResetParsingProcessor.cpp \
     System/WatchdogController.cpp \
     System/GpioPin.cpp \
-    System/SignalisationController.cpp
+    System/SignalisationController.cpp \
+    Commands/CommandResetFilter.cpp
 
 HEADERS += \
     Network/NetworkAccessBase.h \
@@ -107,7 +108,8 @@ HEADERS += \
     Processing/ResetParsingProcessor.h \
     System/WatchdogController.h \
     System/GpioPin.h \
-    System/SignalisationController.h
+    System/SignalisationController.h \
+    Commands/CommandResetFilter.h
 
 DISTFILES += \
     Data/Config/LovatoModbus.conf \
@@ -120,4 +122,5 @@ DISTFILES += \
     Data/Test/Replace.cmd \
     Data/Test/User.ini \
     Data/Test/System.ini \
-    Data/RPi_Services/gpio_18_27_userspace.sh
+    Data/RPi_Services/gpio_18_27_userspace.sh \
+    Data/Test/Reset.cmd

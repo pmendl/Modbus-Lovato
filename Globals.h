@@ -183,6 +183,10 @@
 // Uses SOURCE
 #define COMMAND_DELETE_VALUE "DELETE"
 
+// --- Reset command ---
+// Uses no parameters
+#define COMMAND_RESET_VALUE "RESET"
+
 // === Reset protection priority levels ===
 #define RESET_PRIORITY_IMMEDIATE 1
 #define RESET_PRIORITY_NETWORK 2
