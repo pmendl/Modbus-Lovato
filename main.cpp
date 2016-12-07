@@ -48,7 +48,6 @@
 
 QSharedPointer<ProcessingManager> processingManager;
 KeyboardScanner keyboardScanner;
-//NetworkSender sender(TEST_SERVER_HTTP);
 NetworkSender sender;
 
 CommandsProcessor commandsProcessor;
@@ -146,9 +145,9 @@ int main(int argc, char *argv[])
 
 #ifdef NO_AUTOMATIC_PROCESSING
 	#warning TESTING ONLY - managed by setting NO_AUTOMATIC_PROCESSING in Globals.h
-	processingManager.reset(new ProcessingManager(&a, true));
+	processingManager.reset(new ProcessingManager(true));
 #else
-	processingManager.reset(new ProcessingManager(&a));
+	processingManager.reset(new ProcessingManager());
 #endif
 	qApp->installEventFilter(processingManager.data());
 
