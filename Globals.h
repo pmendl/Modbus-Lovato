@@ -64,6 +64,7 @@
 #define WATCHDOG_HEARTBEAT_GPIO_KEY "heartbeatPin"
 #define WATCHDOG_HEARTBEAT_PERIOD_KEY "period"
 #define WATCHDOG_HEARTBEAT_PERIOD_DEFAULT 0 // [ms] Zero means run on each event loop idle
+#define WATCHDOG_POWERDOWN_GPIO_KEY "powerdownPin"
 
 // --- Signalization (LED to user) related ---
 #define SIGNALISATION_GROUP_KEY "Signalisation"

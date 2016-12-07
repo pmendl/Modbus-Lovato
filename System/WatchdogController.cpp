@@ -12,21 +12,37 @@ WatchdogController::WatchdogController(QObject *parent) :
 	QSettings settings;
 
 	int pin(settings.value(WATCHDOG_GROUP_KEY "/" WATCHDOG_HEARTBEAT_GPIO_KEY, QVariant(-1)).toInt());
-	if(pin <= 0 ) return;
+	if(pin > 0 ) {
+		_watchdogGpio.reset(new GpioPin(pin));
+		if(!_watchdogGpio->isOutput()) {
+			_watchdogGpio.reset();
+		}
+	}
 
-	_watchdogGpio.reset(new GpioPin(pin));
-	if(!_watchdogGpio->isOutput()) {
-		_watchdogGpio.reset();
-		return;
+	pin = settings.value(WATCHDOG_GROUP_KEY "/" WATCHDOG_POWERDOWN_GPIO_KEY, QVariant(-1)).toInt();
+	if(pin > 0 ) {
+		_powerdownGpio.reset(new GpioPin(pin));
+		if(!_powerdownGpio->isInput()) {
+			_powerdownGpio.reset();
+		}
 	}
 
 	int period(settings.value(WATCHDOG_GROUP_KEY "/" WATCHDOG_HEARTBEAT_PERIOD_KEY,
 							  WATCHDOG_HEARTBEAT_PERIOD_DEFAULT).toInt());
 
-	DP_INIT("\nStarting watchdog on pin" << pin << "with period" << period << ".");
+	if((!_watchdogGpio.isNull()) || (!_powerdownGpio.isNull())) {
 
-	connect(&_timer, &QTimer::timeout, this, &WatchdogController::onTimer);
-	_timer.start(period);
+		DP_INIT("\nStarting watchdog with period" << period << ":");
+		if(!_watchdogGpio.isNull())
+			DP_INIT("\tHeartbeat on pin" << _watchdogGpio->nr());
+
+		if(!_watchdogGpio.isNull())
+			DP_INIT("\tPoweroff detection on pin" << _powerdownGpio->nr());
+
+
+		connect(&_timer, &QTimer::timeout, this, &WatchdogController::onTimer);
+		_timer.start(period);
+	}
 }
 
 void WatchdogController::onTimer()
@@ -37,6 +53,12 @@ void WatchdogController::onTimer()
 	else
 		_currentState = true;
 
-	_watchdogGpio->setValue(_currentState);
+	if(!_watchdogGpio.isNull())
+		_watchdogGpio->setValue(_currentState);
+
+	if((!_powerdownGpio.isNull()) && (_powerdownGpio->read() == 0))
+		CHECKPOINT("Powerdown ACTIVE");
+
+
 //	CHECKPOINT("Heartbeat" << _currentState);
 }

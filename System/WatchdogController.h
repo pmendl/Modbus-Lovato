@@ -18,7 +18,7 @@ private slots:
 	void onTimer();
 
 private:
-	QSharedPointer<class GpioPin> _watchdogGpio;
+	QSharedPointer<class GpioPin> _watchdogGpio, _powerdownGpio;
 	bool _currentState;
 	QTimer _timer;
 };
